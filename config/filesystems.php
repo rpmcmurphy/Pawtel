@@ -41,10 +41,24 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
+        ],
+
+        'booking_documents' => [
+            'driver' => 'local',
+            'root' => storage_path('app/booking_documents'),
+            'url' => env('APP_URL') . '/storage/booking_documents',
+            'visibility' => 'private',
+        ],
+
+        'product_images' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/product_images'),
+            'url' => env('APP_URL') . '/storage/product_images',
+            'visibility' => 'public',
         ],
 
         's3' => [

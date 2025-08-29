@@ -89,7 +89,7 @@ return [
             'handler_with' => [
                 'host' => env('PAPERTRAIL_URL'),
                 'port' => env('PAPERTRAIL_PORT'),
-                'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
+                'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
             ],
             'processors' => [PsrLogMessageProcessor::class],
         ],
@@ -127,6 +127,27 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        // Custom channels for Pawtel
+        'booking' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/booking.log'),
+            'level' => 'info',
+            'days' => 30,
+        ],
+
+        'order' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/order.log'),
+            'level' => 'info',
+            'days' => 30,
+        ],
+
+        'api' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/api.log'),
+            'level' => 'debug',
+            'days' => 7,
+        ],
     ],
 
 ];

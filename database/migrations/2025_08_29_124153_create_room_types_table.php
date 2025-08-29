@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('room_types', function (Blueprint $table) {
             $table->id();
-            $table->id();
             $table->string('name'); // Single/Double/Family
             $table->string('slug')->unique();
             $table->decimal('base_daily_rate', 10, 2);

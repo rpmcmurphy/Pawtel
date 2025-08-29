@@ -19,7 +19,6 @@ Route::get('/', function () {
     return response()->json([
         'name' => 'Pawtel API',
         'version' => '1.0.0',
-        'documentation' => config('app.url') . '/api/documentation'
     ]);
 });
 

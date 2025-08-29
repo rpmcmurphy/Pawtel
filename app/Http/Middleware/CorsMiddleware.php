@@ -22,6 +22,7 @@ class CorsMiddleware
         $response->headers->set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, X-Token-Auth, Authorization');
         $response->headers->set('Access-Control-Allow-Credentials', 'true');
 
-        return $next($request);
+        // return $next($request);
+        return $response;
     }
 }

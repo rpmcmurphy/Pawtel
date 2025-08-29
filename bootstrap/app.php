@@ -9,6 +9,7 @@ use App\Http\Middleware\LogApiRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\HandleCors;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
@@ -21,9 +22,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->append([
-            CorsMiddleware::class,
-        ]);
+        // $middleware->append([
+        // HandleCors::class,
+        // CorsMiddleware::class,
+        // ]);
+
+        $middleware->prepend(HandleCors::class);
+
+        // $middleware->appendToGroup('api', HandleCors::class);
 
         $middleware->web(append: []);
 

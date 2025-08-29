@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->string('group');
-            $table->string('key');
+            $table->string('group', 100);
+            $table->string('key', 90);
             $table->text('value')->nullable();
             $table->enum('type', ['string', 'json', 'boolean', 'integer'])->default('string');
             $table->timestamps();
