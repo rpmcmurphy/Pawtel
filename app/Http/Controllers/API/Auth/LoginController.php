@@ -38,9 +38,9 @@ class LoginController extends Controller
             $token = $user->createToken('auth_token')->plainTextToken;
 
             // Log the login activity
-            activity()
-                ->causedBy($user)
-                ->log('User logged in');
+            // activity()
+            //     ->causedBy($user)
+            //     ->log('User logged in');
 
             return response()->json([
                 'success' => true,
@@ -78,9 +78,9 @@ class LoginController extends Controller
             // Delete current token
             $user->currentAccessToken()->delete();
 
-            activity()
-                ->causedBy($user)
-                ->log('User logged out');
+            // activity()
+            //     ->causedBy($user)
+            //     ->log('User logged out');
 
             return response()->json([
                 'success' => true,

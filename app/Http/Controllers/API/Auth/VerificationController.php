@@ -35,10 +35,10 @@ class VerificationController extends Controller
                 event(new Verified($user));
             }
 
-            activity()
-                ->causedBy($user)
-                ->performedOn($user)
-                ->log('Email verified');
+            // activity()
+            //     ->causedBy($user)
+            //     ->performedOn($user)
+            //     ->log('Email verified');
 
             return response()->json([
                 'success' => true,
@@ -134,10 +134,10 @@ class VerificationController extends Controller
             $user->update(['phone_verified_at' => now()]);
             cache()->forget("phone_otp_{$user->id}");
 
-            activity()
-                ->causedBy($user)
-                ->performedOn($user)
-                ->log('Phone verified');
+            // activity()
+            //     ->causedBy($user)
+            //     ->performedOn($user)
+            //     ->log('Phone verified');
 
             return response()->json([
                 'success' => true,

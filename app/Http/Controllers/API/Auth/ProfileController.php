@@ -65,10 +65,10 @@ class ProfileController extends Controller
 
             $user->update($updateData);
 
-            activity()
-                ->causedBy($user)
-                ->performedOn($user)
-                ->log('Profile updated');
+            // activity()
+            //     ->causedBy($user)
+            //     ->performedOn($user)
+            //     ->log('Profile updated');
 
             return response()->json([
                 'success' => true,
@@ -115,10 +115,10 @@ class ProfileController extends Controller
             // Delete all tokens to force re-login
             $user->tokens()->delete();
 
-            activity()
-                ->causedBy($user)
-                ->performedOn($user)
-                ->log('Password changed');
+            // activity()
+            //     ->causedBy($user)
+            //     ->performedOn($user)
+            //     ->log('Password changed');
 
             return response()->json([
                 'success' => true,

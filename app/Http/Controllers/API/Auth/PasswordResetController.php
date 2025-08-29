@@ -58,10 +58,10 @@ class PasswordResetController extends Controller
 
                     event(new PasswordReset($user));
 
-                    activity()
-                        ->causedBy($user)
-                        ->performedOn($user)
-                        ->log('Password reset via email');
+                    // activity()
+                    //     ->causedBy($user)
+                    //     ->performedOn($user)
+                    //     ->log('Password reset via email');
                 }
             );
 
