@@ -2,6 +2,7 @@
 
 namespace App\Services\Web;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 class AuthService extends ApiService
@@ -14,7 +15,17 @@ class AuthService extends ApiService
         //     return $csrfResponse;
         // }
 
+        Log::info('AuthService login called', [
+            'base_url' => $this->baseUrl,
+            'endpoint' => 'auth/login'
+        ]);
+
         $response = $this->post('auth/login', $credentials);
+
+        Log::info('Login API Response', [
+            'success' => $response['success'] ?? false,
+            'status' => $response['status'] ?? 'unknown'
+        ]);
 
         if ($response['success']) {
             // $data = $response['data'];

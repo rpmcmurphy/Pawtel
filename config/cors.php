@@ -5,9 +5,9 @@ return [
         'api/*',
         'sanctum/csrf-cookie',
         // 'auth/*',
-        'auth/login',
-        'auth/register',
-        'auth/logout'
+        // 'auth/login',
+        // 'auth/register',
+        // 'auth/logout'
     ],
     'allowed_methods' => ['*'],
     'allowed_origins' => [

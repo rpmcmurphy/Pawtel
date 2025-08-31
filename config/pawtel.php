@@ -2,7 +2,7 @@
 
 return [
     'api' => [
-        'base_url' => env('PAWTEL_API_URL', 'http://localhost:8000/api'),
+        'base_url' => env('PAWTEL_API_URL', 'http://furbabiessafety.local/api'),
         'timeout' => env('PAWTEL_API_TIMEOUT', 30),
     ],
 

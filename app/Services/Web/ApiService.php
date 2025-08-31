@@ -14,7 +14,10 @@ class ApiService
 
     public function __construct()
     {
-        $this->baseUrl = config('pawtel.api.base_url', config('app.url') . '/api');
+        $this->baseUrl = rtrim(config('pawtel.api.base_url', config('app.url') . '/api'), '/');
+
+        // Log the base URL to debug
+        Log::info('ApiService Base URL: ' . $this->baseUrl);
 
         $this->client = new Client([
             'base_uri' => $this->baseUrl,
