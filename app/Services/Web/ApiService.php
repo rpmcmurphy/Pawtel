@@ -14,13 +14,14 @@ class ApiService
 
     public function __construct()
     {
-        $this->baseUrl = config('pawtel.api.base_url');
+        $this->baseUrl = config('pawtel.api.base_url', config('app.url') . '/api');
         $this->client = new Client([
             'base_uri' => $this->baseUrl,
-            'timeout' => config('pawtel.api.timeout'),
+            'timeout' => config('pawtel.api.timeout', 30),
             'headers' => [
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
+                'X-Requested-With' => 'XMLHttpRequest',
             ]
         ]);
     }

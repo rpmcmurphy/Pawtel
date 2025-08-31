@@ -31,18 +31,41 @@ class ApiHelper
         ];
     }
 
+    // public static function getAuthHeaders()
+    // {
+    //     $token = session('api_token');
+
+    //     return $token ? [
+    //         'Authorization' => 'Bearer ' . $token,
+    //         'Accept' => 'application/json',
+    //         'Content-Type' => 'application/json',
+    //     ] : [
+    //         'Accept' => 'application/json',
+    //         'Content-Type' => 'application/json',
+    //     ];
+    // }
+
     public static function getAuthHeaders()
     {
         $token = session('api_token');
-
-        return $token ? [
-            'Authorization' => 'Bearer ' . $token,
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-        ] : [
+        $headers = [
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         ];
+
+        if ($token) {
+            $headers['Authorization'] = 'Bearer ' . $token;
+        }
+
+        // Add CSRF token for same-origin requests
+        if (request() && request()->hasSession()) {
+            $csrfToken = csrf_token();
+            if ($csrfToken) {
+                $headers['X-CSRF-TOKEN'] = $csrfToken;
+            }
+        }
+
+        return $headers;
     }
 
     public static function formatCurrency($amount)
