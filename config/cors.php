@@ -1,6 +1,7 @@
 <?php
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    // 'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'auth/*'],
     'allowed_methods' => ['*'],
     'allowed_origins' => [
         'http://localhost:3000',
@@ -9,6 +10,7 @@ return [
         'https://furbabiessafety.com',
         'https://www.furbabiessafety.com',
         'https://app.furbabiessafety.com',
+        'http://furbabiessafety.local',
     ],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],

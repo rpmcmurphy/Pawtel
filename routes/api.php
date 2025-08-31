@@ -67,8 +67,8 @@ Route::prefix('auth')->group(function () {
     Route::post('reset-password', [PasswordResetController::class, 'resetPassword']);
 
     // Email Verification
-    Route::get('verify-email/{id}/{hash}', [VerificationController::class, 'verify'])
-        ->name('verification.verify');
+    // Route::get('verify-email/{id}/{hash}', [VerificationController::class, 'verify'])
+    //     ->name('verification.verify');
 });
 
 // Public Shop Routes
@@ -106,7 +106,6 @@ Route::prefix('availability')->group(function () {
 */
 
 Route::middleware('auth:sanctum')->group(function () {
-
     // Auth Management
     Route::prefix('auth')->group(function () {
         Route::post('logout', [LoginController::class, 'logout']);
