@@ -1,0 +1,172 @@
+// ==========================================
+// TYPOGRAPHY STYLES
+// ==========================================
+
+// Import Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;400;700;800&family=Delius:wght@400&display=swap');
+
+// Headings
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: $font-family-heading;
+    font-weight: $font-weight-bold;
+    line-height: 1.2;
+    margin-bottom: $spacing-sm;
+    color: $dark;
+
+    &.text-gradient {
+        @include text-gradient;
+    }
+}
+
+h1 {
+    @include heading('2xl');
+
+    @include respond-to('md') {
+        font-size: $font-size-5xl;
+    }
+}
+
+h2 {
+    @include heading('xl');
+}
+
+h3 {
+    @include heading('lg');
+}
+
+h4 {
+    @include heading('md');
+}
+
+h5 {
+    @include heading('sm');
+}
+
+h6 {
+    @include heading('xs');
+}
+
+// Paragraphs and text
+p {
+    margin-bottom: $spacing-md;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    &.lead {
+        font-size: $font-size-lg;
+        font-weight: $font-weight-medium;
+    }
+
+    &.text-muted {
+        color: var(--gray-600);
+    }
+}
+
+// Links
+a {
+    color: $primary;
+    text-decoration: none;
+    transition: color 0.3s ease;
+
+    &:hover {
+        color: $secondary;
+        text-decoration: underline;
+    }
+
+    &:focus {
+        outline: 2px solid rgba(236, 72, 153, 0.3);
+        outline-offset: 2px;
+    }
+}
+
+// Lists
+ul,
+ol {
+    margin-bottom: $spacing-md;
+    padding-left: $spacing-lg;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    li {
+        margin-bottom: $spacing-xs;
+    }
+}
+
+.list-unstyled {
+    list-style: none;
+    padding-left: 0;
+}
+
+// Text utilities
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-primary {
+    color: $primary !important;
+}
+
+.text-secondary {
+    color: $secondary !important;
+}
+
+.text-success {
+    color: $success !important;
+}
+
+.text-danger {
+    color: $danger !important;
+}
+
+.text-warning {
+    color: $warning !important;
+}
+
+.text-info {
+    color: $info !important;
+}
+
+.text-muted {
+    color: var(--gray-600) !important;
+}
+
+.text-white {
+    color: $white !important;
+}
+
+.fw-light {
+    font-weight: $font-weight-light !important;
+}
+
+.fw-normal {
+    font-weight: $font-weight-normal !important;
+}
+
+.fw-medium {
+    font-weight: $font-weight-medium !important;
+}
+
+.fw-semibold {
+    font-weight: $font-weight-semibold !important;
+}
+
+.fw-bold {
+    font-weight: $font-weight-bold !important;
+}

@@ -1,0 +1,140 @@
+.hero-section {
+    padding: 100px 0 80px;
+    background: linear-gradient(135deg, $light 0%, $white 100%);
+    position: relative;
+    overflow: hidden;
+
+    .hero-content {
+        .hero-subtitle {
+            font-size: $font-size-lg;
+            color: $secondary;
+            font-weight: $font-weight-bold;
+            margin-bottom: $spacing-md;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-family: $font-family-heading;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: $font-weight-extrabold;
+            margin-bottom: $spacing-lg;
+            line-height: 1.1;
+            font-family: $font-family-heading;
+            @include text-gradient;
+
+            @include respond-to('md') {
+                font-size: 4rem;
+            }
+        }
+
+        .hero-description {
+            font-size: $font-size-lg;
+            margin-bottom: $spacing-xl;
+            color: var(--gray-700);
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: $spacing-md;
+            flex-wrap: wrap;
+
+            @include respond-to('sm') {
+                flex-wrap: nowrap;
+            }
+        }
+    }
+
+    .hero-image {
+        position: relative;
+
+        img {
+            box-shadow: $shadow-xl;
+            transition: transform 0.3s ease;
+
+            &:hover {
+                transform: scale(1.05);
+            }
+        }
+    }
+}
+
+.services-section {
+    background: $white;
+
+    .section-title {
+        @include heading('xl');
+        margin-bottom: $spacing-sm;
+        text-align: center;
+        @include text-gradient;
+    }
+
+    .section-subtitle {
+        color: var(--gray-600);
+        font-size: $font-size-lg;
+        text-align: center;
+        margin-bottom: $spacing-2xl;
+    }
+}
+
+.featured-products {
+    .section-title {
+        @include heading('xl');
+        margin-bottom: $spacing-sm;
+        @include text-gradient;
+    }
+
+    .section-subtitle {
+        color: var(--gray-600);
+        font-size: $font-size-lg;
+        margin-bottom: $spacing-2xl;
+    }
+}
+
+.cta-section {
+    background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+    color: $white;
+    text-align: center;
+
+    .cta-title {
+        @include heading('xl');
+        color: $white;
+        margin-bottom: $spacing-md;
+    }
+
+    .cta-description {
+        font-size: $font-size-lg;
+        margin-bottom: $spacing-xl;
+        opacity: 0.9;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: $spacing-md;
+        justify-content: center;
+        flex-wrap: wrap;
+
+        .btn {
+            color: $primary;
+            background: $white;
+            border-color: $white;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.9);
+                transform: translateY(-3px);
+            }
+
+            &.btn-outline-primary {
+                color: $white;
+                background: transparent;
+                border-color: $white;
+
+                &:hover {
+                    background: $white;
+                    color: $primary;
+                }
+            }
+        }
+    }
+}

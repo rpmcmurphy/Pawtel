@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\AdminWebMiddleware;
 use App\Http\Middleware\CheckUserStatus;
 use App\Http\Middleware\CorsMiddleware;
 use App\Http\Middleware\CustomerMiddleware;
 use App\Http\Middleware\JsonResponseMiddleware;
 use App\Http\Middleware\LogApiRequests;
+use App\Http\Middleware\WebAuthMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -45,6 +47,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
             'customer' => CustomerMiddleware::class,
             'active' => CheckUserStatus::class,
+            'auth.web' => WebAuthMiddleware::class,
+            'admin.web' => AdminWebMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

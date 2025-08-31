@@ -1,0 +1,133 @@
+// ==========================================
+// HEADER LAYOUT
+// ==========================================
+
+.main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: $z-index-fixed;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: $shadow;
+    transition: all 0.3s ease;
+
+    .navbar {
+        padding: $spacing-md 0;
+
+        .navbar-brand.logo {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+            font-family: $font-family-heading;
+            font-weight: $font-weight-extrabold;
+            font-size: $font-size-2xl;
+            color: $primary;
+            text-decoration: none;
+            text-shadow: 2px 2px 0px rgba(251, 191, 36, 0.3);
+
+            &:hover {
+                color: $secondary;
+                text-decoration: none;
+            }
+
+            .logo-icon {
+                color: $secondary;
+                font-size: $font-size-3xl;
+                transform: rotate(-15deg);
+                transition: transform 0.3s ease;
+            }
+
+            &:hover .logo-icon {
+                transform: rotate(-30deg) scale(1.1);
+            }
+        }
+
+        .navbar-toggler {
+            border: none;
+            padding: $spacing-xs;
+            color: $primary;
+            font-size: $font-size-xl;
+
+            &:focus {
+                box-shadow: none;
+            }
+        }
+
+        .navbar-nav {
+            .nav-link {
+                font-family: $font-family-heading;
+                font-weight: $font-weight-medium;
+                color: $dark;
+                padding: $spacing-sm $spacing-md;
+                border-radius: $border-radius;
+                transition: all 0.3s ease;
+                position: relative;
+
+                &:hover,
+                &.active {
+                    color: $primary;
+                    background: rgba(236, 72, 153, 0.1);
+                    transform: translateY(-2px);
+                }
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 50%;
+                    width: 0;
+                    height: 3px;
+                    background: $accent;
+                    border-radius: $border-radius;
+                    transition: all 0.3s ease;
+                    transform: translateX(-50%);
+                }
+
+                &:hover::after,
+                &.active::after {
+                    width: 80%;
+                }
+            }
+
+            .dropdown-menu {
+                border: none;
+                box-shadow: $shadow-lg;
+                border-radius: $border-radius-lg;
+                padding: $spacing-sm;
+
+                .dropdown-item {
+                    border-radius: $border-radius;
+                    padding: $spacing-sm $spacing-md;
+                    color: $dark;
+                    display: flex;
+                    align-items: center;
+                    gap: $spacing-sm;
+
+                    &:hover {
+                        background: rgba(236, 72, 153, 0.1);
+                        color: $primary;
+                        transform: translateX(5px);
+                    }
+
+                    i {
+                        width: 18px;
+                    }
+                }
+            }
+        }
+
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+            gap: $spacing-xs;
+            color: $dark;
+            font-weight: $font-weight-medium;
+
+            &:hover {
+                color: $primary;
+            }
+        }
+    }
+}

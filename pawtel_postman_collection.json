@@ -1,0 +1,3527 @@
+{
+    "info": {
+        "_postman_id": "pawtel-api-collection-2025",
+        "name": "Pawtel API Collection",
+        "description": "Complete API collection for Pawtel - Pet Hotel Management System. This collection includes all API endpoints for authentication, bookings, shop, community, and admin functionalities.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "pawtel-api",
+        "_collection_link": "https://pawtel-api.com/postman"
+    },
+    "item": [
+        {
+            "name": "Health Check",
+            "item": [
+                {
+                    "name": "API Health Check",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/health",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "health"]
+                        },
+                        "description": "Check API health status"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"name\": \"{{user_name}}\",\n\t\"email\": \"{{user_email}}\",\n\t\"phone\": \"{{user_phone}}\",\n\t\"password\": \"{{user_password}}\",\n\t\"password_confirmation\": \"{{user_password}}\",\n\t\"address\": \"123 Pet Street\",\n\t\"city\": \"Pet City\",\n\t\"emergency_contact\": \"+1234567890\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/register",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "auth", "register"]
+                        },
+                        "description": "Register a new user account"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    if (response.success && response.data.access_token) {",
+                                    "        pm.environment.set('auth_token', response.data.access_token);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"email\": \"{{user_email}}\",\n\t\"password\": \"{{user_password}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/login",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "auth", "login"]
+                        },
+                        "description": "Login with email and password"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/logout",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "auth", "logout"]
+                        },
+                        "description": "Logout current user"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/profile",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "auth", "profile"]
+                        },
+                        "description": "Get current user profile"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Profile",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"name\": \"Updated Name\",\n\t\"phone\": \"+9876543210\",\n\t\"address\": \"Updated Address\",\n\t\"city\": \"Updated City\",\n\t\"emergency_contact\": \"+1122334455\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/profile",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "auth", "profile"]
+                        },
+                        "description": "Update user profile information"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Change Password",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"current_password\": \"current_password\",\n\t\"password\": \"new_password\",\n\t\"password_confirmation\": \"new_password\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/change-password",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "auth", "change-password"]
+                        },
+                        "description": "Change user password"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Forgot Password",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"email\": \"{{user_email}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/forgot-password",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "auth", "forgot-password"]
+                        },
+                        "description": "Send password reset link"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Reset Password",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"email\": \"{{user_email}}\",\n\t\"token\": \"reset_token_here\",\n\t\"password\": \"new_password\",\n\t\"password_confirmation\": \"new_password\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/reset-password",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "auth", "reset-password"]
+                        },
+                        "description": "Reset password with token"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Authentication related endpoints"
+        },
+        {
+            "name": "Availability & Pricing",
+            "item": [
+                {
+                    "name": "Get Room Types",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/availability/room-types",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "availability", "room-types"]
+                        },
+                        "description": "Get all available room types with pricing"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Check Availability",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"room_type_id\": 1,\n\t\"check_in_date\": \"2025-09-01\",\n\t\"check_out_date\": \"2025-09-05\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/availability/check",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "availability", "check"]
+                        },
+                        "description": "Check room availability for given dates"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Spa Packages",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/availability/spa-packages",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "availability", "spa-packages"]
+                        },
+                        "description": "Get all available spa packages"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Spa Available Slots",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/availability/spa-slots?date=2025-09-01&spa_package_id=1",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "availability", "spa-slots"],
+                            "query": [
+                                {
+                                    "key": "date",
+                                    "value": "2025-09-01"
+                                },
+                                {
+                                    "key": "spa_package_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Get available spa time slots for a specific date"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Spay/Neuter Packages",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/availability/spay-packages",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "availability", "spay-packages"]
+                        },
+                        "description": "Get all available spay/neuter packages"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Spay/Neuter Available Slots",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/availability/spay-slots?date=2025-09-01&spay_package_id=1",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "availability", "spay-slots"],
+                            "query": [
+                                {
+                                    "key": "date",
+                                    "value": "2025-09-01"
+                                },
+                                {
+                                    "key": "spay_package_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Get available spay/neuter time slots for a specific date"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Check availability and get pricing information"
+        },
+        {
+            "name": "Hotel Bookings",
+            "item": [
+                {
+                    "name": "Get My Bookings",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings?page=1&per_page=10&status=all",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "bookings"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "all"
+                                }
+                            ]
+                        },
+                        "description": "Get current user's bookings with pagination"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Hotel Booking",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"room_type_id\": 1,\n\t\"check_in_date\": \"2025-09-01\",\n\t\"check_out_date\": \"2025-09-05\",\n\t\"special_requests\": \"Please provide extra blankets\",\n\t\"addons\": [\n\t\t{\n\t\t\t\"addon_service_id\": 1,\n\t\t\t\"quantity\": 2\n\t\t},\n\t\t{\n\t\t\t\"addon_service_id\": 2,\n\t\t\t\"quantity\": 1\n\t\t}\n\t]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings/hotel",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "bookings", "hotel"]
+                        },
+                        "description": "Create a new hotel booking"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Booking Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings/{{booking_number}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "bookings", "{{booking_number}}"],
+                            "variable": [
+                                {
+                                    "key": "booking_number",
+                                    "value": "HTL-2025-0001"
+                                }
+                            ]
+                        },
+                        "description": "Get specific booking details by booking number"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Hotel Booking",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"check_in_date\": \"2025-09-02\",\n\t\"check_out_date\": \"2025-09-06\",\n\t\"special_requests\": \"Updated special requests\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings/hotel/{{booking_number}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "bookings",
+                                "hotel",
+                                "{{booking_number}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_number",
+                                    "value": "HTL-2025-0001"
+                                }
+                            ]
+                        },
+                        "description": "Update existing hotel booking"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cancel Booking",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"cancellation_reason\": \"Change of plans\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings/{{booking_number}}/cancel",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "bookings",
+                                "{{booking_number}}",
+                                "cancel"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_number",
+                                    "value": "HTL-2025-0001"
+                                }
+                            ]
+                        },
+                        "description": "Cancel a booking"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Booking Invoice",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings/{{booking_number}}/invoice",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "bookings",
+                                "{{booking_number}}",
+                                "invoice"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_number",
+                                    "value": "HTL-2025-0001"
+                                }
+                            ]
+                        },
+                        "description": "Get booking invoice"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Hotel booking management endpoints"
+        },
+        {
+            "name": "Spa Bookings",
+            "item": [
+                {
+                    "name": "Create Spa Booking",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"spa_package_id\": 1,\n\t\"appointment_date\": \"2025-09-01\",\n\t\"appointment_time\": \"10:00\",\n\t\"notes\": \"Pet is nervous around water\",\n\t\"special_requests\": \"Please use gentle shampoo\",\n\t\"addons\": [\n\t\t{\n\t\t\t\"addon_service_id\": 3,\n\t\t\t\"quantity\": 1\n\t\t}\n\t]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings/spa",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "bookings", "spa"]
+                        },
+                        "description": "Create a new spa booking"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Spa Booking",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"appointment_date\": \"2025-09-02\",\n\t\"appointment_time\": \"14:00\",\n\t\"notes\": \"Updated notes\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings/spa/{{booking_number}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "bookings",
+                                "spa",
+                                "{{booking_number}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_number",
+                                    "value": "SPA-2025-0001"
+                                }
+                            ]
+                        },
+                        "description": "Update existing spa booking"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Spa booking management endpoints"
+        },
+        {
+            "name": "Spay/Neuter Bookings",
+            "item": [
+                {
+                    "name": "Create Spay/Neuter Booking",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"spay_package_id\": 1,\n\t\"appointment_date\": \"2025-09-01\",\n\t\"appointment_time\": \"09:00\",\n\t\"pet_weight\": \"5.5\",\n\t\"medical_conditions\": \"None\",\n\t\"special_requests\": \"Pet is anxious\",\n\t\"addons\": [\n\t\t{\n\t\t\t\"addon_service_id\": 4,\n\t\t\t\"quantity\": 1\n\t\t}\n\t]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings/spay",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "bookings", "spay"]
+                        },
+                        "description": "Create a new spay/neuter booking"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Spay/Neuter Booking",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"appointment_date\": \"2025-09-02\",\n\t\"appointment_time\": \"10:00\",\n\t\"pet_weight\": \"6.0\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings/spay/{{booking_number}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "bookings",
+                                "spay",
+                                "{{booking_number}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_number",
+                                    "value": "SPY-2025-0001"
+                                }
+                            ]
+                        },
+                        "description": "Update existing spay/neuter booking"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Spay/neuter booking management endpoints"
+        },
+        {
+            "name": "Booking Add-ons",
+            "item": [
+                {
+                    "name": "Add Booking Add-ons",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"addons\": [\n\t\t{\n\t\t\t\"addon_service_id\": 1,\n\t\t\t\"quantity\": 2\n\t\t},\n\t\t{\n\t\t\t\"addon_service_id\": 5,\n\t\t\t\"quantity\": 1\n\t\t}\n\t]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings/{{booking_number}}/addons",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "bookings",
+                                "{{booking_number}}",
+                                "addons"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_number",
+                                    "value": "HTL-2025-0001"
+                                }
+                            ]
+                        },
+                        "description": "Add add-on services to a booking"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Remove Booking Add-on",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings/{{booking_number}}/addons/{{addon_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "bookings",
+                                "{{booking_number}}",
+                                "addons",
+                                "{{addon_id}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_number",
+                                    "value": "HTL-2025-0001"
+                                },
+                                {
+                                    "key": "addon_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Remove an add-on service from a booking"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Booking add-on service management"
+        },
+        {
+            "name": "Booking Documents",
+            "item": [
+                {
+                    "name": "Upload Booking Document",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "document",
+                                    "type": "file",
+                                    "src": []
+                                },
+                                {
+                                    "key": "document_type",
+                                    "value": "vaccination_record",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "description",
+                                    "value": "Latest vaccination records",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings/{{booking_number}}/documents",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "bookings",
+                                "{{booking_number}}",
+                                "documents"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_number",
+                                    "value": "HTL-2025-0001"
+                                }
+                            ]
+                        },
+                        "description": "Upload documents for a booking"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Booking Documents",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings/{{booking_number}}/documents",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "bookings",
+                                "{{booking_number}}",
+                                "documents"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_number",
+                                    "value": "HTL-2025-0001"
+                                }
+                            ]
+                        },
+                        "description": "Get all documents for a booking"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Booking Document",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/bookings/{{booking_number}}/documents/{{document_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "bookings",
+                                "{{booking_number}}",
+                                "documents",
+                                "{{document_id}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_number",
+                                    "value": "HTL-2025-0001"
+                                },
+                                {
+                                    "key": "document_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Delete a booking document"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Booking document management"
+        },
+        {
+            "name": "Shop",
+            "item": [
+                {
+                    "name": "Get Product Categories",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/shop/categories",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "shop", "categories"]
+                        },
+                        "description": "Get all product categories"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Category Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/shop/categories/{{category_slug}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "shop",
+                                "categories",
+                                "{{category_slug}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "category_slug",
+                                    "value": "dog-food"
+                                }
+                            ]
+                        },
+                        "description": "Get category details by slug"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get All Products",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/shop/products?page=1&per_page=12&category_id=1&search=dog&featured=1&min_price=10&max_price=100&sort_by=price&sort_order=asc",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "shop", "products"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "12"
+                                },
+                                {
+                                    "key": "category_id",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "dog"
+                                },
+                                {
+                                    "key": "featured",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "min_price",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "max_price",
+                                    "value": "100"
+                                },
+                                {
+                                    "key": "sort_by",
+                                    "value": "price"
+                                },
+                                {
+                                    "key": "sort_order",
+                                    "value": "asc"
+                                }
+                            ]
+                        },
+                        "description": "Get all products with filters and pagination"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Product Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/shop/products/{{product_slug}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "shop",
+                                "products",
+                                "{{product_slug}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "product_slug",
+                                    "value": "premium-dog-food"
+                                }
+                            ]
+                        },
+                        "description": "Get product details by slug"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Products by Category",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/shop/products/category/{{category_slug}}?page=1&per_page=12",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "shop",
+                                "products",
+                                "category",
+                                "{{category_slug}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "12"
+                                }
+                            ],
+                            "variable": [
+                                {
+                                    "key": "category_slug",
+                                    "value": "dog-food"
+                                }
+                            ]
+                        },
+                        "description": "Get products by category slug"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Featured Products",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/shop/featured-products?limit=8",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "shop", "featured-products"],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "8"
+                                }
+                            ]
+                        },
+                        "description": "Get featured products"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Shop products and categories"
+        },
+        {
+            "name": "Shopping Cart",
+            "item": [
+                {
+                    "name": "Get Cart Items",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/cart",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "cart"]
+                        },
+                        "description": "Get current user's cart items"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Add Item to Cart",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"product_id\": 1,\n\t\"quantity\": 2\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/cart/add",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "cart", "add"]
+                        },
+                        "description": "Add product to cart"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Cart Item",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"quantity\": 3\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/cart/{{item_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "cart", "{{item_id}}"],
+                            "variable": [
+                                {
+                                    "key": "item_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Update cart item quantity"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Remove Cart Item",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/cart/{{item_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "cart", "{{item_id}}"],
+                            "variable": [
+                                {
+                                    "key": "item_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Remove item from cart"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Clear Cart",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/cart",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "cart"]
+                        },
+                        "description": "Clear all items from cart"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Shopping cart management"
+        },
+        {
+            "name": "Orders",
+            "item": [
+                {
+                    "name": "Get My Orders",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/orders?page=1&per_page=10&status=all",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "orders"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "all"
+                                }
+                            ]
+                        },
+                        "description": "Get current user's orders"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Order",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"delivery_address\": \"123 Pet Street, Pet City\",\n\t\"delivery_phone\": \"+1234567890\",\n\t\"delivery_notes\": \"Please call before delivery\",\n\t\"payment_method\": \"cash_on_delivery\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/orders",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "orders"]
+                        },
+                        "description": "Create order from cart items"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Order Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/orders/{{order_number}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "orders", "{{order_number}}"],
+                            "variable": [
+                                {
+                                    "key": "order_number",
+                                    "value": "ORD-2025-0001"
+                                }
+                            ]
+                        },
+                        "description": "Get order details by order number"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cancel Order",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"cancellation_reason\": \"Changed my mind\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/orders/{{order_number}}/cancel",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "orders",
+                                "{{order_number}}",
+                                "cancel"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "order_number",
+                                    "value": "ORD-2025-0001"
+                                }
+                            ]
+                        },
+                        "description": "Cancel an order"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Order management"
+        },
+        {
+            "name": "Community",
+            "item": [
+                {
+                    "name": "Get Community Posts",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/community/posts?page=1&per_page=10&type=all",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "community", "posts"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "type",
+                                    "value": "all"
+                                }
+                            ]
+                        },
+                        "description": "Get community posts with pagination"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Post Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/community/posts/{{post_slug}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "community",
+                                "posts",
+                                "{{post_slug}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "post_slug",
+                                    "value": "pet-care-tips"
+                                }
+                            ]
+                        },
+                        "description": "Get post details by slug"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Like Post",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/posts/{{post_id}}/like",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "posts", "{{post_id}}", "like"],
+                            "variable": [
+                                {
+                                    "key": "post_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Like a post"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Unlike Post",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/posts/{{post_id}}/unlike",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "posts", "{{post_id}}", "unlike"],
+                            "variable": [
+                                {
+                                    "key": "post_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Unlike a post"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Add Comment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"content\": \"Great post! Very helpful information.\",\n\t\"parent_id\": null\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/posts/{{post_id}}/comment",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "posts", "{{post_id}}", "comment"],
+                            "variable": [
+                                {
+                                    "key": "post_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Add comment to a post"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Comment",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"content\": \"Updated comment content\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/posts/comments/{{comment_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "posts",
+                                "comments",
+                                "{{comment_id}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "comment_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Update a comment"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Comment",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/posts/comments/{{comment_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "posts",
+                                "comments",
+                                "{{comment_id}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "comment_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Delete a comment"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Adoption Listings",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/community/adoptions?page=1&per_page=10&pet_type=all&location=all",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "community", "adoptions"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "pet_type",
+                                    "value": "all"
+                                },
+                                {
+                                    "key": "location",
+                                    "value": "all"
+                                }
+                            ]
+                        },
+                        "description": "Get pet adoption listings"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Adoption Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/community/adoptions/{{adoption_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "community",
+                                "adoptions",
+                                "{{adoption_id}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "adoption_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Get adoption listing details"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Community posts and adoption listings"
+        },
+        {
+            "name": "Notifications",
+            "item": [
+                {
+                    "name": "Get Notifications",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/notifications?page=1&per_page=20&unread_only=0",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "notifications"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "20"
+                                },
+                                {
+                                    "key": "unread_only",
+                                    "value": "0"
+                                }
+                            ]
+                        },
+                        "description": "Get user notifications"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Mark Notification as Read",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/notifications/{{notification_id}}/read",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "notifications",
+                                "{{notification_id}}",
+                                "read"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "notification_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Mark single notification as read"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Mark All Notifications as Read",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/notifications/read-all",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "notifications", "read-all"]
+                        },
+                        "description": "Mark all notifications as read"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Notification",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/notifications/{{notification_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "notifications",
+                                "{{notification_id}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "notification_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Delete a notification"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "User notifications management"
+        },
+        {
+            "name": "File Upload",
+            "item": [
+                {
+                    "name": "Upload File",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "file",
+                                    "type": "file",
+                                    "src": []
+                                },
+                                {
+                                    "key": "type",
+                                    "value": "document",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "folder",
+                                    "value": "user_documents",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/upload",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "upload"]
+                        },
+                        "description": "Upload files (images, documents, etc.)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "File upload functionality"
+        },
+        {
+            "name": "Admin - Dashboard",
+            "item": [
+                {
+                    "name": "Get Dashboard Stats",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/dashboard",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "dashboard"]
+                        },
+                        "description": "Get admin dashboard overview"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Dashboard Statistics",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/dashboard/stats",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "dashboard", "stats"]
+                        },
+                        "description": "Get detailed dashboard statistics"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Recent Activities",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/dashboard/recent-activities?limit=20",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "dashboard",
+                                "recent-activities"
+                            ],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                }
+                            ]
+                        },
+                        "description": "Get recent system activities"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Admin dashboard endpoints"
+        },
+        {
+            "name": "Admin - Booking Management",
+            "item": [
+                {
+                    "name": "Get All Bookings",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/bookings?page=1&per_page=15&status=all&type=all&date_from=&date_to=&search=",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "bookings"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "15"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "all"
+                                },
+                                {
+                                    "key": "type",
+                                    "value": "all"
+                                },
+                                {
+                                    "key": "date_from",
+                                    "value": ""
+                                },
+                                {
+                                    "key": "date_to",
+                                    "value": ""
+                                },
+                                {
+                                    "key": "search",
+                                    "value": ""
+                                }
+                            ]
+                        },
+                        "description": "Get all bookings with filters"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Booking Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/bookings/{{booking_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "bookings",
+                                "{{booking_id}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Get booking details for admin"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Confirm Booking",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"notes\": \"Booking confirmed and ready for check-in\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/bookings/{{booking_id}}/confirm",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "bookings",
+                                "{{booking_id}}",
+                                "confirm"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Confirm a booking"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cancel Booking",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"cancellation_reason\": \"Customer request\",\n\t\"refund_amount\": 100.00\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/bookings/{{booking_id}}/cancel",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "bookings",
+                                "{{booking_id}}",
+                                "cancel"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Cancel a booking"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Complete Booking",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"completion_notes\": \"Service completed successfully\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/bookings/{{booking_id}}/complete",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "bookings",
+                                "{{booking_id}}",
+                                "complete"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Mark booking as completed"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Assign Room to Booking",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"room_id\": 1,\n\t\"notes\": \"Assigned to premium room as requested\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/bookings/{{booking_id}}/assign-room",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "bookings",
+                                "{{booking_id}}",
+                                "assign-room"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Assign room to booking"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Manual Booking",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"user_id\": 1,\n\t\"type\": \"hotel\",\n\t\"room_type_id\": 1,\n\t\"check_in_date\": \"2025-09-01\",\n\t\"check_out_date\": \"2025-09-05\",\n\t\"special_requests\": \"Manual booking entry\",\n\t\"manual_reference\": \"PHONE-001\",\n\t\"addons\": []\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/bookings/manual",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "bookings", "manual"]
+                        },
+                        "description": "Create manual booking entry"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Verify Booking Documents",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"verification_status\": \"verified\",\n\t\"verification_notes\": \"All documents verified\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/bookings/{{booking_id}}/verify-documents",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "bookings",
+                                "{{booking_id}}",
+                                "verify-documents"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "booking_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Verify booking documents"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Admin booking management"
+        },
+        {
+            "name": "Admin - Room Management",
+            "item": [
+                {
+                    "name": "Get All Rooms",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/rooms?page=1&per_page=15&status=all&room_type_id=",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "rooms"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "15"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "all"
+                                },
+                                {
+                                    "key": "room_type_id",
+                                    "value": ""
+                                }
+                            ]
+                        },
+                        "description": "Get all rooms with filters"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Room",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"room_type_id\": 1,\n\t\"room_number\": \"A101\",\n\t\"floor\": 1,\n\t\"status\": \"available\",\n\t\"notes\": \"New room added\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/rooms",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "rooms"]
+                        },
+                        "description": "Create new room"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Room Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/rooms/{{room_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "rooms", "{{room_id}}"],
+                            "variable": [
+                                {
+                                    "key": "room_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Get room details"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Room",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"room_number\": \"A101-Updated\",\n\t\"floor\": 1,\n\t\"status\": \"available\",\n\t\"notes\": \"Updated room details\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/rooms/{{room_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "rooms", "{{room_id}}"],
+                            "variable": [
+                                {
+                                    "key": "room_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Update room details"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Room",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/rooms/{{room_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "rooms", "{{room_id}}"],
+                            "variable": [
+                                {
+                                    "key": "room_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Delete room"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Room Status",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"status\": \"maintenance\",\n\t\"notes\": \"Under maintenance for repairs\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/rooms/{{room_id}}/status",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "rooms",
+                                "{{room_id}}",
+                                "status"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "room_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Update room status"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Room Types",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/rooms/types/list",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "rooms", "types", "list"]
+                        },
+                        "description": "Get all room types"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Room Type",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"name\": \"Premium Suite\",\n\t\"slug\": \"premium-suite\",\n\t\"description\": \"Luxury accommodation for pets\",\n\t\"base_daily_rate\": 150.00,\n\t\"weekly_rate\": 900.00,\n\t\"ten_day_rate\": 1200.00,\n\t\"monthly_rate\": 3500.00,\n\t\"max_capacity\": 2,\n\t\"amenities\": [\"Air Conditioning\", \"Premium Bedding\", \"Play Area\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/rooms/types",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "rooms", "types"]
+                        },
+                        "description": "Create new room type"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Room Type",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"name\": \"Updated Premium Suite\",\n\t\"description\": \"Updated luxury accommodation\",\n\t\"base_daily_rate\": 160.00\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/rooms/types/{{room_type_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "rooms",
+                                "types",
+                                "{{room_type_id}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "room_type_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Update room type"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Room Type",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/rooms/types/{{room_type_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "rooms",
+                                "types",
+                                "{{room_type_id}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "room_type_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Delete room type"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Admin room management"
+        },
+        {
+            "name": "Admin - Product Management",
+            "item": [
+                {
+                    "name": "Get All Products",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/products?page=1&per_page=15&status=all&category_id=&featured=&low_stock=&search=",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "products"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "15"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "all"
+                                },
+                                {
+                                    "key": "category_id",
+                                    "value": ""
+                                },
+                                {
+                                    "key": "featured",
+                                    "value": ""
+                                },
+                                {
+                                    "key": "low_stock",
+                                    "value": ""
+                                },
+                                {
+                                    "key": "search",
+                                    "value": ""
+                                }
+                            ]
+                        },
+                        "description": "Get all products for admin"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Product",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"category_id\": 1,\n\t\"name\": \"Premium Dog Food\",\n\t\"slug\": \"premium-dog-food\",\n\t\"sku\": \"PDF-001\",\n\t\"description\": \"High quality dog food with premium ingredients\",\n\t\"price\": 45.99,\n\t\"compare_price\": 55.99,\n\t\"stock_quantity\": 100,\n\t\"low_stock_threshold\": 10,\n\t\"images\": [\"product1.jpg\", \"product2.jpg\"],\n\t\"specifications\": {\"weight\": \"5kg\", \"brand\": \"PetPro\"},\n\t\"status\": \"active\",\n\t\"featured\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/products",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "products"]
+                        },
+                        "description": "Create new product"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Product Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/products/{{product_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "products",
+                                "{{product_id}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "product_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Get product details for admin"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Product",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"name\": \"Updated Premium Dog Food\",\n\t\"price\": 49.99,\n\t\"stock_quantity\": 150,\n\t\"status\": \"active\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/products/{{product_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "products",
+                                "{{product_id}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "product_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Update product"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Product",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/products/{{product_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "products",
+                                "{{product_id}}"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "product_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Delete product"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Bulk Update Stock",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"products\": [\n\t\t{\"id\": 1, \"stock_quantity\": 50},\n\t\t{\"id\": 2, \"stock_quantity\": 75},\n\t\t{\"id\": 3, \"stock_quantity\": 100}\n\t]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/products/bulk-update-stock",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "products",
+                                "bulk-update-stock"
+                            ]
+                        },
+                        "description": "Bulk update product stock"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Admin product management"
+        },
+        {
+            "name": "Admin - Order Management",
+            "item": [
+                {
+                    "name": "Get All Orders",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/orders?page=1&per_page=15&status=all&date_from=&date_to=&search=",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "orders"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "15"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "all"
+                                },
+                                {
+                                    "key": "date_from",
+                                    "value": ""
+                                },
+                                {
+                                    "key": "date_to",
+                                    "value": ""
+                                },
+                                {
+                                    "key": "search",
+                                    "value": ""
+                                }
+                            ]
+                        },
+                        "description": "Get all orders for admin"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Order Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/orders/{{order_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "orders", "{{order_id}}"],
+                            "variable": [
+                                {
+                                    "key": "order_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Get order details for admin"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Order Status",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"status\": \"processing\",\n\t\"notes\": \"Order is being prepared for delivery\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/orders/{{order_id}}/status",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "orders",
+                                "{{order_id}}",
+                                "status"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "order_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Update order status"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Process Order",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"tracking_number\": \"TRK123456789\",\n\t\"estimated_delivery\": \"2025-09-05\",\n\t\"notes\": \"Order processed and ready for shipment\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/orders/{{order_id}}/process",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "orders",
+                                "{{order_id}}",
+                                "process"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "order_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Process order for delivery"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Admin order management"
+        },
+        {
+            "name": "Admin - User Management",
+            "item": [
+                {
+                    "name": "Get All Users",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/users?page=1&per_page=15&role=all&status=all&verified=all&search=",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "users"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "15"
+                                },
+                                {
+                                    "key": "role",
+                                    "value": "all"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "all"
+                                },
+                                {
+                                    "key": "verified",
+                                    "value": "all"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": ""
+                                }
+                            ]
+                        },
+                        "description": "Get all users with filters"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create User",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"name\": \"New User\",\n\t\"email\": \"newuser@example.com\",\n\t\"phone\": \"+1234567890\",\n\t\"password\": \"password123\",\n\t\"role\": \"customer\",\n\t\"status\": \"active\",\n\t\"address\": \"123 User Street\",\n\t\"city\": \"User City\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/users",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "users"]
+                        },
+                        "description": "Create new user"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get User Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/users/{{user_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "users", "{{user_id}}"],
+                            "variable": [
+                                {
+                                    "key": "user_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Get user details"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update User",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"name\": \"Updated User Name\",\n\t\"phone\": \"+9876543210\",\n\t\"status\": \"active\",\n\t\"address\": \"Updated Address\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/users/{{user_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "users", "{{user_id}}"],
+                            "variable": [
+                                {
+                                    "key": "user_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Update user details"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update User Status",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"status\": \"suspended\",\n\t\"reason\": \"Policy violation\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/users/{{user_id}}/status",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "users",
+                                "{{user_id}}",
+                                "status"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "user_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Update user status"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get User Bookings",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/users/{{user_id}}/bookings?page=1&per_page=10",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "users",
+                                "{{user_id}}",
+                                "bookings"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "10"
+                                }
+                            ],
+                            "variable": [
+                                {
+                                    "key": "user_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Get user's booking history"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get User Orders",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/users/{{user_id}}/orders?page=1&per_page=10",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "users",
+                                "{{user_id}}",
+                                "orders"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "10"
+                                }
+                            ],
+                            "variable": [
+                                {
+                                    "key": "user_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Get user's order history"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Admin user management"
+        },
+        {
+            "name": "Admin - Reports",
+            "item": [
+                {
+                    "name": "Booking Reports",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/reports/bookings?date_from=2025-01-01&date_to=2025-12-31&type=all&status=all",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "reports", "bookings"],
+                            "query": [
+                                {
+                                    "key": "date_from",
+                                    "value": "2025-01-01"
+                                },
+                                {
+                                    "key": "date_to",
+                                    "value": "2025-12-31"
+                                },
+                                {
+                                    "key": "type",
+                                    "value": "all"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "all"
+                                }
+                            ]
+                        },
+                        "description": "Get booking reports with date range and filters"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Sales Reports",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/reports/sales?date_from=2025-01-01&date_to=2025-12-31",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "reports", "sales"],
+                            "query": [
+                                {
+                                    "key": "date_from",
+                                    "value": "2025-01-01"
+                                },
+                                {
+                                    "key": "date_to",
+                                    "value": "2025-12-31"
+                                }
+                            ]
+                        },
+                        "description": "Get sales reports"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Financial Reports",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/reports/financial?date_from=2025-01-01&date_to=2025-12-31",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "reports", "financial"],
+                            "query": [
+                                {
+                                    "key": "date_from",
+                                    "value": "2025-01-01"
+                                },
+                                {
+                                    "key": "date_to",
+                                    "value": "2025-12-31"
+                                }
+                            ]
+                        },
+                        "description": "Get financial reports"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Customer Reports",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/reports/customers?date_from=2025-01-01&date_to=2025-12-31",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "reports", "customers"],
+                            "query": [
+                                {
+                                    "key": "date_from",
+                                    "value": "2025-01-01"
+                                },
+                                {
+                                    "key": "date_to",
+                                    "value": "2025-12-31"
+                                }
+                            ]
+                        },
+                        "description": "Get customer reports"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Revenue Report",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/reports/bookings/revenue?period=monthly&year=2025",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "reports",
+                                "bookings",
+                                "revenue"
+                            ],
+                            "query": [
+                                {
+                                    "key": "period",
+                                    "value": "monthly"
+                                },
+                                {
+                                    "key": "year",
+                                    "value": "2025"
+                                }
+                            ]
+                        },
+                        "description": "Get booking revenue reports"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Occupancy Report",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/reports/bookings/occupancy?date_from=2025-01-01&date_to=2025-12-31",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "reports",
+                                "bookings",
+                                "occupancy"
+                            ],
+                            "query": [
+                                {
+                                    "key": "date_from",
+                                    "value": "2025-01-01"
+                                },
+                                {
+                                    "key": "date_to",
+                                    "value": "2025-12-31"
+                                }
+                            ]
+                        },
+                        "description": "Get room occupancy reports"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Admin reports and analytics"
+        },
+        {
+            "name": "Admin - Settings",
+            "item": [
+                {
+                    "name": "Get All Settings",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/settings",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "settings"]
+                        },
+                        "description": "Get all system settings"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Settings by Group",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/settings/{{group}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "settings", "{{group}}"],
+                            "variable": [
+                                {
+                                    "key": "group",
+                                    "value": "booking"
+                                }
+                            ]
+                        },
+                        "description": "Get settings by group"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Settings",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"settings\": [\n\t\t{\"key\": \"booking.min_stay_days\", \"value\": \"3\"},\n\t\t{\"key\": \"booking.max_stay_days\", \"value\": \"365\"},\n\t\t{\"key\": \"site.name\", \"value\": \"Pawtel Pet Hotel\"}\n\t]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/settings",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "settings"]
+                        },
+                        "description": "Update system settings"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Booking Rules",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/settings/booking/rules",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "settings",
+                                "booking",
+                                "rules"
+                            ]
+                        },
+                        "description": "Get booking rules and policies"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Booking Rules",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n\t\"min_stay_days\": 3,\n\t\"max_stay_days\": 365,\n\t\"advance_booking_days\": 90,\n\t\"cancellation_policy\": \"24 hours before check-in\",\n\t\"deposit_percentage\": 25\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/settings/booking/rules",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "admin",
+                                "settings",
+                                "booking",
+                                "rules"
+                            ]
+                        },
+                        "description": "Update booking rules"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "System Health Check",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/system/health",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "system", "health"]
+                        },
+                        "description": "Check system health status"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Clear Cache",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{admin_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/admin/system/cache/clear",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "admin", "system", "cache", "clear"]
+                        },
+                        "description": "Clear system cache"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Admin system settings and maintenance"
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [""]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [""]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:8000",
+            "type": "string"
+        },
+        {
+            "key": "auth_token",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "admin_token",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "user_name",
+            "value": "John Doe",
+            "type": "string"
+        },
+        {
+            "key": "user_email",
+            "value": "john@example.com",
+            "type": "string"
+        },
+        {
+            "key": "user_phone",
+            "value": "+1234567890",
+            "type": "string"
+        },
+        {
+            "key": "user_password",
+            "value": "password123",
+            "type": "string"
+        },
+        {
+            "key": "booking_number",
+            "value": "HTL-2025-0001",
+            "type": "string"
+        },
+        {
+            "key": "order_number",
+            "value": "ORD-2025-0001",
+            "type": "string"
+        },
+        {
+            "key": "product_slug",
+            "value": "premium-dog-food",
+            "type": "string"
+        },
+        {
+            "key": "category_slug",
+            "value": "dog-food",
+            "type": "string"
+        },
+        {
+            "key": "post_slug",
+            "value": "pet-care-tips",
+            "type": "string"
+        }
+    ]
+}

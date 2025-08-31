@@ -1,0 +1,134 @@
+// ==========================================
+// BASE RESET & BODY STYLES
+// ==========================================
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: $font-family-body;
+    font-size: $font-size-base;
+    font-weight: $font-weight-normal;
+    line-height: 1.6;
+    color: $dark;
+    background-color: $light;
+    overflow-x: hidden;
+    position: relative;
+
+    &.pawtel-theme {
+        // Theme-specific body styles
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+
+        .main-content {
+            flex: 1;
+            padding-top: 100px; // Account for fixed header
+        }
+    }
+
+    &.auth-page {
+        @include center-content;
+        min-height: 100vh;
+        background: linear-gradient(135deg, $light 0%, $white 100%);
+    }
+
+    &.admin-layout {
+        background: var(--gray-100);
+    }
+}
+
+// Paw print decorations
+.paw-decorations {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+
+    .paw-print {
+        position: absolute;
+
+        &.paw-1 {
+            @include paw-print(60px, $primary, 0.08);
+            top: 15%;
+            left: 10%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        &.paw-2 {
+            @include paw-print(40px, $secondary, 0.06);
+            top: 30%;
+            right: 15%;
+            animation: float 10s ease-in-out infinite 2s;
+        }
+
+        &.paw-3 {
+            @include paw-print(50px, $accent, 0.05);
+            bottom: 25%;
+            left: 20%;
+            animation: float 12s ease-in-out infinite 4s;
+        }
+
+        &.paw-4 {
+            @include paw-print(35px, $primary, 0.07);
+            bottom: 40%;
+            right: 25%;
+            animation: float 9s ease-in-out infinite 1s;
+        }
+    }
+}
+
+// Floating shapes
+.floating-shapes {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.05;
+        animation: float 15s ease-in-out infinite;
+
+        &.shape-1 {
+            width: 200px;
+            height: 200px;
+            background: $primary;
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        &.shape-2 {
+            width: 150px;
+            height: 150px;
+            background: $secondary;
+            top: 50%;
+            right: 10%;
+            animation-delay: 5s;
+        }
+
+        &.shape-3 {
+            width: 100px;
+            height: 100px;
+            background: $accent;
+            bottom: 20%;
+            left: 15%;
+            animation-delay: 10s;
+        }
+    }
+}

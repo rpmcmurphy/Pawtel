@@ -1,0 +1,177 @@
+// ==========================================
+// UTILITY CLASSES
+// ==========================================
+
+// Spacing utilities
+@for $i from 0 through 5 {
+    .m-#{$i} {
+        margin: #{$i * 0.25}rem !important;
+    }
+
+    .mt-#{$i} {
+        margin-top: #{$i * 0.25}rem !important;
+    }
+
+    .mr-#{$i} {
+        margin-right: #{$i * 0.25}rem !important;
+    }
+
+    .mb-#{$i} {
+        margin-bottom: #{$i * 0.25}rem !important;
+    }
+
+    .ml-#{$i} {
+        margin-left: #{$i * 0.25}rem !important;
+    }
+
+    .mx-#{$i} {
+        margin-left: #{$i * 0.25}rem !important;
+        margin-right: #{$i * 0.25}rem !important;
+    }
+
+    .my-#{$i} {
+        margin-top: #{$i * 0.25}rem !important;
+        margin-bottom: #{$i * 0.25}rem !important;
+    }
+
+    .p-#{$i} {
+        padding: #{$i * 0.25}rem !important;
+    }
+
+    .pt-#{$i} {
+        padding-top: #{$i * 0.25}rem !important;
+    }
+
+    .pr-#{$i} {
+        padding-right: #{$i * 0.25}rem !important;
+    }
+
+    .pb-#{$i} {
+        padding-bottom: #{$i * 0.25}rem !important;
+    }
+
+    .pl-#{$i} {
+        padding-left: #{$i * 0.25}rem !important;
+    }
+
+    .px-#{$i} {
+        padding-left: #{$i * 0.25}rem !important;
+        padding-right: #{$i * 0.25}rem !important;
+    }
+
+    .py-#{$i} {
+        padding-top: #{$i * 0.25}rem !important;
+        padding-bottom: #{$i * 0.25}rem !important;
+    }
+}
+
+// Background utilities
+.bg-primary {
+    background-color: $primary !important;
+}
+
+.bg-secondary {
+    background-color: $secondary !important;
+}
+
+.bg-accent {
+    background-color: $accent !important;
+}
+
+.bg-light {
+    background-color: $light !important;
+}
+
+.bg-dark {
+    background-color: $dark !important;
+}
+
+// Border utilities
+.border-primary {
+    border-color: $primary !important;
+}
+
+.border-secondary {
+    border-color: $secondary !important;
+}
+
+.border-accent {
+    border-color: $accent !important;
+}
+
+.rounded-lg {
+    border-radius: $border-radius-lg !important;
+}
+
+.rounded-xl {
+    border-radius: $border-radius-xl !important;
+}
+
+// Shadow utilities
+.shadow-sm {
+    box-shadow: $shadow-sm !important;
+}
+
+.shadow {
+    box-shadow: $shadow !important;
+}
+
+.shadow-lg {
+    box-shadow: $shadow-lg !important;
+}
+
+.shadow-xl {
+    box-shadow: $shadow-xl !important;
+}
+
+// Animation utilities
+.fade-in {
+    @include fade-in;
+}
+
+.slide-up {
+    @include slide-up;
+}
+
+.bounce-in {
+    @include bounce-in;
+}
+
+// Pawtel specific utilities
+.pawtel-alert {
+    border: none;
+    border-radius: $border-radius-lg;
+    font-family: $font-family-heading;
+    font-weight: $font-weight-medium;
+
+    .btn-close {
+        filter: none;
+        opacity: 0.7;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+.text-gradient {
+    @include text-gradient;
+}
+
+// Feature list styling
+.feature-list {
+    list-style: none;
+    padding-left: 0;
+
+    li {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        margin-bottom: $spacing-sm;
+        font-size: $font-size-base;
+
+        i {
+            flex-shrink: 0;
+        }
+    }
+}
