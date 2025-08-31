@@ -4,7 +4,6 @@ import "../scss/app.scss";
 import "bootstrap";
 
 // Import our modules
-import "./modules/api";
 import "./modules/booking";
 import "./modules/shop";
 

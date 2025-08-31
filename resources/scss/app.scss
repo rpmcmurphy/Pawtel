@@ -13,29 +13,27 @@
 @import '~bootstrap/scss/bootstrap';
 
 // Import abstracts
-@import 'abstracts/variables';
-@import 'abstracts/mixins';
-@import 'abstracts/functions';
+@import '@/scss/abstracts/variables';
+@import '@/scss/abstracts/mixins';
+@import '@/scss/abstracts/functions';
 
 // Import base
-@import 'base/reset';
-@import 'base/typography';
-@import 'base/utilities';
+@import '@/scss/base/reset';
+@import '@/scss/base/typography';
+@import '@/scss/base/utilities';
 
 // Import components
-@import 'components/buttons';
-@import 'components/cards';
-@import 'components/forms';
-@import 'components/paw-elements';
+@import '@/scss/components/buttons';
+@import '@/scss/components/cards';
+@import '@/scss/components/forms';
+@import '@/scss/components/paw-elements';
 
 // Import layout
-@import 'layout/header';
-@import 'layout/footer';
-@import 'layout/hero';
+@import '@/scss/layout/header';
+@import '@/scss/layout/footer';
 
 // Import pages
-@import 'pages/home';
-@import 'pages/booking';
-@import 'pages/shop';
-@import 'pages/auth';
-@import 'pages/community';
+@import '@/scss/pages/home';
+@import '@/scss/pages/booking';
+@import '@/scss/pages/auth';
+@import '@/scss/pages/community';

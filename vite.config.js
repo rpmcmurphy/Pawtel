@@ -16,6 +16,7 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
+            "@": "/resources",
             "~bootstrap": resolve(__dirname, "node_modules/bootstrap"),
             "~@fortawesome": resolve(__dirname, "node_modules/@fortawesome"),
             "~datatables.net-bs5": resolve(
@@ -24,11 +25,11 @@ export default defineConfig({
             ),
         },
     },
-    css: {
-        preprocessorOptions: {
-            scss: {
-                additionalData: `@import "resources/scss/abstracts/variables";`,
-            },
-        },
-    },
+    // css: {
+    //     preprocessorOptions: {
+    //         scss: {
+    //             additionalData: `@import "scss/abstracts/variables";`,
+    //         },
+    //     },
+    // },
 });
