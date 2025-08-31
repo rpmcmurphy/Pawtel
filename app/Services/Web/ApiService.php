@@ -5,7 +5,6 @@ namespace App\Services\Web;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use App\Helpers\ApiHelper;
-use Illuminate\Support\Facades\Log;
 
 class ApiService
 {
@@ -15,9 +14,6 @@ class ApiService
     public function __construct()
     {
         $this->baseUrl = rtrim(config('pawtel.api.base_url', config('app.url') . '/api'), '/');
-
-        // Log the base URL to debug
-        Log::info('ApiService Base URL: ' . $this->baseUrl);
 
         $this->client = new Client([
             'base_uri' => $this->baseUrl . '/',
@@ -33,15 +29,6 @@ class ApiService
     protected function makeRequest($method, $endpoint, $data = [], $headers = [])
     {
         try {
-            // Add debugging to see the full URL being called
-            $fullUrl = $this->baseUrl . '/' . ltrim($endpoint, '/');
-            Log::info('Making API request', [
-                'method' => $method,
-                'full_url' => $fullUrl,
-                'endpoint' => $endpoint,
-                'base_url' => $this->baseUrl
-            ]);
-
             $defaultHeaders = ApiHelper::getAuthHeaders();
 
             // Remove CSRF token for API requests (handled by Sanctum)
@@ -72,13 +59,6 @@ class ApiService
                 'status' => $response->getStatusCode()
             ];
         } catch (RequestException $e) {
-            Log::error('API Request Error: ' . $e->getMessage(), [
-                'method' => $method,
-                'endpoint' => $endpoint,
-                'data' => $data,
-                'full_url' => $fullUrl ?? 'unknown'
-            ]);
-
             return ApiHelper::handleApiError($e);
         }
     }
