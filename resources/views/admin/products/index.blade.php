@@ -36,9 +36,9 @@
                     <select class="form-select" name="category_id" id="category_id">
                         <option value="">All Categories</option>
                         @foreach ($categories as $category)
-                            <option value="{{ $category['id'] }}"
-                                {{ request('category_id') == $category['id'] ? 'selected' : '' }}>
-                                {{ $category['name'] }}
+                            <option value="{{ $category['id'] ?? '' }}"
+                                {{ request('category_id') == ($category['id'] ?? null) ? 'selected' : '' }}>
+                                {{ $category['name'] ?? '' }}
                             </option>
                         @endforeach
                     </select>
@@ -100,9 +100,11 @@
                                     <td>
                                         <div>
                                             <strong>৳{{ number_format($product['price'], 2) }}</strong>
-                                            @if ($product['original_price'] && $product['original_price'] > $product['price'])
-                                                <br><small
-                                                    class="text-muted"><s>৳{{ number_format($product['original_price'], 2) }}</s></small>
+                                            @if (($product['original_price'] ?? 0) > ($product['price'] ?? 0))
+                                                <br>
+                                                <small class="text-muted">
+                                                    <s>৳{{ number_format($product['original_price'], 2) }}</s>
+                                                </small>
                                             @endif
                                         </div>
                                     </td>
@@ -118,7 +120,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        @if ($product['is_featured'])
+                                        @if (!empty($product['is_featured']))
                                             <i class="fas fa-star text-warning"></i>
                                         @else
                                             <i class="far fa-star text-muted"></i>

@@ -25,8 +25,8 @@ class ProductController extends Controller
         $categories = $this->shopService->getCategories();
 
         return view('admin.products.index', [
-            'products' => $products['success'] ? $products['data'] : [],
-            'categories' => $categories['success'] ? $categories['data'] : [],
+            'products'  => $products['success']  ? ($products['data']  ?? []) : [],
+            'categories' => $categories['success'] ? ($categories['data'] ?? []) : [],
             'filters' => $params
         ]);
     }

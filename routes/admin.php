@@ -9,7 +9,7 @@ use App\Http\Controllers\Web\Admin\{
     ReportController
 };
 
-Route::middleware(['auth:web', 'admin.web'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth.web', 'admin.web'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('stats', [DashboardController::class, 'stats'])->name('stats');
