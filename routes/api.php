@@ -196,6 +196,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index']);
         Route::get('dashboard/stats', [DashboardController::class, 'stats']);
         Route::get('dashboard/recent-activities', [DashboardController::class, 'recentActivities']);
+        Route::get('dashboard/booking-stats', [DashboardController::class, 'bookingStats']);
+        Route::get('dashboard/recent-activity', [DashboardController::class, 'recentActivity']);
 
         // Booking Management
         Route::prefix('bookings')->group(function () {
@@ -315,6 +317,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/{id}/bookings', [UserManagementController::class, 'userBookings']);
             Route::get('/{id}/orders', [UserManagementController::class, 'userOrders']);
             Route::get('/{id}/activity', [UserManagementController::class, 'userActivity']);
+
+            Route::get('customers/search', [UserManagementController::class, 'searchCustomers']);
         });
 
         // Reports

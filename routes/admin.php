@@ -17,6 +17,8 @@ Route::middleware(['auth.web', 'admin.web'])->prefix('admin')->name('admin.')->g
     // Bookings Management
     Route::prefix('bookings')->name('bookings.')->group(function () {
         Route::get('/', [BookingController::class, 'index'])->name('index');
+        Route::get('create', [BookingController::class, 'create'])->name('create'); // Added
+        Route::post('/', [BookingController::class, 'store'])->name('store'); // Added
         Route::get('{type}', [BookingController::class, 'byType'])->name('type');
         Route::get('booking/{id}', [BookingController::class, 'show'])->name('show');
         Route::put('booking/{id}/status', [BookingController::class, 'updateStatus'])->name('status');

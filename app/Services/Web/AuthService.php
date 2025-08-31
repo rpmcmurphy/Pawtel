@@ -85,14 +85,6 @@ class AuthService extends ApiService
         return Session::has('api_token') && Session::has('user');
     }
 
-    // public function isAdmin()
-    // {
-    //     $user = $this->getUser();
-    //     $roles = $user['roles'] ?? [];
-
-    //     return in_array('admin', $roles, true) || in_array('super_admin', $roles, true);
-    // }
-
     public function getUser()
     {
         return Session::get('user');
@@ -109,19 +101,11 @@ class AuthService extends ApiService
         $user = $this->getUser();
 
         if (!$user) {
-            Log::info('No user found in session for admin check');
             return false;
         }
 
         // Get roles - handle both array format and string format
         $roles = $user['roles'] ?? [];
-
-        Log::info('Admin check details', [
-            'user_id' => $user['id'] ?? null,
-            'user_email' => $user['email'] ?? null,
-            'roles_raw' => $roles,
-            'roles_type' => gettype($roles)
-        ]);
 
         // Handle different role data structures
         if (is_string($roles)) {
@@ -130,7 +114,6 @@ class AuthService extends ApiService
         } elseif (is_array($roles)) {
             // If roles is already an array
             if (empty($roles)) {
-                Log::info('User has no roles assigned');
                 return false;
             }
 
@@ -146,20 +129,10 @@ class AuthService extends ApiService
                 }
             }
         } else {
-            Log::warning('Unexpected roles data type', ['roles' => $roles]);
             return false;
         }
 
-        Log::info('Processed roles for admin check', [
-            'processed_roles' => $rolesArray
-        ]);
-
         $isAdmin = in_array('admin', $rolesArray, true) || in_array('super_admin', $rolesArray, true);
-
-        Log::info('Admin check result', [
-            'is_admin' => $isAdmin,
-            'checked_roles' => $rolesArray
-        ]);
 
         return $isAdmin;
     }

@@ -208,4 +208,20 @@ class AdminService extends ApiService
     {
         return $this->post("adoptions/{$adoptionId}/interest", ['message' => $message]);
     }
+
+    /**
+     * Create a manual booking through admin interface
+     */
+    public function createManualBooking($bookingData)
+    {
+        return $this->post('admin/bookings/manual', $bookingData);
+    }
+
+    /**
+     * Search customers for admin booking creation
+     */
+    public function searchCustomers($searchTerm)
+    {
+        return $this->get('users/customers/search', ['search' => $searchTerm]);
+    }
 }
