@@ -50,6 +50,11 @@ class AdminService extends ApiService
         return $this->get('admin/products', $params);
     }
 
+    public function getAdminProduct($id)
+    {
+        return $this->get("admin/products/{$id}");
+    }
+
     public function createProduct($productData)
     {
         return $this->post('admin/products', $productData);
@@ -68,6 +73,11 @@ class AdminService extends ApiService
     public function updateProductStatus($id, $status)
     {
         return $this->put("admin/products/{$id}/status", ['status' => $status]);
+    }
+
+    public function uploadProductImage($file)
+    {
+        return $this->upload('admin/products/upload-image', ['image' => $file]);
     }
 
     // User Management
@@ -142,8 +152,60 @@ class AdminService extends ApiService
         return $this->get('admin/orders', $params);
     }
 
+    public function getAdminOrder($id)
+    {
+        return $this->get("admin/orders/{$id}");
+    }
+
     public function updateOrderStatus($id, $status)
     {
         return $this->put("admin/orders/{$id}/status", ['status' => $status]);
+    }
+
+    // Community Management
+    public function getAdminPosts($params = [])
+    {
+        return $this->get('admin/posts', $params);
+    }
+
+    public function getAdminPost($id)
+    {
+        return $this->get("admin/posts/{$id}");
+    }
+
+    public function updatePostStatus($id, $status)
+    {
+        return $this->put("admin/posts/{$id}/status", ['status' => $status]);
+    }
+
+    public function deletePost($id)
+    {
+        return $this->delete("admin/posts/{$id}");
+    }
+
+    public function approveComment($commentId)
+    {
+        return $this->post("admin/comments/{$commentId}/approve");
+    }
+
+    public function rejectComment($commentId)
+    {
+        return $this->post("admin/comments/{$commentId}/reject");
+    }
+
+    // Adoption Methods
+    public function getAdoptions($params = [])
+    {
+        return $this->get('adoptions', $params);
+    }
+
+    public function getAdoption($slug)
+    {
+        return $this->get("adoptions/{$slug}");
+    }
+
+    public function expressInterest($adoptionId, $message = null)
+    {
+        return $this->post("adoptions/{$adoptionId}/interest", ['message' => $message]);
     }
 }

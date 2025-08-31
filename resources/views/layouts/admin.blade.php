@@ -7,6 +7,49 @@
     <title>@yield('title', 'Pawtel Admin Dashboard')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <!-- Vite Assets -->
+    @vite(['resources/scss/admin.scss', 'resources/js/admin.js'])
+
+    @stack('styles')
+</head>
+
+<body class="pawtel-theme admin-layout">
+    <div class="admin-wrapper">
+        @include('layouts.partials.admin-sidebar')
+
+        <div class="admin-content">
+            @include('layouts.partials.admin-header')
+
+            <main class="admin-main">
+                <div class="container-fluid">
+                    @include('layouts.partials.flash-messages')
+
+                    @hasSection('page-header')
+                        <div class="page-header mb-4">
+                            @yield('page-header')
+                        </div>
+                    @endif
+
+                    @yield('content')
+                </div>
+            </main>
+        </div>
+    </div>
+
+    @stack('scripts')
+</body>
+
+</html>
+
+{{-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'Pawtel Admin Dashboard')</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <!-- Fonts -->
     <link
         href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;400;700;800&family=Delius:wght@400&display=swap"
@@ -68,4 +111,4 @@
     @stack('scripts')
 </body>
 
-</html>
+</html> --}}

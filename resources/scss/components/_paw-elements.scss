@@ -1,0 +1,132 @@
+// Paw print decorations
+.paw-decorations {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+
+    .paw-print {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        opacity: 0.08;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='30' r='20' fill='%23EC4899'/%3E%3Ccircle cx='30' cy='70' r='15' fill='%23EC4899'/%3E%3Ccircle cx='70' cy='70' r='15' fill='%23EC4899'/%3E%3Ccircle cx='50' cy='60' r='15' fill='%23EC4899'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-size: contain;
+        animation: float 8s ease-in-out infinite;
+
+        &.paw-1 {
+            top: 15%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        &.paw-2 {
+            top: 30%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        &.paw-3 {
+            bottom: 25%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        &.paw-4 {
+            bottom: 40%;
+            right: 25%;
+            animation-delay: 1s;
+        }
+    }
+}
+
+// Floating shapes
+.floating-shapes {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.05;
+        animation: float 15s ease-in-out infinite;
+
+        &.shape-1 {
+            width: 200px;
+            height: 200px;
+            background: var(--primary);
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        &.shape-2 {
+            width: 150px;
+            height: 150px;
+            background: var(--secondary);
+            top: 50%;
+            right: 10%;
+            animation-delay: 5s;
+        }
+
+        &.shape-3 {
+            width: 100px;
+            height: 100px;
+            background: var(--accent);
+            bottom: 20%;
+            left: 15%;
+            animation-delay: 10s;
+        }
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+// Cat-themed elements
+.cat-decoration {
+    position: relative;
+
+    &::after {
+        content: '🐾';
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        font-size: 1.2rem;
+        opacity: 0.3;
+    }
+}
+
+.purr-animation {
+    animation: purr 2s ease-in-out infinite;
+}
+
+@keyframes purr {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
