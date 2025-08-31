@@ -8,14 +8,26 @@ class AuthService extends ApiService
 {
     public function login($credentials)
     {
+        // $csrfResponse = $this->get('sanctum/csrf-cookie');
+
+        // if (!$csrfResponse['success']) {
+        //     return $csrfResponse;
+        // }
+
         $response = $this->post('auth/login', $credentials);
 
         if ($response['success']) {
-            $data = $response['data'];
+            // $data = $response['data'];
+
+            error_log('Login Response: ' . print_r($response, true));
+            $payload = $response['data']['data'] ?? [];
+
+            Session::put('api_token', $payload['access_token'] ?? null);
+            Session::put('user', $payload['user'] ?? null);
 
             // Store auth data in session
-            Session::put('api_token', $data['token']);
-            Session::put('user', $data['user']);
+            // Session::put('api_token', $data['token']);
+            // Session::put('user', $data['user']);
 
             return $response;
         }
@@ -28,11 +40,16 @@ class AuthService extends ApiService
         $response = $this->post('auth/register', $userData);
 
         if ($response['success']) {
-            $data = $response['data'];
+            // $data = $response['data'];
 
-            // Auto login after registration
-            Session::put('api_token', $data['token']);
-            Session::put('user', $data['user']);
+            // // Auto login after registration
+            // Session::put('api_token', $data['token']);
+            // Session::put('user', $data['user']);
+
+            $payload = $response['data']['data'] ?? [];
+
+            Session::put('api_token', $payload['access_token'] ?? null);
+            Session::put('user', $payload['user'] ?? null);
         }
 
         return $response;
@@ -100,6 +117,9 @@ class AuthService extends ApiService
     public function isAdmin()
     {
         $user = $this->getUser();
-        return isset($user['role']) && in_array($user['role'], ['admin', 'super_admin']);
+        $roles = $user['roles'] ?? [];
+
+        // return isset($user['role']) && in_array($user['role'], ['admin', 'super_admin']);
+        return in_array('admin', $roles, true) || in_array('super_admin', $roles, true);
     }
 }

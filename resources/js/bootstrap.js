@@ -4,12 +4,34 @@ window.axios = axios;
 window.axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 
 // Set CSRF token
-const token = document.head.querySelector('meta[name="csrf-token"]');
-if (token) {
-    window.axios.defaults.headers.common["X-CSRF-TOKEN"] = token.content;
-} else {
-    console.error("CSRF token not found");
+// Get CSRF token from meta tagor cookie
+const getCsrfToken = () => {
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (metaTag) {
+        return metaTag.content;
+    }
+
+    // Fallback to reading from cookie
+    const cookieValue = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("XSRF-TOKEN="))
+        ?.split("=")[1];
+
+    return cookieValue ? decodeURIComponent(cookieValue) : null;
+};
+
+const csrfToken = getCsrfToken();
+if (csrfToken) {
+    console.log("CSRF token found:", csrfToken);
+    window.axios.defaults.headers.common["X-CSRF-TOKEN"] = csrfToken;
 }
+
+// const token = document.head.querySelector('meta[name="csrf-token"]');
+// if (token) {
+//     window.axios.defaults.headers.common["X-CSRF-TOKEN"] = token.content;
+// } else {
+//     console.error("CSRF token not found");
+// }
 
 // Import jQuery
 import $ from "jquery";

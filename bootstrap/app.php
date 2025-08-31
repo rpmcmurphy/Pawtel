@@ -33,11 +33,24 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // $middleware->appendToGroup('api', HandleCors::class);
 
-        $middleware->web(append: []);
+        // $middleware->web(append: [
+        //     EncryptCookies::class,
+        //     AddQueuedCookiesToResponse::class,
+        //     StartSession::class,
+        //     ShareErrorsFromSession::class,
+        //     VerifyCsrfToken::class,
+        //     SubstituteBindings::class,
+        // ]);
 
         $middleware->api(append: [
+            // EnsureFrontendRequestsAreStateful::class,
             JsonResponseMiddleware::class,
             LogApiRequests::class,
+        ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'api/*',
+            'auth/*',
         ]);
 
         $middleware->alias([

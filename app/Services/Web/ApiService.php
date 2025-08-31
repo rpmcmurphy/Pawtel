@@ -15,6 +15,7 @@ class ApiService
     public function __construct()
     {
         $this->baseUrl = config('pawtel.api.base_url', config('app.url') . '/api');
+
         $this->client = new Client([
             'base_uri' => $this->baseUrl,
             'timeout' => config('pawtel.api.timeout', 30),
@@ -30,6 +31,12 @@ class ApiService
     {
         try {
             $defaultHeaders = ApiHelper::getAuthHeaders();
+
+            // Remove CSRF token for API requests (handled by Sanctum)
+            if (str_starts_with($endpoint, 'auth/')) {
+                unset($defaultHeaders['X-CSRF-TOKEN']);
+            }
+
             $headers = array_merge($defaultHeaders, $headers);
 
             $options = [
