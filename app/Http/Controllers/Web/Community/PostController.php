@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Community;
 use App\Http\Controllers\Controller;
 use App\Services\Web\CommunityService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -46,7 +47,7 @@ class PostController extends Controller
 
     public function like(Request $request, $id)
     {
-        if (!auth()->check()) {
+        if (!Auth::check()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Please login to like posts.'
@@ -60,7 +61,7 @@ class PostController extends Controller
 
     public function comment(Request $request, $id)
     {
-        if (!auth()->check()) {
+        if (!Auth::check()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Please login to comment.'

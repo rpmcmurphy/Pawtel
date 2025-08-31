@@ -5,8 +5,30 @@ import "../scss/admin.scss";
 import "bootstrap";
 
 // Import Chart.js
-import Chart from "chart.js/auto";
-window.Chart = Chart;
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+} from "chart.js";
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+);
+
+window.Chart = ChartJS;
 
 // Import DataTables
 import DataTable from "datatables.net-bs5";

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Community;
 use App\Http\Controllers\Controller;
 use App\Services\Web\CommunityService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdoptionController extends Controller
 {
@@ -42,7 +43,7 @@ class AdoptionController extends Controller
 
     public function expressInterest(Request $request, $id)
     {
-        if (!auth()->check()) {
+        if (!Auth::check()) {
             return redirect()->route('auth.login')
                 ->with('info', 'Please login to express interest in adoption.');
         }
