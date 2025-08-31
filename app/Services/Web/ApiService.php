@@ -20,7 +20,7 @@ class ApiService
         Log::info('ApiService Base URL: ' . $this->baseUrl);
 
         $this->client = new Client([
-            'base_uri' => $this->baseUrl,
+            'base_uri' => $this->baseUrl . '/',
             'timeout' => config('pawtel.api.timeout', 30),
             'headers' => [
                 'Accept' => 'application/json',
@@ -33,6 +33,15 @@ class ApiService
     protected function makeRequest($method, $endpoint, $data = [], $headers = [])
     {
         try {
+            // Add debugging to see the full URL being called
+            $fullUrl = $this->baseUrl . '/' . ltrim($endpoint, '/');
+            Log::info('Making API request', [
+                'method' => $method,
+                'full_url' => $fullUrl,
+                'endpoint' => $endpoint,
+                'base_url' => $this->baseUrl
+            ]);
+
             $defaultHeaders = ApiHelper::getAuthHeaders();
 
             // Remove CSRF token for API requests (handled by Sanctum)
@@ -66,7 +75,8 @@ class ApiService
             Log::error('API Request Error: ' . $e->getMessage(), [
                 'method' => $method,
                 'endpoint' => $endpoint,
-                'data' => $data
+                'data' => $data,
+                'full_url' => $fullUrl ?? 'unknown'
             ]);
 
             return ApiHelper::handleApiError($e);

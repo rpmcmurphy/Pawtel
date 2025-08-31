@@ -14,6 +14,7 @@ use App\Services\{
     NotificationService,
     PricingService
 };
+use Illuminate\Support\Facades\Auth;
 
 class AppServiceProvider extends ServiceProvider
 {

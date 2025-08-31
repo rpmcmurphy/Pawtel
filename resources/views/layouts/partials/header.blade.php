@@ -69,13 +69,15 @@
                                 <li><a class="dropdown-item" href="{{ route('account.orders') }}">
                                         <i class="fas fa-shopping-bag"></i> My Orders
                                     </a></li>
-                                @if (session('user')['role'] === 'admin')
+                                @if (in_array('admin', session('user')['roles'] ?? []))
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
-                                    <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
                                             <i class="fas fa-cog"></i> Admin Panel
-                                        </a></li>
+                                        </a>
+                                    </li>
                                 @endif
                                 <li>
                                     <hr class="dropdown-divider">

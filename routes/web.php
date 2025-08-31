@@ -60,7 +60,7 @@ Route::prefix('auth')->name('auth.')->group(function () {
         Route::post('register', [RegisterController::class, 'register'])->name('register.post');
     });
 
-    Route::middleware('auth:web')->group(function () {
+    Route::middleware('auth.web')->group(function () {
         Route::post('logout', [LoginController::class, 'logout'])->name('logout');
         Route::get('profile', [ProfileController::class, 'show'])->name('profile');
         Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -75,7 +75,7 @@ Route::prefix('booking')->name('booking.')->group(function () {
         Route::get('rooms', [HotelController::class, 'rooms'])->name('rooms');
         Route::post('check-availability', [HotelController::class, 'checkAvailability'])->name('availability');
 
-        Route::middleware('auth:web')->group(function () {
+        Route::middleware('auth.web')->group(function () {
             Route::get('book', [HotelController::class, 'showBookingForm'])->name('form');
             Route::post('book', [HotelController::class, 'store'])->name('store');
             Route::get('confirmation/{booking}', [HotelController::class, 'confirmation'])->name('confirmation');
@@ -87,7 +87,7 @@ Route::prefix('booking')->name('booking.')->group(function () {
         Route::get('/', [SpaController::class, 'index'])->name('index');
         Route::get('packages', [SpaController::class, 'packages'])->name('packages');
 
-        Route::middleware('auth:web')->group(function () {
+        Route::middleware('auth.web')->group(function () {
             Route::get('book', [SpaController::class, 'showBookingForm'])->name('form');
             Route::post('book', [SpaController::class, 'store'])->name('store');
         });
@@ -97,7 +97,7 @@ Route::prefix('booking')->name('booking.')->group(function () {
     Route::prefix('spay')->name('spay.')->group(function () {
         Route::get('/', [SpayController::class, 'index'])->name('index');
 
-        Route::middleware('auth:web')->group(function () {
+        Route::middleware('auth.web')->group(function () {
             Route::get('book', [SpayController::class, 'showBookingForm'])->name('form');
             Route::post('book', [SpayController::class, 'store'])->name('store');
         });
@@ -110,7 +110,7 @@ Route::prefix('shop')->name('shop.')->group(function () {
     Route::get('category/{slug}', [ProductController::class, 'category'])->name('category');
     Route::get('product/{slug}', [ProductController::class, 'show'])->name('product');
 
-    Route::middleware('auth:web')->group(function () {
+    Route::middleware('auth.web')->group(function () {
         Route::get('cart', [CartController::class, 'index'])->name('cart');
         Route::post('cart/add', [CartController::class, 'add'])->name('cart.add');
         Route::put('cart/{id}', [CartController::class, 'update'])->name('cart.update');
@@ -128,14 +128,14 @@ Route::prefix('community')->name('community.')->group(function () {
     Route::get('adoption', [AdoptionController::class, 'index'])->name('adoption');
     Route::get('adoption/{slug}', [AdoptionController::class, 'show'])->name('adoption.show');
 
-    Route::middleware('auth:web')->group(function () {
+    Route::middleware('auth.web')->group(function () {
         Route::post('post/{id}/like', [PostController::class, 'like'])->name('post.like');
         Route::post('post/{id}/comment', [PostController::class, 'comment'])->name('post.comment');
     });
 });
 
 // My Account Routes
-Route::middleware('auth:web')->prefix('my-account')->name('account.')->group(function () {
+Route::middleware('auth.web')->prefix('my-account')->name('account.')->group(function () {
     Route::get('/', [ProfileController::class, 'dashboard'])->name('dashboard');
     Route::get('bookings', [ProfileController::class, 'bookings'])->name('bookings');
     Route::get('orders', [ProfileController::class, 'orders'])->name('orders');
