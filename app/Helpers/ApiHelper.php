@@ -31,20 +31,6 @@ class ApiHelper
         ];
     }
 
-    // public static function getAuthHeaders()
-    // {
-    //     $token = session('api_token');
-
-    //     return $token ? [
-    //         'Authorization' => 'Bearer ' . $token,
-    //         'Accept' => 'application/json',
-    //         'Content-Type' => 'application/json',
-    //     ] : [
-    //         'Accept' => 'application/json',
-    //         'Content-Type' => 'application/json',
-    //     ];
-    // }
-
     public static function getAuthHeaders()
     {
         $token = session('api_token');

@@ -5,7 +5,7 @@
 @section('content')
     <div class="hero-section">
         <div class="container">
-            <div class="row align-items-center min-vh-100">
+            <div class="row align-items-center">
                 <div class="col-lg-6">
                     <div class="hero-content">
                         <h2 class="hero-subtitle">OUR SERVICES</h2>
