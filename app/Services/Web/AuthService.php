@@ -85,6 +85,14 @@ class AuthService extends ApiService
         return Session::has('api_token') && Session::has('user');
     }
 
+    // public function isAdmin()
+    // {
+    //     $user = $this->getUser();
+    //     $roles = $user['roles'] ?? [];
+
+    //     return in_array('admin', $roles, true) || in_array('super_admin', $roles, true);
+    // }
+
     public function getUser()
     {
         return Session::get('user');
@@ -99,8 +107,124 @@ class AuthService extends ApiService
     public function isAdmin()
     {
         $user = $this->getUser();
+
+        if (!$user) {
+            Log::info('No user found in session for admin check');
+            return false;
+        }
+
+        // Get roles - handle both array format and string format
         $roles = $user['roles'] ?? [];
 
-        return in_array('admin', $roles, true) || in_array('super_admin', $roles, true);
+        Log::info('Admin check details', [
+            'user_id' => $user['id'] ?? null,
+            'user_email' => $user['email'] ?? null,
+            'roles_raw' => $roles,
+            'roles_type' => gettype($roles)
+        ]);
+
+        // Handle different role data structures
+        if (is_string($roles)) {
+            // If roles is a single string
+            $rolesArray = [$roles];
+        } elseif (is_array($roles)) {
+            // If roles is already an array
+            if (empty($roles)) {
+                Log::info('User has no roles assigned');
+                return false;
+            }
+
+            // Check if it's an array of role objects or just role names
+            $rolesArray = [];
+            foreach ($roles as $role) {
+                if (is_array($role) && isset($role['name'])) {
+                    // Role object with 'name' field
+                    $rolesArray[] = $role['name'];
+                } elseif (is_string($role)) {
+                    // Direct role name
+                    $rolesArray[] = $role;
+                }
+            }
+        } else {
+            Log::warning('Unexpected roles data type', ['roles' => $roles]);
+            return false;
+        }
+
+        Log::info('Processed roles for admin check', [
+            'processed_roles' => $rolesArray
+        ]);
+
+        $isAdmin = in_array('admin', $rolesArray, true) || in_array('super_admin', $rolesArray, true);
+
+        Log::info('Admin check result', [
+            'is_admin' => $isAdmin,
+            'checked_roles' => $rolesArray
+        ]);
+
+        return $isAdmin;
+    }
+
+    /**
+     * Check if user has a specific role
+     */
+    public function hasRole($roleName)
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            return false;
+        }
+
+        $roles = $user['roles'] ?? [];
+
+        // Handle different role data structures
+        if (is_string($roles)) {
+            return $roles === $roleName;
+        }
+
+        if (is_array($roles)) {
+            foreach ($roles as $role) {
+                if (is_array($role) && isset($role['name'])) {
+                    if ($role['name'] === $roleName) {
+                        return true;
+                    }
+                } elseif (is_string($role)) {
+                    if ($role === $roleName) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get all user roles as array of strings
+     */
+    public function getUserRoles()
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            return [];
+        }
+
+        $roles = $user['roles'] ?? [];
+        $rolesArray = [];
+
+        if (is_string($roles)) {
+            $rolesArray = [$roles];
+        } elseif (is_array($roles)) {
+            foreach ($roles as $role) {
+                if (is_array($role) && isset($role['name'])) {
+                    $rolesArray[] = $role['name'];
+                } elseif (is_string($role)) {
+                    $rolesArray[] = $role;
+                }
+            }
+        }
+
+        return $rolesArray;
     }
 }

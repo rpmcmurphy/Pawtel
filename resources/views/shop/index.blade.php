@@ -102,7 +102,7 @@
                                             <img src="{{ $product['image_url'] ?? 'https://via.placeholder.com/300x200' }}"
                                                 alt="{{ $product['name'] }}" class="img-fluid">
 
-                                            @if ($product['is_featured'])
+                                            @if ($product['is_featured'] ?? false)
                                                 <span class="product-badge">Featured</span>
                                             @endif
 
@@ -129,10 +129,9 @@
 
                                             <div class="product-price">
                                                 ৳{{ number_format($product['price'], 2) }}
-                                                @if ($product['original_price'] && $product['original_price'] > $product['price'])
-                                                    <span class="original-price">
-                                                        ৳{{ number_format($product['original_price'], 2) }}
-                                                    </span>
+                                                @if (($product['original_price'] ?? 0) > $product['price'])
+                                                    <span
+                                                        class="original-price">৳{{ number_format($product['original_price'], 2) }}</span>
                                                 @endif
                                             </div>
 

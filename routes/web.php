@@ -50,6 +50,7 @@ Route::get('/password/reset/{token}', function ($token) {
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('login', [LoginController::class, 'showLogin'])->name('login');
 
 // Auth Routes
 Route::prefix('auth')->name('auth.')->group(function () {
@@ -143,3 +144,5 @@ Route::middleware('auth.web')->prefix('my-account')->name('account.')->group(fun
     Route::get('order/{id}', [ProfileController::class, 'order'])->name('order.show');
     Route::post('booking/{id}/cancel', [ProfileController::class, 'cancelBooking'])->name('booking.cancel');
 });
+
+require __DIR__ . '/admin.php';

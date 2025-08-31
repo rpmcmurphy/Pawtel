@@ -32,19 +32,20 @@ class WebAuthMiddleware
                 ->with('error', 'Please login to access this page.');
         }
 
-        // Validate token by making a profile request
+        // Refresh user profile to get latest data
         $profileResponse = $this->authService->getProfile();
-
         if (!$profileResponse['success']) {
-            // Token is invalid, clear session and redirect to login
             session()->forget(['api_token', 'user']);
-
-            if ($request->expectsJson()) {
-                return response()->json(['message' => 'Token expired'], 401);
-            }
-
             return redirect()->route('auth.login')
                 ->with('error', 'Your session has expired. Please login again.');
+        }
+
+        // Check if user has admin role
+        if (!$this->authService->isAdmin()) {
+            $user = $this->authService->getUser();
+
+            return redirect()->route('home')
+                ->with('error', 'Access denied. Admin privileges required.');
         }
 
         return $next($request);
