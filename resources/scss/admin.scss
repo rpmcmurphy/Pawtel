@@ -20,6 +20,11 @@
 @import 'abstracts/variables';
 @import 'abstracts/mixins';
 
+a,
+button {
+    text-decoration: none !important;
+}
+
 // Admin specific styles
 .admin-layout {
     background: var(--bs-gray-100);
@@ -101,6 +106,10 @@
             background: rgba(255, 255, 255, 0.1);
             margin: 1rem 0;
         }
+    }
+
+    .divider-title {
+        padding: 0 1.5rem;
     }
 }
 

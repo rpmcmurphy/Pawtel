@@ -37,3 +37,8 @@
 @import '@/scss/pages/booking';
 @import '@/scss/pages/auth';
 @import '@/scss/pages/community';
+
+a,
+button {
+    text-decoration: none !important;
+}
