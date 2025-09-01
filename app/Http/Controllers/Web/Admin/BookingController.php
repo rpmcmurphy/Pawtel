@@ -159,7 +159,7 @@ class BookingController extends Controller
         }
 
         return view('admin.bookings.show', [
-            'booking' => $booking['data']
+            'booking' => $booking['data']['data']
         ]);
     }
 

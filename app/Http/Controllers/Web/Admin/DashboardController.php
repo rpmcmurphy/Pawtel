@@ -18,7 +18,7 @@ class DashboardController extends Controller
     {
         // Get dashboard statistics
         $stats = $this->adminService->getDashboardStats();
-        $recentActivity = $this->adminService->getRecentActivity();
+        $recentActivity = $this->adminService->getRecentActivities();
 
         return view('admin.dashboard', [
             'stats' => $stats['success'] ? $stats['data'] : [],

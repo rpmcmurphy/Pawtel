@@ -166,54 +166,45 @@
 
         function confirmBooking(bookingId) {
             if (confirm('Are you sure you want to confirm this booking?')) {
-                fetch(`/admin/bookings/booking/${bookingId}/confirm`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'Accept': 'application/json',
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert('Failed to confirm booking: ' + (data.message || 'Unknown error'));
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Failed to confirm booking');
-                    });
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/bookings/${bookingId}/confirm`;
+
+                // Add CSRF token
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = '{{ csrf_token() }}';
+                form.appendChild(csrfInput);
+
+                document.body.appendChild(form);
+                form.submit();
             }
         }
 
         function cancelBooking(bookingId) {
             const reason = prompt('Please enter cancellation reason:');
-            if (reason) {
-                fetch(`/admin/bookings/booking/${bookingId}/cancel`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            reason: reason
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert('Failed to cancel booking: ' + (data.message || 'Unknown error'));
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Failed to cancel booking');
-                    });
+            if (reason && reason.trim() !== '') {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/bookings/${bookingId}/cancel`;
+
+                // Add CSRF token
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = '{{ csrf_token() }}';
+                form.appendChild(csrfInput);
+
+                // Add reason
+                const reasonInput = document.createElement('input');
+                reasonInput.type = 'hidden';
+                reasonInput.name = 'reason';
+                reasonInput.value = reason;
+                form.appendChild(reasonInput);
+
+                document.body.appendChild(form);
+                form.submit();
             }
         }
 

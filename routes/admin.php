@@ -17,13 +17,14 @@ Route::middleware(['auth.web', 'admin.web'])->prefix('admin')->name('admin.')->g
     // Bookings Management
     Route::prefix('bookings')->name('bookings.')->group(function () {
         Route::get('/', [BookingController::class, 'index'])->name('index');
-        Route::get('create', [BookingController::class, 'create'])->name('create'); // Added
-        Route::post('/', [BookingController::class, 'store'])->name('store'); // Added
-        Route::get('{type}', [BookingController::class, 'byType'])->name('type');
-        Route::get('booking/{id}', [BookingController::class, 'show'])->name('show');
-        Route::put('booking/{id}/status', [BookingController::class, 'updateStatus'])->name('status');
-        Route::post('booking/{id}/confirm', [BookingController::class, 'confirm'])->name('confirm');
-        Route::post('booking/{id}/cancel', [BookingController::class, 'cancel'])->name('cancel');
+        Route::get('create', [BookingController::class, 'create'])->name('create');
+        Route::post('/', [BookingController::class, 'store'])->name('store');
+        Route::get('{id}', [BookingController::class, 'show'])->name('show'); // FIXED: removed 'booking/' prefix
+        Route::get('{id}/edit', [BookingController::class, 'edit'])->name('edit'); // ADDED
+        Route::put('{id}', [BookingController::class, 'update'])->name('update'); // ADDED
+        Route::post('{id}/confirm', [BookingController::class, 'confirm'])->name('confirm');
+        Route::post('{id}/cancel', [BookingController::class, 'cancel'])->name('cancel');
+        Route::get('type/{type}', [BookingController::class, 'byType'])->name('type'); // FIXED: moved to end
     });
 
     // Products Management

@@ -304,7 +304,7 @@
     </form>
 @endsection
 
-@section('scripts')
+@push('scripts')
     <script type="module">
         $(document).ready(function() {
             let addonIndex = {{ old('addons') ? count(old('addons')) : 0 }};
@@ -448,4 +448,4 @@
             }
         }
     </script>
-@endsection
+@endpush
