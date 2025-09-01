@@ -66,6 +66,28 @@ class ReportController extends Controller
         ]);
     }
 
+    // public function financial(Request $request)
+    // {
+    //     $params = $request->only([
+    //         'date_from',
+    //         'date_to',
+    //         'type',
+    //         'group_by',
+    //         'format'
+    //     ]);
+
+    //     $reports = $this->adminService->getFinancialReports($params);
+
+    //     if ($request->get('format') === 'json') {
+    //         return response()->json($reports);
+    //     }
+
+    //     return view('admin.reports.financial', [
+    //         'reports' => $reports['success'] ? $reports['data'] : [],
+    //         'filters' => $params
+    //     ]);
+    // }
+
     public function financial(Request $request)
     {
         $params = $request->only([

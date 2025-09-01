@@ -42,15 +42,23 @@ class OrderRepository
     public function getRevenueForDate(Carbon $date): float
     {
         return Order::whereDate('created_at', $date)
-            ->where('status', 'delivered')
+            ->whereIn('status', ['delivered', 'completed'])
             ->sum('total_amount');
     }
 
     public function getRevenueForPeriod(Carbon $start, Carbon $end): float
     {
         return Order::whereBetween('created_at', [$start, $end])
-            ->where('status', 'delivered')
+            ->whereIn('status', ['delivered', 'completed'])
             ->sum('total_amount');
+    }
+
+    public function getCountByStatus(): array
+    {
+        return Order::selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->get()
+            ->toArray();
     }
 
     public function getWithFilters(array $filters, int $perPage = 15)

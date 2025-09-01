@@ -48,21 +48,38 @@ class ProductRepository
         return Product::where('status', 'out_of_stock')->count();
     }
 
+    // public function getTopSellingProducts(int $limit = 10): array
+    // {
+    //     return Product::withSum('orderItems as total_sold', 'quantity')
+    //         ->orderBy('total_sold', 'desc')
+    //         ->limit($limit)
+    //         ->get()
+    //         ->map(function ($product) {
+    //             return [
+    //                 'id' => $product->id,
+    //                 'name' => $product->name,
+    //                 'total_sold' => $product->total_sold ?? 0,
+    //                 'price' => $product->price,
+    //                 'revenue' => ($product->total_sold ?? 0) * $product->price,
+    //             ];
+    //         })
+    //         ->toArray();
+    // }
+
     public function getTopSellingProducts(int $limit = 10): array
     {
-        return Product::withSum('orderItems as total_sold', 'quantity')
+        return Product::select('products.id', 'products.name', 'products.price')
+            ->selectRaw('COALESCE(SUM(order_items.quantity), 0) as total_sold')
+            ->selectRaw('COALESCE(SUM(order_items.total_price), 0) as total_revenue')
+            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+            ->leftJoin('orders', function ($join) {
+                $join->on('order_items.order_id', '=', 'orders.id')
+                    ->whereIn('orders.status', ['delivered', 'completed']);
+            })
+            ->groupBy('products.id', 'products.name', 'products.price')
             ->orderBy('total_sold', 'desc')
             ->limit($limit)
             ->get()
-            ->map(function ($product) {
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'total_sold' => $product->total_sold ?? 0,
-                    'price' => $product->price,
-                    'revenue' => ($product->total_sold ?? 0) * $product->price,
-                ];
-            })
             ->toArray();
     }
 

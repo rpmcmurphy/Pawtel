@@ -36,7 +36,7 @@ class UserController extends Controller
         }
 
         return view('admin.users.show', [
-            'user' => $user['data']
+            'user' => $user['data']['data']
         ]);
     }
 
