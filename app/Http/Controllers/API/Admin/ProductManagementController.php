@@ -11,6 +11,7 @@ use App\Repositories\ProductRepository;
 use App\Services\Admin\ProductManagementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ProductManagementController extends Controller
 {
@@ -48,6 +49,7 @@ class ProductManagementController extends Controller
 
     public function store(CreateProductRequest $request): JsonResponse
     {
+        Log::error('Product Dataaaa:', $request->validated());
         try {
             $product = $this->productService->createProduct($request->validated());
 

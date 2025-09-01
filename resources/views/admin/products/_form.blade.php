@@ -287,7 +287,7 @@
 </div>
 
 @push('scripts')
-    <script>
+    <script type="module">
         $(document).ready(function() {
             let specIndex = {{ count($specifications ?? []) }};
 

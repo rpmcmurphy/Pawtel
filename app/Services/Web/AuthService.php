@@ -2,7 +2,6 @@
 
 namespace App\Services\Web;
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 class AuthService extends ApiService
@@ -52,8 +51,10 @@ class AuthService extends ApiService
         $response = $this->get('auth/profile');
 
         if ($response['success']) {
-            // Update session with fresh user data
-            Session::put('user', $response['data']['data']['user']);
+            $userData = $response['data']['data']['user'] ?? $response['data']['user'] ?? null;
+            if ($userData) {
+                Session::put('user', $userData);
+            }
         }
 
         return $response;
@@ -64,7 +65,10 @@ class AuthService extends ApiService
         $response = $this->put('auth/profile', $profileData);
 
         if ($response['success']) {
-            Session::put('user', $response['data']['data']['user']);
+            $userData = $response['data']['data']['user'] ?? $response['data']['user'] ?? null;
+            if ($userData) {
+                Session::put('user', $userData);
+            }
         }
 
         return $response;

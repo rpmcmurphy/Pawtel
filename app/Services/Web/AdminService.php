@@ -2,6 +2,8 @@
 
 namespace App\Services\Web;
 
+use Illuminate\Support\Facades\Log;
+
 class AdminService extends ApiService
 {
     // Dashboard Methods
@@ -57,6 +59,7 @@ class AdminService extends ApiService
 
     public function createProduct($productData)
     {
+        Log::error('Admin Service Product Data:', $productData);
         return $this->post('admin/products', $productData);
     }
 

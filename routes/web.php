@@ -143,18 +143,18 @@ Route::middleware('auth.web')->prefix('my-account')->name('account.')->group(fun
 
 require __DIR__ . '/admin.php';
 
-// Route::middleware('auth.web')->get('/debug-auth', function () {
-//     $authService = app(\App\Services\Web\AuthService::class);
+Route::middleware('auth.web')->get('/debug-auth', function () {
+    $authService = app(\App\Services\Web\AuthService::class);
 
-//     return response()->json([
-//         'authenticated' => $authService->isAuthenticated(),
-//         'is_admin' => $authService->isAdmin(),
-//         'user' => $authService->getUser(),
-//         'user_roles' => $authService->getUserRoles(),
-//         'session_data' => [
-//             'has_token' => session()->has('api_token'),
-//             'has_user' => session()->has('user'),
-//             'token' => session()->get('api_token') ? 'Present' : 'Missing',
-//         ]
-//     ]);
-// });
+    return response()->json([
+        'authenticated' => $authService->isAuthenticated(),
+        'is_admin' => $authService->isAdmin(),
+        'user' => $authService->getUser(),
+        'user_roles' => $authService->getUserRoles(),
+        'session_data' => [
+            'has_token' => session()->has('api_token'),
+            'has_user' => session()->has('user'),
+            'token' => session()->get('api_token') ? 'Present' : 'Missing',
+        ]
+    ]);
+});

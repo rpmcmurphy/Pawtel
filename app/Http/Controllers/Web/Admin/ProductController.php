@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Web\AdminService;
 use App\Services\Web\ShopService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -42,81 +43,104 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'compare_price' => 'nullable|numeric|min:0',
-            'category_id' => 'required|integer|exists:product_categories,id',
-            'sku' => 'nullable|string|max:100|unique:products,sku',
-            'stock_quantity' => 'required|integer|min:0',
-            'low_stock_threshold' => 'nullable|integer|min:0',
-            'status' => 'required|in:active,inactive,out_of_stock',
-            'featured' => 'boolean',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'specifications' => 'nullable|array',
-            'specifications.*.key' => 'required_with:specifications.*.value|string|max:255',
-            'specifications.*.value' => 'required_with:specifications.*.key|string|max:255',
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'price' => 'required|numeric|min:0',
+                'compare_price' => 'nullable|numeric|min:0',
+                'category_id' => 'required|integer|exists:product_categories,id',
+                'sku' => 'nullable|string|max:100|unique:products,sku',
+                'stock_quantity' => 'required|integer|min:0',
+                'low_stock_threshold' => 'nullable|integer|min:0',
+                'status' => 'required|in:active,inactive,out_of_stock',
+                'featured' => 'boolean',
+                'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'specifications' => 'nullable|array',
+                'specifications.*.key' => 'required_with:specifications.*.value|string|max:255',
+                'specifications.*.value' => 'required_with:specifications.*.key|string|max:255',
+            ]);
 
-        $productData = $request->only([
-            'name',
-            'description',
-            'price',
-            'compare_price',
-            'category_id',
-            'sku',
-            'stock_quantity',
-            'low_stock_threshold',
-            'status'
-        ]);
+            // Prepare product data
+            $productData = $request->only([
+                'name',
+                'description',
+                'price',
+                'compare_price',
+                'category_id',
+                'sku',
+                'stock_quantity',
+                'low_stock_threshold',
+                'status'
+            ]);
 
-        // Handle featured checkbox
-        $productData['featured'] = $request->has('featured');
+            // Handle featured checkbox
+            $productData['featured'] = $request->has('featured');
 
-        // Handle specifications - filter out empty ones
-        $specifications = [];
-        if ($request->has('specifications')) {
-            foreach ($request->input('specifications', []) as $spec) {
-                if (!empty($spec['key']) && !empty($spec['value'])) {
-                    $specifications[$spec['key']] = $spec['value'];
+            // Handle specifications - convert to object format expected by API
+            $specifications = [];
+            if ($request->has('specifications')) {
+                foreach ($request->input('specifications', []) as $spec) {
+                    if (!empty($spec['key']) && !empty($spec['value'])) {
+                        $specifications[$spec['key']] = $spec['value'];
+                    }
                 }
             }
-        }
-        $productData['specifications'] = $specifications;
+            $productData['specifications'] = $specifications;
 
-        // Handle image uploads
-        $images = [];
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $uploadResponse = $this->adminService->uploadProductImage($image);
-                if ($uploadResponse['success']) {
-                    $images[] = $uploadResponse['data']['path'];
+            // Handle image uploads - convert to array format expected by API
+            $images = [];
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $uploadResponse = $this->adminService->uploadProductImage($image);
+                    if ($uploadResponse['success']) {
+                        // Extract filename from path or URL
+                        $imagePath = $uploadResponse['data']['path'] ?? $uploadResponse['data']['url'] ?? '';
+                        $images[] = basename($imagePath);
+                    }
                 }
             }
-        }
-        $productData['images'] = $images;
+            $productData['images'] = $images;
 
-        // Set default values
-        $productData['low_stock_threshold'] = $productData['low_stock_threshold'] ?? 5;
+            // Set default values
+            $productData['low_stock_threshold'] = $productData['low_stock_threshold'] ?? 5;
 
-        $response = $this->adminService->createProduct($productData);
+            Log::info('Product data being sent to API:', $productData);
 
-        if ($response['success']) {
-            $message = 'Product created successfully!';
+            $response = $this->adminService->createProduct($productData);
 
-            if ($request->has('save_and_continue')) {
-                return redirect()->route('admin.products.edit', $response['data']['id'])
+            Log::info('API Response:', $response);
+
+            if ($response['success']) {
+                $message = 'Product created successfully!';
+
+                if ($request->has('save_and_continue')) {
+                    $productId = $response['data']['id'] ?? null;
+                    if ($productId) {
+                        return redirect()->route('admin.products.edit', $productId)
+                            ->with('success', $message);
+                    }
+                }
+
+                return redirect()->route('admin.products.index')
                     ->with('success', $message);
             }
 
-            return redirect()->route('admin.products.index')
-                ->with('success', $message);
-        }
+            return redirect()->back()
+                ->with('error', $response['message'] ?? 'Failed to create product.')
+                ->withInput();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            Log::error('Product creation error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
 
-        return redirect()->back()
-            ->with('error', $response['message'] ?? 'Failed to create product.')
-            ->withInput();
+            return redirect()->back()
+                ->with('error', 'An error occurred while creating the product. Please check the logs.')
+                ->withInput();
+        }
     }
 
     public function show($id)
@@ -151,81 +175,101 @@ class ProductController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'compare_price' => 'nullable|numeric|min:0',
-            'category_id' => 'required|integer|exists:product_categories,id',
-            'sku' => 'nullable|string|max:100|unique:products,sku,' . $id,
-            'stock_quantity' => 'required|integer|min:0',
-            'low_stock_threshold' => 'nullable|integer|min:0',
-            'status' => 'required|in:active,inactive,out_of_stock',
-            'featured' => 'boolean',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'specifications' => 'nullable|array',
-            'specifications.*.key' => 'required_with:specifications.*.value|string|max:255',
-            'specifications.*.value' => 'required_with:specifications.*.key|string|max:255',
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'price' => 'required|numeric|min:0',
+                'compare_price' => 'nullable|numeric|min:0',
+                'category_id' => 'required|integer|exists:product_categories,id',
+                'sku' => 'nullable|string|max:100|unique:products,sku,' . $id,
+                'stock_quantity' => 'required|integer|min:0',
+                'low_stock_threshold' => 'nullable|integer|min:0',
+                'status' => 'required|in:active,inactive,out_of_stock',
+                'featured' => 'boolean',
+                'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'specifications' => 'nullable|array',
+                'specifications.*.key' => 'required_with:specifications.*.value|string|max:255',
+                'specifications.*.value' => 'required_with:specifications.*.key|string|max:255',
+            ]);
 
-        $productData = $request->only([
-            'name',
-            'description',
-            'price',
-            'compare_price',
-            'category_id',
-            'sku',
-            'stock_quantity',
-            'low_stock_threshold',
-            'status'
-        ]);
+            // Prepare product data
+            $productData = $request->only([
+                'name',
+                'description',
+                'price',
+                'compare_price',
+                'category_id',
+                'sku',
+                'stock_quantity',
+                'low_stock_threshold',
+                'status'
+            ]);
 
-        // Handle featured checkbox
-        $productData['featured'] = $request->has('featured');
+            // Handle featured checkbox
+            $productData['featured'] = $request->has('featured');
 
-        // Handle specifications - filter out empty ones
-        $specifications = [];
-        if ($request->has('specifications')) {
-            foreach ($request->input('specifications', []) as $spec) {
-                if (!empty($spec['key']) && !empty($spec['value'])) {
-                    $specifications[$spec['key']] = $spec['value'];
+            // Handle specifications - convert to object format expected by API
+            $specifications = [];
+            if ($request->has('specifications')) {
+                foreach ($request->input('specifications', []) as $spec) {
+                    if (!empty($spec['key']) && !empty($spec['value'])) {
+                        $specifications[$spec['key']] = $spec['value'];
+                    }
                 }
             }
-        }
-        $productData['specifications'] = $specifications;
+            $productData['specifications'] = $specifications;
 
-        // Handle image uploads - only add if new images are uploaded
-        if ($request->hasFile('images')) {
-            $images = [];
-            foreach ($request->file('images') as $image) {
-                $uploadResponse = $this->adminService->uploadProductImage($image);
-                if ($uploadResponse['success']) {
-                    $images[] = $uploadResponse['data']['path'];
+            // Handle image uploads - only add if new images are uploaded
+            if ($request->hasFile('images')) {
+                $images = [];
+                foreach ($request->file('images') as $image) {
+                    $uploadResponse = $this->adminService->uploadProductImage($image);
+                    if ($uploadResponse['success']) {
+                        // Extract filename from path or URL
+                        $imagePath = $uploadResponse['data']['path'] ?? $uploadResponse['data']['url'] ?? '';
+                        $images[] = basename($imagePath);
+                    }
+                }
+                // Only update images if new ones were uploaded
+                if (!empty($images)) {
+                    $productData['images'] = $images;
                 }
             }
-            // Only update images if new ones were uploaded
-            if (!empty($images)) {
-                $productData['images'] = $images;
-            }
-        }
 
-        $response = $this->adminService->updateProduct($id, $productData);
+            Log::info('Product update data being sent to API:', $productData);
 
-        if ($response['success']) {
-            $message = 'Product updated successfully!';
+            $response = $this->adminService->updateProduct($id, $productData);
 
-            if ($request->has('save_and_continue')) {
-                return redirect()->route('admin.products.edit', $id)
+            Log::info('API Update Response:', $response);
+
+            if ($response['success']) {
+                $message = 'Product updated successfully!';
+
+                if ($request->has('save_and_continue')) {
+                    return redirect()->route('admin.products.edit', $id)
+                        ->with('success', $message);
+                }
+
+                return redirect()->route('admin.products.index')
                     ->with('success', $message);
             }
 
-            return redirect()->route('admin.products.index')
-                ->with('success', $message);
-        }
+            return redirect()->back()
+                ->with('error', $response['message'] ?? 'Failed to update product.')
+                ->withInput();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            Log::error('Product update error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
 
-        return redirect()->back()
-            ->with('error', $response['message'] ?? 'Failed to update product.')
-            ->withInput();
+            return redirect()->back()
+                ->with('error', 'An error occurred while updating the product. Please check the logs.')
+                ->withInput();
+        }
     }
 
     public function destroy($id)

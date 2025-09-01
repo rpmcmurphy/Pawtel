@@ -1,5 +1,4 @@
 <?php
-// app/Services/Web/ApiService.php
 namespace App\Services\Web;
 
 use GuzzleHttp\Client;
