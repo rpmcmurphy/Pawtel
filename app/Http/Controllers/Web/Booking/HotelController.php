@@ -17,7 +17,11 @@ class HotelController extends Controller
 
     public function index()
     {
-        return view('booking.hotel.index');
+        $roomTypes = $this->bookingService->getRoomTypes();
+
+        return view('booking.hotel.index', [
+            'roomTypes' => $roomTypes['success'] ? $roomTypes['data'] : []
+        ]);
     }
 
     public function rooms()
@@ -34,7 +38,7 @@ class HotelController extends Controller
         $request->validate([
             'check_in_date' => 'required|date|after_or_equal:today',
             'check_out_date' => 'required|date|after:check_in_date',
-            'room_type_id' => 'required|integer',
+            'room_type_id' => 'required|integer|exists:room_types,id',
         ]);
 
         $params = $request->only(['check_in_date', 'check_out_date', 'room_type_id']);
@@ -68,10 +72,10 @@ class HotelController extends Controller
         $request->validate([
             'check_in_date' => 'required|date|after_or_equal:today',
             'check_out_date' => 'required|date|after:check_in_date',
-            'room_type_id' => 'required|integer',
+            'room_type_id' => 'required|integer|exists:room_types,id',
             'special_requests' => 'nullable|string|max:1000',
             'addons' => 'nullable|array',
-            'addons.*' => 'integer',
+            'addons.*' => 'integer|exists:addon_services,id',
         ]);
 
         $bookingData = $request->only([

@@ -105,7 +105,7 @@
 @endsection
 
 @push('scripts')
-    <script>
+    <script type="module">
         document.addEventListener('click', function(e) {
             if (e.target.matches('.like-btn') || e.target.closest('.like-btn')) {
                 e.preventDefault();

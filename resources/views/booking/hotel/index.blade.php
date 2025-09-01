@@ -87,10 +87,25 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/modules/booking.js') }}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    <script type="module" src="{{ asset('js/modules/booking.js') }}"></script>
+    <script type="module">
+        // Add to booking form
+        $(document).ready(function() {
+            loadRoomTypes();
             Booking.initHotelBooking();
         });
+
+        function loadRoomTypes() {
+            $.get('/api/availability/room-types', function(data) {
+                $('#room_type_id').empty().append('<option value="">Select Room Type</option>');
+                if (data.success && data.data) {
+                    data.data.forEach(function(room) {
+                        $('#room_type_id').append(
+                            `<option value="${room.id}">${room.name} - ৳${room.base_daily_rate}/night</option>`
+                            );
+                    });
+                }
+            });
+        }
     </script>
 @endpush

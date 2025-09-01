@@ -46,24 +46,29 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'original_price' => 'nullable|numeric|min:0',
-            'category_id' => 'required|integer',
-            'brand' => 'nullable|string|max:100',
-            'sku' => 'nullable|string|max:100',
+            'category_id' => 'required|integer|exists:product_categories,id',
+            'sku' => 'nullable|string|max:100|unique:products,sku',
             'stock_quantity' => 'required|integer|min:0',
-            'weight' => 'nullable|numeric|min:0',
-            'dimensions' => 'nullable|string|max:100',
             'status' => 'required|in:active,inactive,out_of_stock',
             'featured' => 'boolean',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string|max:500',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $productData = $request->except(['image', '_token']);
+        $productData = $request->only([
+            'name',
+            'description',
+            'price',
+            'category_id',
+            'sku',
+            'stock_quantity',
+            'status',
+            'featured'
+        ]);
+
+        // Convert featured checkbox to boolean
+        $productData['featured'] = $request->has('featured') ? 1 : 0;
 
         if ($request->hasFile('image')) {
-            // Handle file upload through API
             $uploadResponse = $this->adminService->uploadProductImage($request->file('image'));
             if ($uploadResponse['success']) {
                 $productData['image_url'] = $uploadResponse['data']['url'];
@@ -92,7 +97,7 @@ class ProductController extends Controller
         }
 
         return view('admin.products.show', [
-            'product' => $product['data']
+            'product' => $product['data']['data']
         ]);
     }
 
@@ -108,7 +113,7 @@ class ProductController extends Controller
 
         return view('admin.products.edit', [
             'product' => $product['data'],
-            'categories' => $categories['success'] ? $categories['data'] : []
+            'categories' => $categories['success'] ? $categories['data']['data'] : []
         ]);
     }
 
@@ -118,21 +123,26 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'original_price' => 'nullable|numeric|min:0',
-            'category_id' => 'required|integer',
-            'brand' => 'nullable|string|max:100',
-            'sku' => 'nullable|string|max:100',
+            'category_id' => 'required|integer|exists:product_categories,id',
+            'sku' => 'nullable|string|max:100|unique:products,sku,' . $id,
             'stock_quantity' => 'required|integer|min:0',
-            'weight' => 'nullable|numeric|min:0',
-            'dimensions' => 'nullable|string|max:100',
             'status' => 'required|in:active,inactive,out_of_stock',
             'featured' => 'boolean',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string|max:500',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        $productData = $request->except(['image', '_token', '_method']);
+        $productData = $request->only([
+            'name',
+            'description',
+            'price',
+            'category_id',
+            'sku',
+            'stock_quantity',
+            'status',
+            'featured'
+        ]);
+
+        $productData['featured'] = $request->has('featured') ? 1 : 0;
 
         if ($request->hasFile('image')) {
             $uploadResponse = $this->adminService->uploadProductImage($request->file('image'));

@@ -96,7 +96,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('auth.login') }}">Login</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item d-flex align-items-center justify-content-center">
                             <a class="btn btn-primary btn-sm ms-2" href="{{ route('auth.register') }}">Register</a>
                         </li>
                     @endif

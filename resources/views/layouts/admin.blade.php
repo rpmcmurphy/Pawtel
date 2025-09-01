@@ -10,7 +10,6 @@
     <!-- Vite Assets -->
     @vite(['resources/scss/admin.scss', 'resources/js/admin.js'])
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
     @stack('styles')
 </head>
 

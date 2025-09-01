@@ -466,7 +466,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script type="module">
 $(document).ready(function() {
     // Show/hide booking details based on type selection
     $('.booking-type').change(function() {

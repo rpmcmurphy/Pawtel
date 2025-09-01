@@ -4,7 +4,7 @@ window.axios = axios;
 window.axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 
 // Set CSRF token
-// Get CSRF token from meta tagor cookie
+// Get CSRF token from meta tag or cookie
 const getCsrfToken = () => {
     const metaTag = document.querySelector('meta[name="csrf-token"]');
     if (metaTag) {
@@ -25,13 +25,6 @@ if (csrfToken) {
     console.log("CSRF token found:", csrfToken);
     window.axios.defaults.headers.common["X-CSRF-TOKEN"] = csrfToken;
 }
-
-// const token = document.head.querySelector('meta[name="csrf-token"]');
-// if (token) {
-//     window.axios.defaults.headers.common["X-CSRF-TOKEN"] = token.content;
-// } else {
-//     console.error("CSRF token not found");
-// }
 
 // Import jQuery
 import $ from "jquery";

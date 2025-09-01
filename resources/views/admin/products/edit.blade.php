@@ -1,4 +1,3 @@
-{{-- resources/views/admin/products/edit.blade.php --}}
 @extends('layouts.admin')
 
 @section('title', 'Edit Product - Admin')
@@ -6,7 +5,7 @@
 @section('page-header')
     <div class="d-flex justify-content-between align-items-center">
         <div>
-            <h1 class="h3 mb-0">Edit Product: {{ $product['name'] ?? 'Unknown Product' }}</h1>
+            <h1 class="h3 mb-0">Edit Product: {{ $product['data']['name'] ?? 'Unknown Product' }}</h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
@@ -16,7 +15,7 @@
             </nav>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('admin.products.show', $product['id']) }}" class="btn btn-info">
+            <a href="{{ route('admin.products.show', $product['data']['id']) }}" class="btn btn-info">
                 <i class="fas fa-eye"></i> View Product
             </a>
             <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">
@@ -28,8 +27,8 @@
 
 @section('content')
     @include('admin.products._form', [
-        'product' => $product,
+        'product' => $product['data'],
         'method' => 'PUT',
-        'action' => route('admin.products.update', $product['id'])
+        'action' => route('admin.products.update', $product['data']['id'])
     ])
 @endsection

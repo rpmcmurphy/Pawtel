@@ -201,7 +201,7 @@
 @endsection
 
 @push('scripts')
-    <script>
+    <script type="module">
         document.addEventListener('DOMContentLoaded', function() {
             // Revenue Chart
             const revenueCtx = document.getElementById('revenueChart').getContext('2d');

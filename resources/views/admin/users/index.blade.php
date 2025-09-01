@@ -246,7 +246,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script type="module">
     function changeUserStatus(userId) {
         const form = document.getElementById('statusForm');
         form.action = `/admin/users/${userId}/status`;

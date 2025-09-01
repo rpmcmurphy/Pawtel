@@ -154,7 +154,7 @@
 @endsection
 
 @push('scripts')
-    <script>
+    <script type="module">
         $(document).ready(function() {
             $('#bookingsTable').DataTable({
                 paging: true,

@@ -443,7 +443,7 @@
 @endpush
 
 @push('scripts')
-<script>
+<script type="module">
 $(document).ready(function() {
     loadSpayPackages();
 });

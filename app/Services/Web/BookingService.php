@@ -7,7 +7,7 @@ class BookingService extends ApiService
     // Hotel Booking Methods
     public function getRoomTypes()
     {
-        return $this->get('room-types');
+        return $this->get('availability/room-types');
     }
 
     public function checkAvailability($params)

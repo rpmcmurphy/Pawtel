@@ -160,7 +160,7 @@
 @endsection
 
 @push('scripts')
-    <script>
+    <script type="module">
         $(document).ready(function() {
             $('#productsTable').DataTable({
                 paging: true,

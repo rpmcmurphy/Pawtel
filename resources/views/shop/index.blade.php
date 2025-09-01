@@ -184,8 +184,8 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/modules/shop.js') }}"></script>
-    <script>
+    <script type="module" src="{{ asset('js/modules/shop.js') }}"></script>
+    <script type="module">
         document.addEventListener('DOMContentLoaded', function() {
             Shop.init();
 

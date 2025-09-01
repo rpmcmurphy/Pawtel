@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
 import { resolve } from "path";
+import inject from "@rollup/plugin-inject";
 
 export default defineConfig({
     plugins: [
@@ -12,6 +13,10 @@ export default defineConfig({
                 "resources/js/admin.js",
             ],
             refresh: true,
+        }),
+        inject({
+            $: "jquery",
+            jQuery: "jquery",
         }),
     ],
     resolve: {
