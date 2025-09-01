@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\Web\AdminService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
@@ -55,6 +56,8 @@ class BookingController extends Controller
 
         // Create booking via API service
         $response = $this->adminService->createManualBooking($bookingData);
+        
+        Log::info('Manual Booking Creation Response:', $response);
 
         if ($response['success']) {
             $message = 'Booking created successfully.';
