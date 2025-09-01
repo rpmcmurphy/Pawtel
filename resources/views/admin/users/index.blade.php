@@ -24,33 +24,38 @@
                 <form method="GET" action="{{ route('admin.users.index') }}" class="row g-3">
                     <div class="col-md-3">
                         <label class="form-label">Search</label>
-                        <input type="text" class="form-control" name="search" 
-                               value="{{ $filters['search'] ?? '' }}" 
-                               placeholder="Name, email...">
+                        <input type="text" class="form-control" name="search" value="{{ $filters['search'] ?? '' }}"
+                            placeholder="Name, email...">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Role</label>
                         <select class="form-select" name="role">
                             <option value="">All Roles</option>
                             <option value="user" {{ ($filters['role'] ?? '') === 'user' ? 'selected' : '' }}>User</option>
-                            <option value="admin" {{ ($filters['role'] ?? '') === 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="admin" {{ ($filters['role'] ?? '') === 'admin' ? 'selected' : '' }}>Admin
+                            </option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Status</label>
                         <select class="form-select" name="status">
                             <option value="">All Status</option>
-                            <option value="active" {{ ($filters['status'] ?? '') === 'active' ? 'selected' : '' }}>Active</option>
-                            <option value="suspended" {{ ($filters['status'] ?? '') === 'suspended' ? 'selected' : '' }}>Suspended</option>
-                            <option value="banned" {{ ($filters['status'] ?? '') === 'banned' ? 'selected' : '' }}>Banned</option>
+                            <option value="active" {{ ($filters['status'] ?? '') === 'active' ? 'selected' : '' }}>Active
+                            </option>
+                            <option value="suspended" {{ ($filters['status'] ?? '') === 'suspended' ? 'selected' : '' }}>
+                                Suspended</option>
+                            <option value="banned" {{ ($filters['status'] ?? '') === 'banned' ? 'selected' : '' }}>Banned
+                            </option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Email Verified</label>
                         <select class="form-select" name="verified">
                             <option value="">All</option>
-                            <option value="1" {{ ($filters['verified'] ?? '') === '1' ? 'selected' : '' }}>Verified</option>
-                            <option value="0" {{ ($filters['verified'] ?? '') === '0' ? 'selected' : '' }}>Not Verified</option>
+                            <option value="1" {{ ($filters['verified'] ?? '') === '1' ? 'selected' : '' }}>Verified
+                            </option>
+                            <option value="0" {{ ($filters['verified'] ?? '') === '0' ? 'selected' : '' }}>Not Verified
+                            </option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex align-items-end gap-2">
@@ -71,13 +76,15 @@
         <div class="card-header">
             <h5 class="card-title mb-0">
                 <i class="fas fa-users"></i> Users List
-                @if(isset($users['total']))
-                    <small class="text-muted">({{ $users['total'] }} total)</small>
+                @if (isset($users['data']['pagination']['total']))
+                    <small class="text-muted">({{ $users['data']['pagination']['total'] }} total)</small>
                 @endif
             </h5>
         </div>
         <div class="card-body">
-            @if(empty($users) || (is_array($users) && count($users) === 0) || (is_object($users) && $users->isEmpty()))
+            @if (empty($users['data']) ||
+                    (is_array($users['data']) && count($users['data']) === 0) ||
+                    (is_object($users['data']) && $users['data']->isEmpty()))
                 <div class="text-center py-4">
                     <i class="fas fa-users fa-3x text-muted mb-3"></i>
                     <h5 class="text-muted">No users found</h5>
@@ -98,24 +105,24 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($users as $user)
+                            @forelse($users['data'] as $user)
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="avatar me-2">
-                                                @if(!empty($user['avatar']))
-                                                    <img src="{{ $user['avatar'] }}" alt="{{ $user['name'] }}" 
-                                                         class="rounded-circle" width="32" height="32">
+                                                @if (!empty($user['avatar']))
+                                                    <img src="{{ $user['avatar'] }}" alt="{{ $user['name'] }}"
+                                                        class="rounded-circle" width="32" height="32">
                                                 @else
-                                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                                         style="width: 32px; height: 32px; font-size: 12px;">
+                                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                                        style="width: 32px; height: 32px; font-size: 12px;">
                                                         {{ strtoupper(substr($user['name'] ?? 'U', 0, 1)) }}
                                                     </div>
                                                 @endif
                                             </div>
                                             <div>
                                                 <div class="fw-semibold">{{ $user['name'] ?? 'Unknown' }}</div>
-                                                @if(!empty($user['phone']))
+                                                @if (!empty($user['phone']))
                                                     <small class="text-muted">{{ $user['phone'] }}</small>
                                                 @endif
                                             </div>
@@ -123,17 +130,20 @@
                                     </td>
                                     <td>{{ $user['email'] ?? 'N/A' }}</td>
                                     <td>
-                                        <span class="badge bg-{{ ($user['role'] ?? '') === 'admin' ? 'success' : 'primary' }}">
-                                            {{ ucfirst($user['role'] ?? 'user') }}
-                                        </span>
+                                        @php
+                                            $role = in_array('admin', $user['roles'] ?? []) ? 'Admin' : 'User';
+                                            $color = $role === 'Admin' ? 'success' : 'primary';
+                                        @endphp
+
+                                        <span class="badge bg-{{ $color }}">{{ $role }}</span>
                                     </td>
                                     <td>
                                         @php
                                             $status = $user['status'] ?? 'active';
                                             $statusColors = [
                                                 'active' => 'success',
-                                                'suspended' => 'warning', 
-                                                'banned' => 'danger'
+                                                'suspended' => 'warning',
+                                                'banned' => 'danger',
                                             ];
                                         @endphp
                                         <span class="badge bg-{{ $statusColors[$status] ?? 'secondary' }}">
@@ -141,14 +151,14 @@
                                         </span>
                                     </td>
                                     <td>
-                                        @if($user['email_verified_at'] ?? false)
+                                        @if ($user['email_verified_at'] ?? false)
                                             <i class="fas fa-check-circle text-success" title="Verified"></i>
                                         @else
                                             <i class="fas fa-times-circle text-danger" title="Not Verified"></i>
                                         @endif
                                     </td>
                                     <td>
-                                        @if(!empty($user['created_at']))
+                                        @if (!empty($user['created_at']))
                                             <span title="{{ $user['created_at'] }}">
                                                 {{ \Carbon\Carbon::parse($user['created_at'])->format('M d, Y') }}
                                             </span>
@@ -158,29 +168,35 @@
                                     </td>
                                     <td>
                                         <div class="dropdown">
-                                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" 
-                                                    data-bs-toggle="dropdown">
+                                            <button class="btn btn-sm btn-outline-primary dropdown-toggle"
+                                                data-bs-toggle="dropdown">
                                                 Actions
                                             </button>
                                             <ul class="dropdown-menu">
                                                 <li>
-                                                    <a class="dropdown-item" href="{{ route('admin.users.show', $user['id']) }}">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('admin.users.show', $user['id']) }}">
                                                         <i class="fas fa-eye"></i> View Details
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a class="dropdown-item" href="{{ route('admin.users.bookings', $user['id']) }}">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('admin.users.bookings', $user['id']) }}">
                                                         <i class="fas fa-calendar"></i> View Bookings
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a class="dropdown-item" href="{{ route('admin.users.orders', $user['id']) }}">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('admin.users.orders', $user['id']) }}">
                                                         <i class="fas fa-shopping-cart"></i> View Orders
                                                     </a>
                                                 </li>
-                                                <li><hr class="dropdown-divider"></li>
                                                 <li>
-                                                    <button class="dropdown-item" onclick="changeUserStatus({{ $user['id'] }})">
+                                                    <hr class="dropdown-divider">
+                                                </li>
+                                                <li>
+                                                    <button class="dropdown-item"
+                                                        onclick="changeUserStatus({{ $user['id'] }})">
                                                         <i class="fas fa-user-cog"></i> Change Status
                                                     </button>
                                                 </li>
@@ -201,9 +217,9 @@
                 </div>
 
                 {{-- Pagination --}}
-                @if(isset($users['links']) && $users['links'])
+                @if (isset($users['data']['links']) && $users['data']['links'])
                     <div class="d-flex justify-content-center mt-4">
-                        {!! $users['links'] !!}
+                        {!! $users['data']['links'] !!}
                     </div>
                 @endif
             @endif
@@ -246,26 +262,30 @@
 @endsection
 
 @push('scripts')
-<script type="module">
-    function changeUserStatus(userId) {
-        const form = document.getElementById('statusForm');
-        form.action = `/admin/users/${userId}/status`;
-        
-        const modal = new bootstrap.Modal(document.getElementById('statusModal'));
-        modal.show();
-    }
+    <script type="module">
+        function changeUserStatus(userId) {
+            const form = document.getElementById('statusForm');
+            form.action = `/admin/users/${userId}/status`;
 
-    // Initialize DataTable if needed
-    $(document).ready(function() {
-        if ($('#usersTable tbody tr').length > 10) {
-            $('#usersTable').DataTable({
-                pageLength: 25,
-                order: [[5, 'desc']], // Sort by created date
-                columnDefs: [
-                    { orderable: false, targets: [0, 6] } // Disable sorting for avatar and actions
-                ]
-            });
+            const modal = new bootstrap.Modal(document.getElementById('statusModal'));
+            modal.show();
         }
-    });
-</script>
+
+        // Initialize DataTable if needed
+        $(document).ready(function() {
+            if ($('#usersTable tbody tr').length > 10) {
+                $('#usersTable').DataTable({
+                    pageLength: 25,
+                    order: [
+                        [5, 'desc']
+                    ], // Sort by created date
+                    columnDefs: [{
+                            orderable: false,
+                            targets: [0, 6]
+                        } // Disable sorting for avatar and actions
+                    ]
+                });
+            }
+        });
+    </script>
 @endpush

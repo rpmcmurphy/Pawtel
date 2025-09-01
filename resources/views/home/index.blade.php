@@ -110,7 +110,7 @@
                         <div class="col-md-6 col-lg-3">
                             <div class="product-card">
                                 <div class="product-image">
-                                    <img src="{{ $product['image_url'] ?? 'https://via.placeholder.com/300x200' }}"
+                                    <img src="{{ $product['image_url'] ?? 'https://cdn2.thecatapi.com/images/ebv.jpg' }}"
                                         alt="{{ $product['name'] }}">
                                     @if ($product['is_featured'] ?? false)
                                         <span class="product-badge">Featured</span>

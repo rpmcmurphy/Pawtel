@@ -99,7 +99,7 @@
                                 <div class="col-md-6 col-xl-4">
                                     <div class="product-card">
                                         <div class="product-image">
-                                            <img src="{{ $product['image_url'] ?? 'https://via.placeholder.com/300x200' }}"
+                                            <img src="{{ $product['image_url'] ?? 'https://cdn2.thecatapi.com/images/ebv.jpg' }}"
                                                 alt="{{ $product['name'] }}" class="img-fluid">
 
                                             @if ($product['is_featured'] ?? false)

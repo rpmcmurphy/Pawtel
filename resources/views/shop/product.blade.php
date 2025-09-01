@@ -162,7 +162,7 @@
                         <div class="col-md-6 col-lg-3">
                             <div class="product-card">
                                 <div class="product-image">
-                                    <img src="{{ $relatedProduct['image_url'] ?? 'https://via.placeholder.com/300x200' }}"
+                                    <img src="{{ $relatedProduct['image_url'] ?? 'https://cdn2.thecatapi.com/images/ebv.jpg' }}"
                                         alt="{{ $relatedProduct['name'] }}">
                                     <div class="product-actions">
                                         <a href="{{ route('shop.product', $relatedProduct['slug']) }}"
