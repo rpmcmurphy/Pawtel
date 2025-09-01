@@ -100,10 +100,10 @@
                                     <td>
                                         <div>
                                             <strong>৳{{ number_format($product['price'], 2) }}</strong>
-                                            @if (($product['original_price'] ?? 0) > ($product['price'] ?? 0))
+                                            @if (($product['compare_price'] ?? 0) > ($product['price'] ?? 0))
                                                 <br>
                                                 <small class="text-muted">
-                                                    <s>৳{{ number_format($product['original_price'], 2) }}</s>
+                                                    <s>৳{{ number_format($product['compare_price'], 2) }}</s>
                                                 </small>
                                             @endif
                                         </div>

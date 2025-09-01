@@ -47,9 +47,9 @@
                                     <strong>Price:</strong> ${{ number_format($product['price'], 2) }}
                                 </div>
                                 <div class="col-sm-6">
-                                    @if (!empty($product['original_price']) && $product['original_price'] > $product['price'])
+                                    @if (!empty($product['compare_price']) && $product['compare_price'] > $product['price'])
                                         <strong>Original Price:</strong> 
-                                        <del class="text-muted">${{ number_format($product['original_price'], 2) }}</del>
+                                        <del class="text-muted">${{ number_format($product['compare_price'], 2) }}</del>
                                     @endif
                                 </div>
                             </div>

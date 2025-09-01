@@ -129,9 +129,9 @@
 
                                             <div class="product-price">
                                                 ৳{{ number_format($product['price'], 2) }}
-                                                @if (($product['original_price'] ?? 0) > $product['price'])
+                                                @if (($product['compare_price'] ?? 0) > $product['price'])
                                                     <span
-                                                        class="original-price">৳{{ number_format($product['original_price'], 2) }}</span>
+                                                        class="original-price">৳{{ number_format($product['compare_price'], 2) }}</span>
                                                 @endif
                                             </div>
 

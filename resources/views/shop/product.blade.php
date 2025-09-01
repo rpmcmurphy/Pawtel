@@ -9,7 +9,7 @@
                 <!-- Product Images -->
                 <div class="product-images">
                     <div class="main-image mb-3">
-                        <img src="{{ $product['image_url'] ?? 'https://via.placeholder.com/600x400' }}"
+                        <img src="{{ $product['image_url'] ?? 'https://cdn2.thecatapi.com/images/ebv.jpg' }}"
                             alt="{{ $product['name'] }}" class="img-fluid rounded-3" id="mainProductImage">
                     </div>
 
@@ -46,23 +46,17 @@
 
                     <h1 class="product-title mb-3">{{ $product['name'] }}</h1>
 
-                    @if ($product['brand'])
-                        <p class="product-brand text-muted mb-3">
-                            <strong>Brand:</strong> {{ $product['brand'] }}
-                        </p>
-                    @endif
-
                     <div class="product-price mb-4">
                         <span class="current-price h3 text-primary">
                             ৳{{ number_format($product['price'], 2) }}
                         </span>
 
-                        @if ($product['original_price'] && $product['original_price'] > $product['price'])
+                        @if ($product['compare_price'] && $product['compare_price'] > $product['price'])
                             <span class="original-price text-muted ms-2">
-                                <s>৳{{ number_format($product['original_price'], 2) }}</s>
+                                <s>৳{{ number_format($product['compare_price'], 2) }}</s>
                             </span>
                             <span class="discount-badge ms-2">
-                                {{ round((($product['original_price'] - $product['price']) / $product['original_price']) * 100) }}%
+                                {{ round((($product['compare_price'] - $product['price']) / $product['compare_price']) * 100) }}%
                                 OFF
                             </span>
                         @endif

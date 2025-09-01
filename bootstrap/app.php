@@ -66,7 +66,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Custom exception handler for all exceptions
+        $exceptions->render(function (Throwable $e, $request) {
+            return CustomExceptionHandler::handle($e, $request);
+        });
+
+        // Also reportable for logging
         $exceptions->reportable(function (Throwable $e) {
-            CustomExceptionHandler::handle($e);
+            // Additional reporting logic if needed
         });
     })->create();

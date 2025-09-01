@@ -2,22 +2,25 @@
 
 namespace App\Services\Web;
 
-use Illuminate\Support\Facades\Log;
-
 class AdminService extends ApiService
 {
     // Dashboard Methods
     public function getDashboardStats()
     {
-        return $this->get('admin/dashboard');
+        return $this->get('admin/dashboard/stats');
     }
 
-    public function getRecentActivity()
+    public function getRecentActivities()
     {
-        return $this->get('admin/dashboard/recent-activity');
+        return $this->get('admin/dashboard/recent-activities');
     }
 
-    // Booking Management
+    public function getBookingStats()
+    {
+        return $this->get('admin/dashboard/booking-stats');
+    }
+
+    // Booking Management Methods
     public function getAdminBookings($params = [])
     {
         return $this->get('admin/bookings', $params);
@@ -28,22 +31,24 @@ class AdminService extends ApiService
         return $this->get("admin/bookings/{$id}");
     }
 
-    public function updateBookingStatus($id, $status, $notes = null)
+    public function updateBookingStatus($id, $status)
     {
-        return $this->put("admin/bookings/{$id}/status", [
-            'status' => $status,
-            'notes' => $notes
-        ]);
+        return $this->put("admin/bookings/{$id}/status", ['status' => $status]);
     }
 
-    public function confirmBooking($id)
+    public function confirmBooking($id, $data = [])
     {
-        return $this->post("admin/bookings/{$id}/confirm");
+        return $this->put("admin/bookings/{$id}/confirm", $data);
     }
 
     public function cancelBooking($id, $reason)
     {
-        return $this->post("admin/bookings/{$id}/cancel", ['reason' => $reason]);
+        return $this->put("admin/bookings/{$id}/cancel", ['reason' => $reason]);
+    }
+
+    public function assignRoom($bookingId, $roomId)
+    {
+        return $this->post("admin/bookings/{$bookingId}/assign-room", ['room_id' => $roomId]);
     }
 
     // Product Management
@@ -59,7 +64,6 @@ class AdminService extends ApiService
 
     public function createProduct($productData)
     {
-        Log::error('Admin Service Product Data:', $productData);
         return $this->post('admin/products', $productData);
     }
 
@@ -77,6 +81,7 @@ class AdminService extends ApiService
     {
         return $this->put("admin/products/{$id}/status", ['status' => $status]);
     }
+
 
     public function uploadProductImage($file)
     {
@@ -99,54 +104,14 @@ class AdminService extends ApiService
         return $this->put("admin/users/{$id}/status", ['status' => $status]);
     }
 
-    public function getUserBookings($id, $params = [])
+    public function getUserBookings($userId, $params = [])
     {
-        return $this->get("admin/users/{$id}/bookings", $params);
+        return $this->get("admin/users/{$userId}/bookings", $params);
     }
 
-    public function getUserOrders($id, $params = [])
+    public function getUserOrders($userId, $params = [])
     {
-        return $this->get("admin/users/{$id}/orders", $params);
-    }
-
-    // Reports
-    public function getBookingReports($params = [])
-    {
-        return $this->get('admin/reports/bookings', $params);
-    }
-
-    public function getSalesReports($params = [])
-    {
-        return $this->get('admin/reports/sales', $params);
-    }
-
-    public function getFinancialReports($params = [])
-    {
-        return $this->get('admin/reports/financial', $params);
-    }
-
-    public function exportReport($type, $params = [])
-    {
-        return $this->post("admin/reports/{$type}/export", $params);
-    }
-
-    // Room Management
-    public function getAdminRooms($params = [])
-    {
-        return $this->get('admin/rooms', $params);
-    }
-
-    public function blockRoom($roomId, $dates, $reason)
-    {
-        return $this->post("admin/rooms/{$roomId}/block", [
-            'dates' => $dates,
-            'reason' => $reason
-        ]);
-    }
-
-    public function unblockRoom($roomId, $dates)
-    {
-        return $this->post("admin/rooms/{$roomId}/unblock", ['dates' => $dates]);
+        return $this->get("admin/users/{$userId}/orders", $params);
     }
 
     // Order Management
@@ -221,10 +186,51 @@ class AdminService extends ApiService
     }
 
     /**
+     * Update a booking
+     */
+    public function updateBooking($id, $bookingData)
+    {
+        return $this->put("admin/bookings/{$id}", $bookingData);
+    }
+
+    /**
      * Search customers for admin booking creation
      */
     public function searchCustomers($searchTerm)
     {
-        return $this->get('users/customers/search', ['search' => $searchTerm]);
+        return $this->get('admin/users/customers/search', ['search' => $searchTerm]);
+    }
+
+    /**
+     * Get room types for booking forms
+     */
+    public function getRoomTypes()
+    {
+        return $this->get('admin/rooms/types/list');
+    }
+
+    /**
+     * Get spa packages
+     */
+    public function getSpaPackages()
+    {
+        return $this->get('spa/packages');
+    }
+
+    /**
+     * Get spay packages
+     */
+    public function getSpayPackages()
+    {
+        return $this->get('spay/packages');
+    }
+
+    /**
+     * Get addon services
+     */
+    public function getAddonServices($category = null)
+    {
+        $params = $category ? ['category' => $category] : [];
+        return $this->get('addon-services', $params);
     }
 }

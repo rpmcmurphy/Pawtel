@@ -41,11 +41,14 @@ Route::middleware(['auth.web', 'admin.web'])->prefix('admin')->name('admin.')->g
     // Users Management
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('search', [UserController::class, 'search'])->name('search');
         Route::get('{id}', [UserController::class, 'show'])->name('show');
         Route::put('{id}/status', [UserController::class, 'updateStatus'])->name('status');
         Route::get('{id}/bookings', [UserController::class, 'bookings'])->name('bookings');
         Route::get('{id}/orders', [UserController::class, 'orders'])->name('orders');
     });
+
+    Route::get('customers/search', [UserController::class, 'searchCustomers'])->name('customers.search');
 
     // Reports
     Route::prefix('reports')->name('reports.')->group(function () {

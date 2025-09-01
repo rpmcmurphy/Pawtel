@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\Web\AdminService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
@@ -32,7 +33,18 @@ class BookingController extends Controller
      */
     public function create()
     {
-        return view('admin.bookings.create');
+        // Get data needed for the form
+        $roomTypes = $this->adminService->get('availability/room-types');
+        $spaPackages = $this->adminService->get('spa/packages');
+        $spayPackages = $this->adminService->get('spay/packages');
+        $addonServices = $this->adminService->get('addon-services');
+
+        return view('admin.bookings.create', [
+            'roomTypes' => $roomTypes['success'] ? $roomTypes['data'] : [],
+            'spaPackages' => $spaPackages['success'] ? $spaPackages['data'] : [],
+            'spayPackages' => $spayPackages['success'] ? $spayPackages['data'] : [],
+            'addonServices' => $addonServices['success'] ? $addonServices['data'] : [],
+        ]);
     }
 
     /**
@@ -40,31 +52,76 @@ class BookingController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'booking_type' => 'required|in:hotel,spa,spay_neuter',
-            'pet_name' => 'required|string|max:255',
-            'total_amount' => 'nullable|numeric|min:0',
-            'booking_status' => 'required|in:pending,confirmed',
-            // Add conditional validation based on booking type
+        // Basic validation first
+        $validated = $request->validate([
+            'type' => 'required|in:hotel,spa,spay',
+            'user_id' => 'required|exists:users,id',
+            'check_in_date' => 'required|date|after_or_equal:today',
+            'check_out_date' => 'required|date|after:check_in_date',
+            'final_amount' => 'required|numeric|min:0',
+            'manual_reference' => 'required|string|max:255',
+            'room_type_id' => 'required_if:type,hotel|exists:room_types,id',
+            'spa_package_id' => 'required_if:type,spa|exists:spa_packages,id',
+            'spay_package_id' => 'required_if:type,spay|exists:spay_packages,id',
+            'special_requests' => 'nullable|string|max:1000',
+            'addons' => 'sometimes|array',
         ]);
 
-        // Process customer information - either existing or new
-        $customerData = $this->processCustomerData($request);
+        // Prepare booking data for API
+        $bookingData = [
+            'user_id' => $validated['user_id'],
+            'type' => $validated['type'],
+            'check_in_date' => $validated['check_in_date'],
+            'check_out_date' => $validated['check_out_date'],
+            'final_amount' => $validated['final_amount'],
+            'manual_reference' => $validated['manual_reference'],
+        ];
 
-        // Prepare booking data based on type
-        $bookingData = $this->prepareBookingData($request, $customerData);
+        // Add type-specific data
+        if ($validated['type'] === 'hotel' && isset($validated['room_type_id'])) {
+            $bookingData['room_type_id'] = $validated['room_type_id'];
+        }
+
+        if ($validated['type'] === 'spa' && isset($validated['spa_package_id'])) {
+            $bookingData['spa_package_id'] = $validated['spa_package_id'];
+        }
+
+        if ($validated['type'] === 'spay' && isset($validated['spay_package_id'])) {
+            $bookingData['spay_package_id'] = $validated['spay_package_id'];
+        }
+
+        // Add optional fields
+        if (!empty($validated['special_requests'])) {
+            $bookingData['special_requests'] = $validated['special_requests'];
+        }
+
+        // Handle addons
+        if (!empty($validated['addons'])) {
+            $addons = [];
+            foreach ($validated['addons'] as $addon) {
+                if (!empty($addon['addon_service_id']) && !empty($addon['quantity'])) {
+                    $addons[] = [
+                        'addon_service_id' => (int)$addon['addon_service_id'],
+                        'quantity' => (int)$addon['quantity']
+                    ];
+                }
+            }
+            $bookingData['addons'] = $addons;
+        } else {
+            $bookingData['addons'] = [];
+        }
 
         // Create booking via API service
         $response = $this->adminService->createManualBooking($bookingData);
-        
+
         Log::info('Manual Booking Creation Response:', $response);
+        Log::info('Manual Booking Request Data:', $bookingData);
 
         if ($response['success']) {
             $message = 'Booking created successfully.';
 
             // Send confirmation email if requested
             if ($request->has('send_confirmation')) {
-                // Logic to send confirmation email
                 $message .= ' Confirmation email sent to customer.';
             }
 
@@ -72,99 +129,26 @@ class BookingController extends Controller
                 ->with('success', $message);
         }
 
+        // Better error handling
+        $errorMessage = 'Failed to create booking.';
+
+        if (isset($response['message'])) {
+            $errorMessage = $response['message'];
+        }
+
+        if (isset($response['errors'])) {
+            $errors = is_array($response['errors']) ? $response['errors'] : [$response['errors']];
+            $errorMessage .= ' Errors: ' . implode(', ', Arr::flatten($errors));
+        }
+
         return redirect()->back()
             ->withInput()
-            ->with('error', $response['message'] ?? 'Failed to create booking.');
+            ->with('error', $errorMessage);
     }
 
     /**
-     * Process customer data - either find existing or prepare new customer data
+     * Display the specified booking.
      */
-    private function processCustomerData(Request $request)
-    {
-        if ($request->filled('customer_id')) {
-            // Use existing customer
-            return ['customer_id' => $request->customer_id];
-        }
-
-        // Create new customer data
-        return [
-            'customer_first_name' => $request->customer_first_name,
-            'customer_last_name' => $request->customer_last_name,
-            'customer_email' => $request->customer_email,
-            'customer_phone' => $request->customer_phone,
-        ];
-    }
-
-    /**
-     * Prepare booking data based on booking type
-     */
-    private function prepareBookingData(Request $request, array $customerData)
-    {
-        $baseData = array_merge($customerData, [
-            'booking_type' => $request->booking_type,
-            'pet_name' => $request->pet_name,
-            'pet_type' => $request->pet_type,
-            'pet_breed' => $request->pet_breed,
-            'pet_age' => $request->pet_age,
-            'pet_weight' => $request->pet_weight,
-            'pet_gender' => $request->pet_gender,
-            'pet_instructions' => $request->pet_instructions,
-            'total_amount' => $request->total_amount,
-            'payment_status' => $request->payment_status,
-            'payment_method' => $request->payment_method,
-            'booking_status' => $request->booking_status,
-            'admin_notes' => $request->admin_notes,
-            'customer_notes' => $request->customer_notes,
-        ]);
-
-        // Add type-specific data
-        switch ($request->booking_type) {
-            case 'hotel':
-                $baseData = array_merge($baseData, [
-                    'checkin_date' => $request->checkin_date,
-                    'checkout_date' => $request->checkout_date,
-                    'room_type' => $request->room_type,
-                    'number_of_pets' => $request->number_of_pets,
-                ]);
-                break;
-
-            case 'spa':
-                $baseData = array_merge($baseData, [
-                    'service_date' => $request->service_date,
-                    'service_time' => $request->service_time,
-                    'service_duration' => $request->service_duration,
-                    'services' => $request->services ?? [],
-                ]);
-                break;
-
-            case 'spay_neuter':
-                $baseData = array_merge($baseData, [
-                    'procedure_date' => $request->procedure_date,
-                    'procedure_type' => $request->procedure_type,
-                    'veterinarian' => $request->veterinarian,
-                    'pre_instructions' => $request->pre_instructions,
-                ]);
-                break;
-        }
-
-        return $baseData;
-    }
-
-    public function byType(Request $request, $type)
-    {
-        $params = $request->only(['status', 'search', 'date_from', 'date_to', 'page']);
-        $params['type'] = $type;
-
-        $bookings = $this->adminService->getAdminBookings($params);
-
-        return view('admin.bookings.index', [
-            'bookings' => $bookings['success'] ? $bookings['data'] : [],
-            'filters' => $params,
-            'currentType' => $type
-        ]);
-    }
-
     public function show($id)
     {
         $booking = $this->adminService->getAdminBooking($id);
@@ -179,55 +163,103 @@ class BookingController extends Controller
         ]);
     }
 
-    public function updateStatus(Request $request, $id)
+    /**
+     * Show the form for editing the specified booking.
+     */
+    public function edit($id)
     {
-        $request->validate([
-            'status' => 'required|string|in:pending,confirmed,completed,cancelled',
-            'notes' => 'nullable|string|max:1000'
+        $booking = $this->adminService->getAdminBooking($id);
+
+        if (!$booking['success']) {
+            return redirect()->route('admin.bookings.index')
+                ->with('error', 'Booking not found.');
+        }
+
+        // Get data needed for the form
+        $roomTypes = $this->adminService->get('availability/room-types');
+        $spaPackages = $this->adminService->get('spa/packages');
+        $spayPackages = $this->adminService->get('spay/packages');
+        $addonServices = $this->adminService->get('addon-services');
+
+        return view('admin.bookings.edit', [
+            'booking' => $booking['data'],
+            'roomTypes' => $roomTypes['success'] ? $roomTypes['data'] : [],
+            'spaPackages' => $spaPackages['success'] ? $spaPackages['data'] : [],
+            'spayPackages' => $spayPackages['success'] ? $spayPackages['data'] : [],
+            'addonServices' => $addonServices['success'] ? $addonServices['data'] : [],
+        ]);
+    }
+
+    /**
+     * Update the specified booking.
+     */
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'status' => 'sometimes|in:pending,confirmed,completed,cancelled',
+            'special_requests' => 'sometimes|nullable|string|max:1000',
+            'final_amount' => 'sometimes|numeric|min:0',
         ]);
 
-        $response = $this->adminService->updateBookingStatus(
-            $id,
-            $request->status,
-            $request->notes
-        );
+        $response = $this->adminService->updateBooking($id, $validated);
 
         if ($response['success']) {
-            return redirect()->back()
-                ->with('success', 'Booking status updated successfully.');
+            return redirect()->route('admin.bookings.show', $id)
+                ->with('success', 'Booking updated successfully.');
         }
 
         return redirect()->back()
-            ->with('error', $response['message'] ?? 'Failed to update booking status.');
+            ->withInput()
+            ->with('error', $response['message'] ?? 'Failed to update booking.');
     }
 
-    public function confirm(Request $request, $id)
+    /**
+     * Confirm a booking
+     */
+    public function confirm($id, Request $request)
     {
-        $response = $this->adminService->confirmBooking($id);
+        $response = $this->adminService->put("admin/bookings/{$id}/confirm", [
+            'room_assignments' => $request->get('room_assignments', [])
+        ]);
 
         if ($response['success']) {
-            return redirect()->back()
-                ->with('success', 'Booking confirmed successfully.');
+            return redirect()->back()->with('success', 'Booking confirmed successfully.');
         }
 
-        return redirect()->back()
-            ->with('error', $response['message'] ?? 'Failed to confirm booking.');
+        return redirect()->back()->with('error', $response['message'] ?? 'Failed to confirm booking.');
     }
 
-    public function cancel(Request $request, $id)
+    /**
+     * Cancel a booking
+     */
+    public function cancel($id, Request $request)
     {
         $request->validate([
             'reason' => 'required|string|max:500'
         ]);
 
-        $response = $this->adminService->cancelBooking($id, $request->reason);
+        $response = $this->adminService->put("admin/bookings/{$id}/cancel", [
+            'reason' => $request->reason
+        ]);
 
         if ($response['success']) {
-            return redirect()->back()
-                ->with('success', 'Booking cancelled successfully.');
+            return redirect()->back()->with('success', 'Booking cancelled successfully.');
         }
 
-        return redirect()->back()
-            ->with('error', $response['message'] ?? 'Failed to cancel booking.');
+        return redirect()->back()->with('error', $response['message'] ?? 'Failed to cancel booking.');
+    }
+
+    public function byType(Request $request, $type)
+    {
+        $params = $request->only(['status', 'search', 'date_from', 'date_to', 'page']);
+        $params['type'] = $type;
+
+        $bookings = $this->adminService->getAdminBookings($params);
+
+        return view('admin.bookings.index', [
+            'bookings' => $bookings['success'] ? $bookings['data'] : [],
+            'filters' => $params,
+            'currentType' => $type
+        ]);
     }
 }

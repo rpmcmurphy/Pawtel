@@ -80,4 +80,32 @@ class UserController extends Controller
             'filters' => $params
         ]);
     }
+
+    /**
+     * Search customers for admin operations
+     */
+    public function searchCustomers(Request $request)
+    {
+        $searchTerm = $request->get('search', '');
+
+        if (empty($searchTerm) || strlen($searchTerm) < 2) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Search term must be at least 2 characters',
+                'data' => []
+            ]);
+        }
+
+        $response = $this->adminService->searchCustomers($searchTerm);
+
+        return response()->json($response);
+    }
+
+    /**
+     * General user search (alias for searchCustomers for compatibility)
+     */
+    public function search(Request $request)
+    {
+        return $this->searchCustomers($request);
+    }
 }

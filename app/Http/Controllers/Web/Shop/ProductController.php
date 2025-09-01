@@ -54,10 +54,10 @@ class ProductController extends Controller
         }
 
         // Get related products
-        $relatedProducts = $this->shopService->getProducts(['limit' => 4, 'exclude' => $product['data']['id']]);
+        $relatedProducts = $this->shopService->getProducts(['limit' => 4, 'exclude' => $product['data']['data']['id']]);
 
         return view('shop.product', [
-            'product' => $product['data'],
+            'product' => $product['data']['data'],
             'relatedProducts' => $relatedProducts['success'] ? $relatedProducts['data'] : []
         ]);
     }
