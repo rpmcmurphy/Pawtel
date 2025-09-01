@@ -25,8 +25,8 @@ class ProductController extends Controller
         $categories = $this->shopService->getCategories();
 
         return view('admin.products.index', [
-            'products'  => $products['success']  ? ($products['data']  ?? []) : [],
-            'categories' => $categories['success'] ? ($categories['data'] ?? []) : [],
+            'products' => $products['success'] ? ($products['data'] ?? []) : [],
+            'categories' => $categories['success'] ? ($categories['data']['data'] ?? []) : [],
             'filters' => $params
         ]);
     }
@@ -36,7 +36,7 @@ class ProductController extends Controller
         $categories = $this->shopService->getCategories();
 
         return view('admin.products.create', [
-            'categories' => $categories['success'] ? $categories['data'] : []
+            'categories' => $categories['success'] ? ($categories['data']['data'] ?? []) : []
         ]);
     }
 
@@ -46,40 +46,72 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'compare_price' => 'nullable|numeric|min:0',
             'category_id' => 'required|integer|exists:product_categories,id',
             'sku' => 'nullable|string|max:100|unique:products,sku',
             'stock_quantity' => 'required|integer|min:0',
+            'low_stock_threshold' => 'nullable|integer|min:0',
             'status' => 'required|in:active,inactive,out_of_stock',
             'featured' => 'boolean',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'specifications' => 'nullable|array',
+            'specifications.*.key' => 'required_with:specifications.*.value|string|max:255',
+            'specifications.*.value' => 'required_with:specifications.*.key|string|max:255',
         ]);
 
         $productData = $request->only([
             'name',
             'description',
             'price',
+            'compare_price',
             'category_id',
             'sku',
             'stock_quantity',
-            'status',
-            'featured'
+            'low_stock_threshold',
+            'status'
         ]);
 
-        // Convert featured checkbox to boolean
-        $productData['featured'] = $request->has('featured') ? 1 : 0;
+        // Handle featured checkbox
+        $productData['featured'] = $request->has('featured');
 
-        if ($request->hasFile('image')) {
-            $uploadResponse = $this->adminService->uploadProductImage($request->file('image'));
-            if ($uploadResponse['success']) {
-                $productData['image_url'] = $uploadResponse['data']['url'];
+        // Handle specifications - filter out empty ones
+        $specifications = [];
+        if ($request->has('specifications')) {
+            foreach ($request->input('specifications', []) as $spec) {
+                if (!empty($spec['key']) && !empty($spec['value'])) {
+                    $specifications[$spec['key']] = $spec['value'];
+                }
             }
         }
+        $productData['specifications'] = $specifications;
+
+        // Handle image uploads
+        $images = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $uploadResponse = $this->adminService->uploadProductImage($image);
+                if ($uploadResponse['success']) {
+                    $images[] = $uploadResponse['data']['path'];
+                }
+            }
+        }
+        $productData['images'] = $images;
+
+        // Set default values
+        $productData['low_stock_threshold'] = $productData['low_stock_threshold'] ?? 5;
 
         $response = $this->adminService->createProduct($productData);
 
         if ($response['success']) {
+            $message = 'Product created successfully!';
+
+            if ($request->has('save_and_continue')) {
+                return redirect()->route('admin.products.edit', $response['data']['id'])
+                    ->with('success', $message);
+            }
+
             return redirect()->route('admin.products.index')
-                ->with('success', 'Product created successfully!');
+                ->with('success', $message);
         }
 
         return redirect()->back()
@@ -97,7 +129,7 @@ class ProductController extends Controller
         }
 
         return view('admin.products.show', [
-            'product' => $product['data']['data']
+            'product' => $product['data']['data'] ?? $product['data']
         ]);
     }
 
@@ -112,8 +144,8 @@ class ProductController extends Controller
         }
 
         return view('admin.products.edit', [
-            'product' => $product['data'],
-            'categories' => $categories['success'] ? $categories['data']['data'] : []
+            'product' => $product['data']['data'] ?? $product['data'],
+            'categories' => $categories['success'] ? ($categories['data']['data'] ?? []) : []
         ]);
     }
 
@@ -123,39 +155,72 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'compare_price' => 'nullable|numeric|min:0',
             'category_id' => 'required|integer|exists:product_categories,id',
             'sku' => 'nullable|string|max:100|unique:products,sku,' . $id,
             'stock_quantity' => 'required|integer|min:0',
+            'low_stock_threshold' => 'nullable|integer|min:0',
             'status' => 'required|in:active,inactive,out_of_stock',
             'featured' => 'boolean',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'specifications' => 'nullable|array',
+            'specifications.*.key' => 'required_with:specifications.*.value|string|max:255',
+            'specifications.*.value' => 'required_with:specifications.*.key|string|max:255',
         ]);
 
         $productData = $request->only([
             'name',
             'description',
             'price',
+            'compare_price',
             'category_id',
             'sku',
             'stock_quantity',
-            'status',
-            'featured'
+            'low_stock_threshold',
+            'status'
         ]);
 
-        $productData['featured'] = $request->has('featured') ? 1 : 0;
+        // Handle featured checkbox
+        $productData['featured'] = $request->has('featured');
 
-        if ($request->hasFile('image')) {
-            $uploadResponse = $this->adminService->uploadProductImage($request->file('image'));
-            if ($uploadResponse['success']) {
-                $productData['image_url'] = $uploadResponse['data']['url'];
+        // Handle specifications - filter out empty ones
+        $specifications = [];
+        if ($request->has('specifications')) {
+            foreach ($request->input('specifications', []) as $spec) {
+                if (!empty($spec['key']) && !empty($spec['value'])) {
+                    $specifications[$spec['key']] = $spec['value'];
+                }
+            }
+        }
+        $productData['specifications'] = $specifications;
+
+        // Handle image uploads - only add if new images are uploaded
+        if ($request->hasFile('images')) {
+            $images = [];
+            foreach ($request->file('images') as $image) {
+                $uploadResponse = $this->adminService->uploadProductImage($image);
+                if ($uploadResponse['success']) {
+                    $images[] = $uploadResponse['data']['path'];
+                }
+            }
+            // Only update images if new ones were uploaded
+            if (!empty($images)) {
+                $productData['images'] = $images;
             }
         }
 
         $response = $this->adminService->updateProduct($id, $productData);
 
         if ($response['success']) {
+            $message = 'Product updated successfully!';
+
+            if ($request->has('save_and_continue')) {
+                return redirect()->route('admin.products.edit', $id)
+                    ->with('success', $message);
+            }
+
             return redirect()->route('admin.products.index')
-                ->with('success', 'Product updated successfully!');
+                ->with('success', $message);
         }
 
         return redirect()->back()

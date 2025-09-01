@@ -1,38 +1,40 @@
 <?php
-
 namespace App\Http\Controllers\API\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\CreateProductRequest;
+use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
-use App\Http\Requests\Admin\{CreateProductRequest, UpdateProductRequest};
-use App\Services\Admin\ProductManagementService;
-use App\Repositories\ProductRepository;
+use App\Models\Product;
 use App\Models\ProductCategory;
-use Illuminate\Http\{JsonResponse, Request};
+use App\Repositories\ProductRepository;
+use App\Services\Admin\ProductManagementService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ProductManagementController extends Controller
 {
     public function __construct(
-        private ProductManagementService $productService,
-        private ProductRepository $productRepo
+        private ProductRepository $productRepo,
+        private ProductManagementService $productService
     ) {}
 
     public function index(Request $request): JsonResponse
     {
         try {
-            $products = $this->productRepo->getWithFilters(
-                $request->only(['status', 'category_id', 'featured', 'low_stock', 'search']),
-                $request->get('per_page', 15)
-            );
+            $filters = $request->only(['status', 'category_id', 'featured', 'search', 'low_stock']);
+            $products = $this->productRepo->getWithFilters($filters, $request->get('per_page', 15));
 
             return response()->json([
                 'success' => true,
                 'data' => ProductResource::collection($products->items()),
                 'pagination' => [
                     'current_page' => $products->currentPage(),
+                    'last_page' => $products->lastPage(),
                     'per_page' => $products->perPage(),
                     'total' => $products->total(),
-                    'last_page' => $products->lastPage(),
+                    'from' => $products->firstItem(),
+                    'to' => $products->lastItem(),
                 ]
             ]);
         } catch (\Exception $e) {
@@ -67,16 +69,16 @@ class ProductManagementController extends Controller
     {
         try {
             $product = $this->productRepo->findOrFail($id);
-            $product->load(['category', 'orderItems.order']);
 
             return response()->json([
                 'success' => true,
-                'data' => new ProductResource($product)
+                'data' => new ProductResource($product->load('category'))
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Product not found',
+                'error' => $e->getMessage()
             ], 404);
         }
     }
@@ -162,6 +164,32 @@ class ProductManagementController extends Controller
         }
     }
 
+    public function updateStatus(int $id, Request $request): JsonResponse
+    {
+        $request->validate([
+            'status' => 'required|in:active,inactive,out_of_stock'
+        ]);
+
+        try {
+            $product = $this->productRepo->update($id, [
+                'status' => $request->status
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product status updated successfully',
+                'data' => [
+                    'status' => $product->status
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 404);
+        }
+    }
+
     public function categoryTree(): JsonResponse
     {
         try {
@@ -194,6 +222,49 @@ class ProductManagementController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch category tree',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function stats(): JsonResponse
+    {
+        try {
+            $stats = [
+                'total_products' => $this->productRepo->count(),
+                'active_products' => $this->productRepo->countActive(),
+                'low_stock_products' => $this->productRepo->countLowStock(),
+                'out_of_stock_products' => $this->productRepo->countOutOfStock(),
+                'featured_products' => Product::where('featured', true)->count(),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => $stats
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch product statistics',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function topSelling(Request $request): JsonResponse
+    {
+        try {
+            $limit = $request->get('limit', 10);
+            $products = $this->productRepo->getTopSellingProducts($limit);
+
+            return response()->json([
+                'success' => true,
+                'data' => $products
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch top selling products',
                 'error' => $e->getMessage()
             ], 500);
         }

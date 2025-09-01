@@ -1,4 +1,3 @@
-{{-- resources/views/admin/products/create.blade.php --}}
 @extends('layouts.admin')
 
 @section('title', 'Add Product - Admin')
@@ -25,6 +24,7 @@
     @include('admin.products._form', [
         'product' => null,
         'method' => 'POST',
-        'action' => route('admin.products.store')
+        'action' => route('admin.products.store'),
+        'categories' => $categories
     ])
 @endsection

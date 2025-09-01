@@ -1,38 +1,34 @@
 <?php
-// app/Http/Resources/ProductResource.php
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ProductResource extends JsonResource
+class ProductListResource extends JsonResource
 {
-    public function toArray(Request $request): array
+    /**
+     * Simplified resource for product listings
+     */
+    public function toArray($request): array
     {
         return [
             'id' => $this->id,
-            'category_id' => $this->category_id,
             'name' => $this->name,
             'slug' => $this->slug,
             'sku' => $this->sku,
-            'description' => $this->description,
             'price' => (float) $this->price,
             'compare_price' => $this->compare_price ? (float) $this->compare_price : null,
             'stock_quantity' => $this->stock_quantity,
-            'low_stock_threshold' => $this->low_stock_threshold,
-            'images' => $this->images ?? [],
-            'specifications' => $this->specifications ?? [],
             'status' => $this->status,
             'featured' => (bool) $this->featured,
-            'sort_order' => $this->sort_order,
+            'images' => $this->images ? array_slice($this->images, 0, 1) : [], // Only first image
 
             // Computed fields
             'is_in_stock' => $this->isInStock(),
             'is_low_stock' => $this->isLowStock(),
             'discount_percentage' => $this->getDiscountPercentage(),
 
-            // Relationships
+            // Category
             'category' => $this->whenLoaded('category', function () {
                 return [
                     'id' => $this->category->id,
@@ -41,9 +37,8 @@ class ProductResource extends JsonResource
                 ];
             }),
 
-            // Timestamps
-            'created_at' => $this->created_at?->toISOString(),
-            'updated_at' => $this->updated_at?->toISOString(),
+            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];
     }
 }
