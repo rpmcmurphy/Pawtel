@@ -8,10 +8,6 @@ use App\Http\Controllers\Web\Booking\{HotelController, SpaController, SpayContro
 use App\Http\Controllers\Web\Shop\{ProductController, CartController, OrderController};
 use App\Http\Controllers\Web\Community\{PostController, AdoptionController};
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes - Authentication
