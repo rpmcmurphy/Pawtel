@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\CustomExceptionHandler;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\AdminWebMiddleware;
 use App\Http\Middleware\CheckUserStatus;
@@ -65,5 +66,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->reportable(function (Throwable $e) {
+            CustomExceptionHandler::handle($e);
+        });
     })->create();

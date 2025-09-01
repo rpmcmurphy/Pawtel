@@ -105,11 +105,7 @@ class ProductController extends Controller
             // Set default values
             $productData['low_stock_threshold'] = $productData['low_stock_threshold'] ?? 5;
 
-            Log::info('Product data being sent to API:', $productData);
-
             $response = $this->adminService->createProduct($productData);
-
-            Log::info('API Response:', $response);
 
             if ($response['success']) {
                 $message = 'Product created successfully!';

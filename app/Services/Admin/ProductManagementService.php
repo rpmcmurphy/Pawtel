@@ -1,5 +1,5 @@
 <?php
-// app/Services/Admin/ProductManagementService.php
+
 namespace App\Services\Admin;
 
 use App\Models\Product;
@@ -14,20 +14,33 @@ class ProductManagementService
 
     public function createProduct(array $data): Product
     {
-        $data['slug'] = Str::slug($data['name']);
-        $data['sku'] = strtoupper($data['sku']);
-        $data['status'] = 'active';
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['name']);
+        }
+        
+        if (!empty($data['sku'])) {
+            $data['sku'] = strtoupper($data['sku']);
+        }
+        
+        $data['status'] = $data['status'] ?? 'active';
+        
         $data['specifications'] = $data['specifications'] ?? [];
-
+        
         return $this->productRepo->create($data);
     }
 
     public function updateProduct(int $id, array $data): Product
     {
-        $data['slug'] = Str::slug($data['name']);
-        $data['sku'] = strtoupper($data['sku']);
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['name']);
+        }
+        
+        if (!empty($data['sku'])) {
+            $data['sku'] = strtoupper($data['sku']);
+        }
+        
         $data['specifications'] = $data['specifications'] ?? [];
-
+        
         return $this->productRepo->update($id, $data);
     }
 
