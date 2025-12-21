@@ -95,6 +95,67 @@
                 </a>
             </li>
 
+            <!-- Community Posts Section -->
+            <li class="nav-divider"></li>
+
+            <p class="divider-title">Posts</p>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.posts.index') ? 'active' : '' }}"
+                    href="{{ route('admin.posts.index') }}">
+                    <i class="fas fa-list"></i>
+                    <span>All Posts</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.posts.create') ? 'active' : '' }}"
+                    href="{{ route('admin.posts.create') }}">
+                    <i class="fas fa-plus"></i>
+                    <span>Create Post</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->fullUrlIs(route('admin.posts.index', ['type' => 'adoption'])) ? 'active' : '' }}"
+                    href="{{ route('admin.posts.index', ['type' => 'adoption']) }}">
+                    <i class="fas fa-heart"></i>
+                    <span>Adoptions</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->fullUrlIs(route('admin.posts.index', ['type' => 'story'])) ? 'active' : '' }}"
+                    href="{{ route('admin.posts.index', ['type' => 'story']) }}">
+                    <i class="fas fa-book"></i>
+                    <span>Stories</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->fullUrlIs(route('admin.posts.index', ['type' => 'news'])) ? 'active' : '' }}"
+                    href="{{ route('admin.posts.index', ['type' => 'news']) }}">
+                    <i class="fas fa-newspaper"></i>
+                    <span>News</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->fullUrlIs(route('admin.posts.index', ['type' => 'job'])) ? 'active' : '' }}"
+                    href="{{ route('admin.posts.index', ['type' => 'job']) }}">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Jobs</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.posts.comments.pending') ? 'active' : '' }}"
+                    href="{{ route('admin.posts.comments.pending') }}">
+                    <i class="fas fa-clock text-warning"></i>
+                    <span>Pending Comments</span>
+                </a>
+            </li>
+
             <!-- Reports Section -->
             <li class="nav-divider"></li>
 

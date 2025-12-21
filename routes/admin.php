@@ -6,7 +6,8 @@ use App\Http\Controllers\Web\Admin\{
     BookingController,
     ProductController as AdminProductController,
     UserController,
-    ReportController
+    ReportController,
+    PostController
 };
 
 Route::middleware(['auth.web', 'admin.web'])->prefix('admin')->name('admin.')->group(function () {
@@ -50,6 +51,24 @@ Route::middleware(['auth.web', 'admin.web'])->prefix('admin')->name('admin.')->g
     });
 
     Route::get('customers/search', [UserController::class, 'searchCustomers'])->name('customers.search');
+
+    // Posts/Community Management
+    Route::prefix('posts')->name('posts.')->group(function () {
+        Route::get('/', [PostController::class, 'index'])->name('index');
+        Route::get('create', [PostController::class, 'create'])->name('create');
+        Route::post('/', [PostController::class, 'store'])->name('store');
+        Route::get('{id}', [PostController::class, 'show'])->name('show');
+        Route::get('{id}/edit', [PostController::class, 'edit'])->name('edit');
+        Route::put('{id}', [PostController::class, 'update'])->name('update');
+        Route::delete('{id}', [PostController::class, 'destroy'])->name('destroy');
+        Route::post('{id}/publish', [PostController::class, 'publish'])->name('publish');
+        Route::post('{id}/archive', [PostController::class, 'archive'])->name('archive');
+
+        // Comment moderation
+        Route::get('comments/pending', [PostController::class, 'pendingComments'])->name('comments.pending');
+        Route::post('comments/{commentId}/approve', [PostController::class, 'approveComment'])->name('comments.approve');
+        Route::post('comments/{commentId}/reject', [PostController::class, 'rejectComment'])->name('comments.reject');
+    });
 
     // Reports
     Route::prefix('reports')->name('reports.')->group(function () {

@@ -195,8 +195,8 @@
                                                     <hr class="dropdown-divider">
                                                 </li>
                                                 <li>
-                                                    <button class="dropdown-item"
-                                                        onclick="changeUserStatus({{ $user['id'] }})">
+                                                    <button class="dropdown-item" data-change-status
+                                                        data-userId="{{ $user['id'] }}">
                                                         <i class="fas fa-user-cog"></i> Change Status
                                                     </button>
                                                 </li>
@@ -263,13 +263,17 @@
 
 @push('scripts')
     <script type="module">
-        function changeUserStatus(userId) {
-            const form = document.getElementById('statusForm');
-            form.action = `/admin/users/${userId}/status`;
+        // function changeUserStatus(userId) {
+        //     const form = document.getElementById('statusForm');
+        //     form.action = `/admin/users/${userId}/status`;
 
-            const modal = new bootstrap.Modal(document.getElementById('statusModal'));
-            modal.show();
-        }
+        //     const modal = new window.bootstrapModal(document.getElementById('statusModal'));
+        //     modal.show();
+        // }
+
+        // document.querySelectorAll('[data-change-status]').forEach(btn => {
+        //     btn.addEventListener('click', () => changeUserStatus(btn.dataset.userId));
+        // });
 
         // Initialize DataTable if needed
         $(document).ready(function() {

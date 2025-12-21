@@ -1,7 +1,8 @@
 import "./bootstrap";
 import "../scss/app.scss";
 
-import "bootstrap";
+// import "bootstrap";
+import { Tooltip, Alert, Modal } from "bootstrap";
 
 // Import our modules
 import "./modules/booking";
@@ -74,7 +75,8 @@ window.App = {
             document.querySelectorAll('[data-bs-toggle="tooltip"]')
         );
         tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
+            // return new bootstrap.Tooltip(tooltipTriggerEl);
+            return new Tooltip(tooltipTriggerEl);
         });
     },
 
@@ -83,7 +85,8 @@ window.App = {
         setTimeout(function () {
             const alerts = document.querySelectorAll(".alert");
             alerts.forEach((alert) => {
-                const bsAlert = new bootstrap.Alert(alert);
+                // const bsAlert = new bootstrap.Alert(alert);
+                const bsAlert = new Alert(alert);
                 bsAlert.close();
             });
         }, 5000);
@@ -214,4 +217,19 @@ document.addEventListener("DOMContentLoaded", function () {
             Shop.init();
         }
     }
+
+    // User status change modal handling
+    window.changeUserStatus = (userId) => {
+        const form = document.getElementById("statusForm");
+        form.action = `/admin/users/${userId}/status`;
+
+        const modal = new Modal(document.getElementById("statusModal"));
+        modal.show();
+    };
+
+    document.querySelectorAll("[data-change-status]").forEach((btn) => {
+        btn.addEventListener("click", () =>
+            window.changeUserStatus(btn.dataset.userId)
+        );
+    });
 });

@@ -130,37 +130,6 @@ class AdminService extends ApiService
         return $this->put("admin/orders/{$id}/status", ['status' => $status]);
     }
 
-    // Community Management
-    public function getAdminPosts($params = [])
-    {
-        return $this->get('admin/posts', $params);
-    }
-
-    public function getAdminPost($id)
-    {
-        return $this->get("admin/posts/{$id}");
-    }
-
-    public function updatePostStatus($id, $status)
-    {
-        return $this->put("admin/posts/{$id}/status", ['status' => $status]);
-    }
-
-    public function deletePost($id)
-    {
-        return $this->delete("admin/posts/{$id}");
-    }
-
-    public function approveComment($commentId)
-    {
-        return $this->post("admin/comments/{$commentId}/approve");
-    }
-
-    public function rejectComment($commentId)
-    {
-        return $this->post("admin/comments/{$commentId}/reject");
-    }
-
     // Adoption Methods
     public function getAdoptions($params = [])
     {
@@ -232,5 +201,56 @@ class AdminService extends ApiService
     {
         $params = $category ? ['category' => $category] : [];
         return $this->get('addon-services', $params);
+    }
+
+    // Post Management Methods
+    public function getAdminPosts($params = [])
+    {
+        return $this->get('admin/posts', $params);
+    }
+
+    public function getAdminPost($id)
+    {
+        return $this->get("admin/posts/{$id}");
+    }
+
+    public function createPost($postData)
+    {
+        return $this->post('admin/posts', $postData);
+    }
+
+    public function updatePost($id, $postData)
+    {
+        return $this->put("admin/posts/{$id}", $postData);
+    }
+
+    public function deletePost($id)
+    {
+        return $this->delete("admin/posts/{$id}");
+    }
+
+    public function publishPost($id)
+    {
+        return $this->post("admin/posts/{$id}/publish");
+    }
+
+    public function archivePost($id)
+    {
+        return $this->post("admin/posts/{$id}/archive");
+    }
+
+    public function getPendingComments()
+    {
+        return $this->get('admin/posts/comments/pending');
+    }
+
+    public function approveComment($commentId)
+    {
+        return $this->put("admin/posts/comments/{$commentId}/approve");
+    }
+
+    public function rejectComment($commentId)
+    {
+        return $this->put("admin/posts/comments/{$commentId}/reject");
     }
 }

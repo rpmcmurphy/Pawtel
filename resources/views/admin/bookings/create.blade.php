@@ -306,72 +306,103 @@
 
 @push('scripts')
     <script type="module">
-        $(document).ready(function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Bootstrap components
+            // Since Bootstrap is imported as module, we need to access it properly
+            const {
+                Modal,
+                Dropdown,
+                Tooltip
+            } = window.bootstrap || {};
+
             let addonIndex = {{ old('addons') ? count(old('addons')) : 0 }};
 
             // Handle booking type changes
-            $('.booking-type').change(function() {
-                $('.booking-fields').hide();
-                if (this.checked) {
-                    $('#' + this.value + '_fields').show();
-                }
+            document.querySelectorAll('.booking-type').forEach(function(radio) {
+                radio.addEventListener('change', function() {
+                    document.querySelectorAll('.booking-fields').forEach(field => field.style
+                        .display = 'none');
+                    if (this.checked) {
+                        const targetField = document.getElementById(this.value + '_fields');
+                        if (targetField) {
+                            targetField.style.display = 'block';
+                        }
+                    }
+                });
             });
 
             // Show the correct fields on page load
-            $('.booking-type:checked').trigger('change');
+            const checkedType = document.querySelector('.booking-type:checked');
+            if (checkedType) {
+                checkedType.dispatchEvent(new Event('change'));
+            }
 
             // Customer search functionality
             let searchTimeout;
-            $('#customer_search').on('input', function() {
-                const searchTerm = $(this).val().trim();
+            const customerSearch = document.getElementById('customer_search');
+            const customerResults = document.getElementById('customer_results');
 
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(function() {
-                    if (searchTerm.length >= 2) {
-                        searchCustomers(searchTerm);
-                    } else {
-                        $('#customer_results').hide();
+            if (customerSearch && customerResults) {
+                customerSearch.addEventListener('input', function() {
+                    const searchTerm = this.value.trim();
+
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(function() {
+                        if (searchTerm.length >= 2) {
+                            searchCustomers(searchTerm);
+                        } else {
+                            customerResults.style.display = 'none';
+                        }
+                    }, 300);
+                });
+
+                // Hide dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('#customer_search') && !e.target.closest('#customer_results')) {
+                        customerResults.style.display = 'none';
                     }
-                }, 300);
-            });
-
-            // Hide dropdown when clicking outside
-            $(document).click(function(e) {
-                if (!$(e.target).closest('#customer_search, #customer_results').length) {
-                    $('#customer_results').hide();
-                }
-            });
+                });
+            }
 
             // Date validation
-            $('input[name="check_in_date"]').change(function() {
-                const checkInDate = new Date($(this).val());
-                const checkOutInput = $('input[name="check_out_date"]');
-                const currentCheckOut = new Date(checkOutInput.val());
+            const checkInInput = document.querySelector('input[name="check_in_date"]');
+            const checkOutInput = document.querySelector('input[name="check_out_date"]');
 
-                // Set minimum check-out date to day after check-in
-                const minCheckOut = new Date(checkInDate);
-                minCheckOut.setDate(minCheckOut.getDate() + 1);
-                checkOutInput.attr('min', minCheckOut.toISOString().split('T')[0]);
+            if (checkInInput && checkOutInput) {
+                checkInInput.addEventListener('change', function() {
+                    const checkInDate = new Date(this.value);
+                    const currentCheckOut = new Date(checkOutInput.value);
 
-                // If current check-out is before new minimum, update it
-                if (currentCheckOut <= checkInDate) {
-                    checkOutInput.val(minCheckOut.toISOString().split('T')[0]);
-                }
-            });
-        });
+                    // Set minimum check-out date to day after check-in
+                    const minCheckOut = new Date(checkInDate);
+                    minCheckOut.setDate(minCheckOut.getDate() + 1);
+                    checkOutInput.setAttribute('min', minCheckOut.toISOString().split('T')[0]);
 
-        function searchCustomers(searchTerm) {
-            $.ajax({
-                url: '{{ route('admin.customers.search') }}',
-                method: 'GET',
-                data: {
-                    search: searchTerm
-                },
-                success: function(response) {
-                    if (response.success && response.data.length > 0) {
-                        let html = '';
-                        response.data.forEach(customer => {
-                            html += `
+                    // If current check-out is before new minimum, update it
+                    if (currentCheckOut <= checkInDate) {
+                        checkOutInput.value = minCheckOut.toISOString().split('T')[0];
+                    }
+                });
+            }
+
+            // Global functions for customer search
+            window.searchCustomers = function(searchTerm) {
+                fetch('{{ route('admin.customers.search') }}?' + new URLSearchParams({
+                        search: searchTerm
+                    }), {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data.length > 0) {
+                            let html = '';
+                            data.data.forEach(customer => {
+                                html += `
                         <a href="#" class="dropdown-item" onclick="selectCustomer(${customer.id}, '${customer.name}', '${customer.email}', '${customer.phone || ''}')">
                             <div>
                                 <strong>${customer.name}</strong><br>
@@ -379,73 +410,236 @@
                             </div>
                         </a>
                     `;
-                        });
-                        $('#customer_results').html(html).show();
-                    } else {
-                        $('#customer_results').html('<div class="dropdown-item-text">No customers found</div>')
-                            .show();
+                            });
+                            customerResults.innerHTML = html;
+                            customerResults.style.display = 'block';
+                        } else {
+                            customerResults.innerHTML =
+                                '<div class="dropdown-item-text">No customers found</div>';
+                            customerResults.style.display = 'block';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Customer search error:', error);
+                        customerResults.innerHTML =
+                            '<div class="dropdown-item-text text-danger">Error searching customers</div>';
+                        customerResults.style.display = 'block';
+                    });
+            };
+
+            window.selectCustomer = function(id, name, email, phone) {
+                document.getElementById('user_id').value = id;
+                document.getElementById('customer_search').value = name;
+                document.getElementById('customer_info').textContent =
+                    `${name} (${email}${phone ? ' • ' + phone : ''})`;
+                document.getElementById('selected_customer').style.display = 'block';
+                document.getElementById('customer_results').style.display = 'none';
+            };
+
+            window.clearCustomer = function() {
+                document.getElementById('user_id').value = '';
+                document.getElementById('customer_search').value = '';
+                document.getElementById('selected_customer').style.display = 'none';
+            };
+
+            window.addAddonRow = function() {
+                const addonsContainer = document.getElementById('addons_container');
+                const noAddons = document.getElementById('no_addons');
+
+                if (addonsContainer) {
+                    const html = `
+                <div class="addon-row mb-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <select class="form-select" name="addons[${addonIndex}][addon_service_id]">
+                                <option value="">Select Add-on Service</option>
+                                @foreach ($addonServices as $service)
+                                    <option value="{{ $service['id'] }}" data-price="{{ $service['price'] }}">
+                                        {{ $service['name'] }} - ৳{{ number_format($service['price'], 2) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="number" class="form-control" name="addons[${addonIndex}][quantity]" 
+                                   placeholder="Quantity" min="1" max="10" value="1">
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-outline-danger" onclick="removeAddonRow(this)">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+                    addonsContainer.insertAdjacentHTML('beforeend', html);
+                    if (noAddons) {
+                        noAddons.style.display = 'none';
                     }
-                },
-                error: function() {
-                    $('#customer_results').html(
-                        '<div class="dropdown-item-text text-danger">Error searching customers</div>')
-                    .show();
+                    addonIndex++;
                 }
-            });
-        }
+            };
 
-        function selectCustomer(id, name, email, phone) {
-            $('#user_id').val(id);
-            $('#customer_search').val(name);
-            $('#customer_info').text(`${name} (${email}${phone ? ' • ' + phone : ''})`);
-            $('#selected_customer').show();
-            $('#customer_results').hide();
-        }
+            window.removeAddonRow = function(button) {
+                const addonRow = button.closest('.addon-row');
+                if (addonRow) {
+                    addonRow.remove();
+                }
 
-        function clearCustomer() {
-            $('#user_id').val('');
-            $('#customer_search').val('');
-            $('#selected_customer').hide();
-        }
+                if (document.querySelectorAll('.addon-row').length === 0) {
+                    const noAddons = document.getElementById('no_addons');
+                    if (noAddons) {
+                        noAddons.style.display = 'block';
+                    }
+                }
+            };
+        });
+    </script>
+@endpush
 
-        function addAddonRow() {
-            const html = `
-        <div class="addon-row mb-3">
-            <div class="row">
-                <div class="col-md-6">
-                    <select class="form-select" name="addons[${addonIndex}][addon_service_id]">
-                        <option value="">Select Add-on Service</option>
-                        @foreach ($addonServices as $service)
-                            <option value="{{ $service['id'] }}" data-price="{{ $service['price'] }}">
-                                {{ $service['name'] }} - ৳{{ number_format($service['price'], 2) }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <input type="number" class="form-control" name="addons[${addonIndex}][quantity]" 
-                           placeholder="Quantity" min="1" max="10" value="1">
-                </div>
-                <div class="col-md-3">
-                    <button type="button" class="btn btn-outline-danger" onclick="removeAddonRow(this)">
-                        <i class="fas fa-trash"></i> Remove
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
+@push('scriptss')
+    <script type="module">
+    //     $(document).ready(function() {
+    //         let addonIndex = {{ old('addons') ? count(old('addons')) : 0 }};
 
-            $('#addons_container').append(html);
-            $('#no_addons').hide();
-            addonIndex++;
-        }
+    //         // Handle booking type changes
+    //         $('.booking-type').change(function() {
+    //             $('.booking-fields').hide();
+    //             if (this.checked) {
+    //                 $('#' + this.value + '_fields').show();
+    //             }
+    //         });
 
-        function removeAddonRow(button) {
-            $(button).closest('.addon-row').remove();
+    //         // Show the correct fields on page load
+    //         $('.booking-type:checked').trigger('change');
 
-            if ($('.addon-row').length === 0) {
-                $('#no_addons').show();
-            }
-        }
+    //         // Customer search functionality
+    //         let searchTimeout;
+    //         $('#customer_search').on('input', function() {
+    //             const searchTerm = $(this).val().trim();
+
+    //             clearTimeout(searchTimeout);
+    //             searchTimeout = setTimeout(function() {
+    //                 if (searchTerm.length >= 2) {
+    //                     searchCustomers(searchTerm);
+    //                 } else {
+    //                     $('#customer_results').hide();
+    //                 }
+    //             }, 300);
+    //         });
+
+    //         // Hide dropdown when clicking outside
+    //         $(document).click(function(e) {
+    //             if (!$(e.target).closest('#customer_search, #customer_results').length) {
+    //                 $('#customer_results').hide();
+    //             }
+    //         });
+
+    //         // Date validation
+    //         $('input[name="check_in_date"]').change(function() {
+    //             const checkInDate = new Date($(this).val());
+    //             const checkOutInput = $('input[name="check_out_date"]');
+    //             const currentCheckOut = new Date(checkOutInput.val());
+
+    //             // Set minimum check-out date to day after check-in
+    //             const minCheckOut = new Date(checkInDate);
+    //             minCheckOut.setDate(minCheckOut.getDate() + 1);
+    //             checkOutInput.attr('min', minCheckOut.toISOString().split('T')[0]);
+
+    //             // If current check-out is before new minimum, update it
+    //             if (currentCheckOut <= checkInDate) {
+    //                 checkOutInput.val(minCheckOut.toISOString().split('T')[0]);
+    //             }
+    //         });
+    //     });
+
+    //     function searchCustomers(searchTerm) {
+    //         $.ajax({
+    //             url: '{{ route('admin.customers.search') }}',
+    //             method: 'GET',
+    //             data: {
+    //                 search: searchTerm
+    //             },
+    //             success: function(response) {
+    //                 if (response.success && response.data.length > 0) {
+    //                     let html = '';
+    //                     response.data.forEach(customer => {
+    //                         html += `
+    //                     <a href="#" class="dropdown-item" onclick="selectCustomer(${customer.id}, '${customer.name}', '${customer.email}', '${customer.phone || ''}')">
+    //                         <div>
+    //                             <strong>${customer.name}</strong><br>
+    //                             <small class="text-muted">${customer.email}${customer.phone ? ' • ' + customer.phone : ''}</small>
+    //                         </div>
+    //                     </a>
+    //                 `;
+    //                     });
+    //                     $('#customer_results').html(html).show();
+    //                 } else {
+    //                     $('#customer_results').html('<div class="dropdown-item-text">No customers found</div>')
+    //                         .show();
+    //                 }
+    //             },
+    //             error: function() {
+    //                 $('#customer_results').html(
+    //                         '<div class="dropdown-item-text text-danger">Error searching customers</div>')
+    //                     .show();
+    //             }
+    //         });
+    //     }
+
+    //     function selectCustomer(id, name, email, phone) {
+    //         $('#user_id').val(id);
+    //         $('#customer_search').val(name);
+    //         $('#customer_info').text(`${name} (${email}${phone ? ' • ' + phone : ''})`);
+    //         $('#selected_customer').show();
+    //         $('#customer_results').hide();
+    //     }
+
+    //     function clearCustomer() {
+    //         $('#user_id').val('');
+    //         $('#customer_search').val('');
+    //         $('#selected_customer').hide();
+    //     }
+
+    //     function addAddonRow() {
+    //         const html = `
+    //     <div class="addon-row mb-3">
+    //         <div class="row">
+    //             <div class="col-md-6">
+    //                 <select class="form-select" name="addons[${addonIndex}][addon_service_id]">
+    //                     <option value="">Select Add-on Service</option>
+    //                     @foreach ($addonServices as $service)
+    //                         <option value="{{ $service['id'] }}" data-price="{{ $service['price'] }}">
+    //                             {{ $service['name'] }} - ৳{{ number_format($service['price'], 2) }}
+    //                         </option>
+    //                     @endforeach
+    //                 </select>
+    //             </div>
+    //             <div class="col-md-3">
+    //                 <input type="number" class="form-control" name="addons[${addonIndex}][quantity]" 
+    //                        placeholder="Quantity" min="1" max="10" value="1">
+    //             </div>
+    //             <div class="col-md-3">
+    //                 <button type="button" class="btn btn-outline-danger" onclick="removeAddonRow(this)">
+    //                     <i class="fas fa-trash"></i> Remove
+    //                 </button>
+    //             </div>
+    //         </div>
+    //     </div>
+    // `;
+
+    //         $('#addons_container').append(html);
+    //         $('#no_addons').hide();
+    //         addonIndex++;
+    //     }
+
+    //     function removeAddonRow(button) {
+    //         $(button).closest('.addon-row').remove();
+
+    //         if ($('.addon-row').length === 0) {
+    //             $('#no_addons').show();
+    //         }
+    //     }
     </script>
 @endpush

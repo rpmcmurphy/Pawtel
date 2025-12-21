@@ -42,6 +42,7 @@ use App\Http\Controllers\API\{
     NotificationController,
     FileUploadController
 };
+use App\Http\Controllers\Web\Admin\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -318,7 +319,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/{id}/orders', [UserManagementController::class, 'userOrders']);
             Route::get('/{id}/activity', [UserManagementController::class, 'userActivity']);
 
-            Route::get('customers/search', [UserManagementController::class, 'searchCustomers']);
+            Route::get('customers/search', [UserController::class, 'searchCustomers']);
         });
 
         // Reports
