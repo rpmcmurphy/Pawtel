@@ -52,6 +52,17 @@ class AvailabilityController extends Controller
 
     public function check(Request $request): JsonResponse
     {
+        // Support both GET (query params) and POST (JSON body)
+        $roomTypeId = $request->input('room_type_id') ?? $request->get('room_type_id');
+        $checkInDate = $request->input('check_in_date') ?? $request->get('check_in_date');
+        $checkOutDate = $request->input('check_out_date') ?? $request->get('check_out_date');
+        
+        $request->merge([
+            'room_type_id' => $roomTypeId,
+            'check_in_date' => $checkInDate,
+            'check_out_date' => $checkOutDate,
+        ]);
+        
         $request->validate([
             'room_type_id' => 'required|exists:room_types,id',
             'check_in_date' => 'required|date|after_or_equal:today',

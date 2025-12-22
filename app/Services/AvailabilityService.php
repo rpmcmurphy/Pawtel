@@ -59,7 +59,19 @@ class AvailabilityService
             ->count();
 
         // Check if there are available rooms
+        // If no rooms are created, use max_capacity as fallback
         $totalCapacity = $roomType->rooms()->where('status', 'available')->count();
+        
+        // If no rooms exist, use max_capacity from room type
+        if ($totalCapacity === 0 && $roomType->max_capacity > 0) {
+            $totalCapacity = $roomType->max_capacity;
+        }
+        
+        // If still no capacity, assume 1 room available (for initial setup)
+        if ($totalCapacity === 0) {
+            $totalCapacity = 1;
+        }
+        
         return $overlappingBookings < $totalCapacity;
     }
 

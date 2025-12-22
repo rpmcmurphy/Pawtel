@@ -93,7 +93,7 @@ Route::prefix('community')->group(function () {
 // Public Availability Routes
 Route::prefix('availability')->group(function () {
     Route::get('room-types', [AvailabilityController::class, 'roomTypes']);
-    Route::post('check', [AvailabilityController::class, 'check']);
+    Route::match(['GET', 'POST'], 'check', [AvailabilityController::class, 'check']); // Support both GET and POST
     Route::get('spa-packages', [AvailabilityController::class, 'spaPackages']);
     Route::get('spa-slots', [AvailabilityController::class, 'spaSlots']);
     Route::get('spay-packages', [AvailabilityController::class, 'spayPackages']);

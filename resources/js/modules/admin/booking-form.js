@@ -452,11 +452,19 @@ export class BookingForm {
 
     async checkHotelAvailability(roomTypeId, checkInDate, checkOutDate) {
         try {
-            const response = await fetch(`/api/availability/check?room_type_id=${roomTypeId}&check_in_date=${checkInDate}&check_out_date=${checkOutDate}`, {
+            const response = await fetch('/api/availability/check', {
+                method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify({
+                    room_type_id: roomTypeId,
+                    check_in_date: checkInDate,
+                    check_out_date: checkOutDate
+                })
             });
             
             const data = await response.json();
@@ -468,12 +476,21 @@ export class BookingForm {
                 statusDiv.innerHTML = '<div class="text-success">✓ Available</div>';
                 statusDiv.className = 'alert alert-success';
             } else {
-                statusDiv.innerHTML = '<div class="text-danger">✗ No vacancy available for selected dates</div>';
+                const message = data.data?.reason === 'minimum_stay_not_met' 
+                    ? 'Minimum stay is 3 days'
+                    : (data.message || 'No vacancy available for selected dates');
+                statusDiv.innerHTML = `<div class="text-danger">✗ ${message}</div>`;
                 statusDiv.className = 'alert alert-danger';
             }
             statusDiv.style.display = 'block';
         } catch (error) {
             console.error('Availability check error:', error);
+            const statusDiv = document.getElementById('hotel_availability_status');
+            if (statusDiv) {
+                statusDiv.innerHTML = '<div class="text-danger">✗ Error checking availability</div>';
+                statusDiv.className = 'alert alert-danger';
+                statusDiv.style.display = 'block';
+            }
         }
     }
 
