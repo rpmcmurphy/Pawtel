@@ -80,6 +80,8 @@ class OrderManagementController extends Controller
 
     public function cancel(int $id, Request $request): JsonResponse
     {
+        $request->validate(['reason' => 'required|string|max:500']);
+
         try {
             $order = $this->orderService->cancelOrder($id, $request->reason);
 
@@ -93,6 +95,59 @@ class OrderManagementController extends Controller
                 'success' => false,
                 'message' => $e->getMessage(),
             ], 400);
+        }
+    }
+
+    public function markAsShipped(int $id): JsonResponse
+    {
+        try {
+            $order = $this->orderService->updateStatus($id, 'shipped');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order marked as shipped successfully',
+                'data' => new OrderResource($order)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function markAsDelivered(int $id): JsonResponse
+    {
+        try {
+            $order = $this->orderService->updateStatus($id, 'delivered');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order marked as delivered successfully',
+                'data' => new OrderResource($order)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function invoice(int $id): JsonResponse
+    {
+        try {
+            $order = $this->orderRepo->findWithItems($id);
+
+            return response()->json([
+                'success' => true,
+                'data' => new OrderResource($order)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found',
+            ], 404);
         }
     }
 }

@@ -35,9 +35,9 @@ class BookingController extends Controller
     {
         // Get data needed for the form
         $roomTypes = $this->adminService->get('availability/room-types');
-        $spaPackages = $this->adminService->get('spa/packages');
-        $spayPackages = $this->adminService->get('spay/packages');
-        $addonServices = $this->adminService->get('addon-services');
+        $spaPackages = $this->adminService->get('availability/spa-packages');
+        $spayPackages = $this->adminService->get('availability/spay-packages');
+        $addonServices = $this->adminService->get('admin/services/addons');
 
         return view('admin.bookings.create', [
             'roomTypes' => $roomTypes['success'] ? $roomTypes['data'] : [],
@@ -110,6 +110,49 @@ class BookingController extends Controller
         } else {
             $bookingData['addons'] = [];
         }
+        
+        // Add optional pricing override fields
+        if (isset($validated['total_amount'])) {
+            $bookingData['total_amount'] = $validated['total_amount'];
+        }
+        if (isset($validated['final_amount'])) {
+            $bookingData['final_amount'] = $validated['final_amount'];
+        }
+        if (isset($validated['custom_monthly_discount'])) {
+            $bookingData['custom_monthly_discount'] = $validated['custom_monthly_discount'];
+        }
+        
+        // Add type-specific fields
+        if ($validated['type'] === 'spa') {
+            if (isset($validated['appointment_time'])) {
+                $bookingData['appointment_time'] = $validated['appointment_time'];
+            }
+            if (isset($validated['notes'])) {
+                $bookingData['notes'] = $validated['notes'];
+            }
+        }
+        
+        if ($validated['type'] === 'spay') {
+            if (isset($validated['pet_name'])) {
+                $bookingData['pet_name'] = $validated['pet_name'];
+            }
+            if (isset($validated['pet_age'])) {
+                $bookingData['pet_age'] = $validated['pet_age'];
+            }
+            if (isset($validated['pet_weight'])) {
+                $bookingData['pet_weight'] = $validated['pet_weight'];
+            }
+            if (isset($validated['medical_notes'])) {
+                $bookingData['medical_notes'] = $validated['medical_notes'];
+            }
+            if (isset($validated['post_care_days'])) {
+                $bookingData['post_care_days'] = $validated['post_care_days'];
+            }
+        }
+        
+        // Add status and confirmation flag
+        $bookingData['status'] = $validated['status'] ?? 'confirmed';
+        $bookingData['send_confirmation'] = $request->has('send_confirmation');
 
         // Create booking via API service
         $response = $this->adminService->createManualBooking($bookingData);
@@ -117,28 +160,44 @@ class BookingController extends Controller
         Log::info('Manual Booking Creation Response:', $response);
         Log::info('Manual Booking Request Data:', $bookingData);
 
-        if ($response['success']) {
-            $message = 'Booking created successfully.';
+        // Handle nested response structure from ApiService
+        $apiResponse = $response['success'] ? $response['data'] : $response;
+        
+        if (isset($apiResponse['success']) && $apiResponse['success']) {
+            $message = $apiResponse['message'] ?? 'Booking created successfully.';
+            
+            // Get booking ID from nested structure
+            $bookingId = $apiResponse['data']['id'] ?? null;
+            
+            if (!$bookingId) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Booking created but ID not found in response.');
+            }
 
             // Send confirmation email if requested
             if ($request->has('send_confirmation')) {
                 $message .= ' Confirmation email sent to customer.';
             }
 
-            return redirect()->route('admin.bookings.show', $response['data']['id'])
+            return redirect()->route('admin.bookings.show', $bookingId)
                 ->with('success', $message);
         }
 
         // Better error handling
         $errorMessage = 'Failed to create booking.';
 
-        if (isset($response['message'])) {
-            $errorMessage = $response['message'];
+        if (isset($apiResponse['message'])) {
+            $errorMessage = $apiResponse['message'];
         }
 
-        if (isset($response['errors'])) {
-            $errors = is_array($response['errors']) ? $response['errors'] : [$response['errors']];
+        if (isset($apiResponse['errors'])) {
+            $errors = is_array($apiResponse['errors']) ? $apiResponse['errors'] : [$apiResponse['errors']];
             $errorMessage .= ' Errors: ' . implode(', ', Arr::flatten($errors));
+        }
+        
+        if (isset($apiResponse['error'])) {
+            $errorMessage = $apiResponse['error'];
         }
 
         return redirect()->back()
@@ -158,8 +217,11 @@ class BookingController extends Controller
                 ->with('error', 'Booking not found.');
         }
 
+        // Unwrap nested response structure
+        $bookingData = $booking['data']['data'] ?? $booking['data'];
+
         return view('admin.bookings.show', [
-            'booking' => $booking['data']['data']
+            'booking' => $bookingData
         ]);
     }
 
@@ -175,18 +237,11 @@ class BookingController extends Controller
                 ->with('error', 'Booking not found.');
         }
 
-        // Get data needed for the form
-        $roomTypes = $this->adminService->get('availability/room-types');
-        $spaPackages = $this->adminService->get('spa/packages');
-        $spayPackages = $this->adminService->get('spay/packages');
-        $addonServices = $this->adminService->get('addon-services');
+        // Unwrap nested response structure
+        $bookingData = $booking['success'] ? ($booking['data']['data'] ?? $booking['data']) : [];
 
         return view('admin.bookings.edit', [
-            'booking' => $booking['data'],
-            'roomTypes' => $roomTypes['success'] ? $roomTypes['data'] : [],
-            'spaPackages' => $spaPackages['success'] ? $spaPackages['data'] : [],
-            'spayPackages' => $spayPackages['success'] ? $spayPackages['data'] : [],
-            'addonServices' => $addonServices['success'] ? $addonServices['data'] : [],
+            'booking' => $bookingData,
         ]);
     }
 
@@ -201,16 +256,19 @@ class BookingController extends Controller
             'final_amount' => 'sometimes|numeric|min:0',
         ]);
 
-        $response = $this->adminService->updateBooking($id, $validated);
+        $response = $this->adminService->put("admin/bookings/{$id}", $validated);
+        
+        // Handle nested response structure
+        $apiResponse = $response['success'] ? $response['data'] : $response;
 
-        if ($response['success']) {
+        if (isset($apiResponse['success']) && $apiResponse['success']) {
             return redirect()->route('admin.bookings.show', $id)
-                ->with('success', 'Booking updated successfully.');
+                ->with('success', $apiResponse['message'] ?? 'Booking updated successfully.');
         }
 
         return redirect()->back()
             ->withInput()
-            ->with('error', $response['message'] ?? 'Failed to update booking.');
+            ->with('error', $apiResponse['message'] ?? $apiResponse['error'] ?? 'Failed to update booking.');
     }
 
     /**
@@ -227,6 +285,18 @@ class BookingController extends Controller
         }
 
         return redirect()->back()->with('error', $response['message'] ?? 'Failed to confirm booking.');
+    }
+
+    /**
+     * Calculate booking price (proxy to API)
+     */
+    public function calculatePrice(Request $request)
+    {
+        // This is a proxy route that forwards to the API
+        // The actual calculation is done in the API endpoint
+        $response = $this->adminService->post('admin/bookings/calculate-price', $request->all());
+        
+        return response()->json($response);
     }
 
     /**

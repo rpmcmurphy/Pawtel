@@ -14,9 +14,10 @@ class RoomType extends Model
         'name',
         'slug',
         'base_daily_rate',
-        'weekly_rate',
-        'ten_day_rate',
-        'monthly_rate',
+        'rate_7plus_days',
+        'rate_10plus_days',
+        'monthly_package_price',
+        'monthly_custom_discount_enabled',
         'max_capacity',
         'amenities',
         'status',
@@ -26,9 +27,10 @@ class RoomType extends Model
     protected $casts = [
         'amenities' => 'array',
         'base_daily_rate' => 'decimal:2',
-        'weekly_rate' => 'decimal:2',
-        'ten_day_rate' => 'decimal:2',
-        'monthly_rate' => 'decimal:2',
+        'rate_7plus_days' => 'decimal:2',
+        'rate_10plus_days' => 'decimal:2',
+        'monthly_package_price' => 'decimal:2',
+        'monthly_custom_discount_enabled' => 'boolean',
     ];
 
     // Relationships
@@ -72,17 +74,29 @@ class RoomType extends Model
         return $query->count();
     }
 
-    public function getPriceForDuration($days): float
+    public function getPriceForDuration($days, $customMonthlyDiscount = null): float
     {
-        if ($days >= 30 && $this->monthly_rate) {
-            return $this->monthly_rate;
-        } elseif ($days >= 10 && $this->ten_day_rate) {
-            return $this->ten_day_rate;
-        } elseif ($days >= 7 && $this->weekly_rate) {
-            return $this->weekly_rate;
-        } else {
-            return $this->base_daily_rate * $days;
+        // Monthly package pricing (fixed price, with optional custom admin discount)
+        if ($days >= 30 && $this->monthly_package_price) {
+            if ($this->monthly_custom_discount_enabled && $customMonthlyDiscount !== null) {
+                return $this->monthly_package_price - $customMonthlyDiscount;
+            }
+            return $this->monthly_package_price;
         }
+        
+        // Tiered per-day pricing
+        // 10+ days: use rate_10plus_days per day
+        if ($days >= 10 && $this->rate_10plus_days) {
+            return $this->rate_10plus_days * $days;
+        }
+        
+        // 7+ days: use rate_7plus_days per day
+        if ($days >= 7 && $this->rate_7plus_days) {
+            return $this->rate_7plus_days * $days;
+        }
+        
+        // Default: base daily rate
+        return $this->base_daily_rate * $days;
     }
 
     public function isAvailableForDateRange($startDate, $endDate): bool

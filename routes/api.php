@@ -204,6 +204,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('bookings')->group(function () {
             Route::get('/', [BookingManagementController::class, 'index']);
             Route::get('/{id}', [BookingManagementController::class, 'show']);
+            Route::put('/{id}', [BookingManagementController::class, 'update']);
             Route::put('/{id}/confirm', [BookingManagementController::class, 'confirm']);
             Route::put('/{id}/cancel', [BookingManagementController::class, 'cancel']);
             Route::put('/{id}/complete', [BookingManagementController::class, 'complete']);
@@ -213,6 +214,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
             // Manual Booking Entry
             Route::post('manual', [BookingManagementController::class, 'createManualBooking']);
+            
+            // Price Calculation
+            Route::post('calculate-price', [BookingManagementController::class, 'calculatePrice']);
         });
 
         // Room Management
@@ -319,7 +323,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/{id}/orders', [UserManagementController::class, 'userOrders']);
             Route::get('/{id}/activity', [UserManagementController::class, 'userActivity']);
 
-            Route::get('customers/search', [UserController::class, 'searchCustomers']);
+            Route::get('customers/search', [UserManagementController::class, 'searchCustomers']);
         });
 
         // Reports

@@ -25,6 +25,7 @@ Route::middleware(['auth.web', 'admin.web'])->prefix('admin')->name('admin.')->g
         Route::put('{id}', [BookingController::class, 'update'])->name('update'); // ADDED
         Route::post('{id}/confirm', [BookingController::class, 'confirm'])->name('confirm');
         Route::post('{id}/cancel', [BookingController::class, 'cancel'])->name('cancel');
+        Route::post('calculate-price', [BookingController::class, 'calculatePrice'])->name('calculate-price');
         Route::get('type/{type}', [BookingController::class, 'byType'])->name('type'); // FIXED: moved to end
     });
 
@@ -38,6 +39,57 @@ Route::middleware(['auth.web', 'admin.web'])->prefix('admin')->name('admin.')->g
         Route::put('{id}', [AdminProductController::class, 'update'])->name('update');
         Route::delete('{id}', [AdminProductController::class, 'destroy'])->name('destroy');
         Route::put('{id}/status', [AdminProductController::class, 'updateStatus'])->name('status');
+    });
+
+    // Orders Management
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Web\Admin\OrderController::class, 'index'])->name('index');
+        Route::get('{id}', [\App\Http\Controllers\Web\Admin\OrderController::class, 'show'])->name('show');
+        Route::put('{id}/status', [\App\Http\Controllers\Web\Admin\OrderController::class, 'updateStatus'])->name('status');
+        Route::post('{id}/ship', [\App\Http\Controllers\Web\Admin\OrderController::class, 'ship'])->name('ship');
+        Route::post('{id}/deliver', [\App\Http\Controllers\Web\Admin\OrderController::class, 'deliver'])->name('deliver');
+        Route::post('{id}/cancel', [\App\Http\Controllers\Web\Admin\OrderController::class, 'cancel'])->name('cancel');
+        Route::get('{id}/invoice', [\App\Http\Controllers\Web\Admin\OrderController::class, 'invoice'])->name('invoice');
+    });
+
+    // Rooms Management
+    Route::prefix('rooms')->name('rooms.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Web\Admin\RoomController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\Web\Admin\RoomController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Web\Admin\RoomController::class, 'store'])->name('store');
+        Route::get('{id}', [\App\Http\Controllers\Web\Admin\RoomController::class, 'show'])->name('show');
+        Route::get('{id}/edit', [\App\Http\Controllers\Web\Admin\RoomController::class, 'edit'])->name('edit');
+        Route::put('{id}', [\App\Http\Controllers\Web\Admin\RoomController::class, 'update'])->name('update');
+        Route::put('{id}/status', [\App\Http\Controllers\Web\Admin\RoomController::class, 'updateStatus'])->name('status');
+        Route::post('block-dates', [\App\Http\Controllers\Web\Admin\RoomController::class, 'blockDates'])->name('block-dates');
+    });
+
+    // Service Packages Management
+    Route::prefix('services')->name('services.')->group(function () {
+        // Spa Packages
+        Route::prefix('spa')->name('spa.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'spaIndex'])->name('index');
+            Route::get('create', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'spaCreate'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'spaStore'])->name('store');
+            Route::get('{id}/edit', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'spaEdit'])->name('edit');
+            Route::put('{id}', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'spaUpdate'])->name('update');
+        });
+        // Spay Packages
+        Route::prefix('spay')->name('spay.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'spayIndex'])->name('index');
+            Route::get('create', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'spayCreate'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'spayStore'])->name('store');
+            Route::get('{id}/edit', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'spayEdit'])->name('edit');
+            Route::put('{id}', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'spayUpdate'])->name('update');
+        });
+        // Addon Services
+        Route::prefix('addons')->name('addons.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'addonIndex'])->name('index');
+            Route::get('create', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'addonCreate'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'addonStore'])->name('store');
+            Route::get('{id}/edit', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'addonEdit'])->name('edit');
+            Route::put('{id}', [\App\Http\Controllers\Web\Admin\ServicePackageController::class, 'addonUpdate'])->name('update');
+        });
     });
 
     // Users Management

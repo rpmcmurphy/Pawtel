@@ -184,4 +184,35 @@ class UserManagementController extends Controller
             ], 404);
         }
     }
+
+    /**
+     * Search customers for admin operations (booking creation, etc.)
+     */
+    public function searchCustomers(Request $request): JsonResponse
+    {
+        $searchTerm = $request->get('search', '');
+
+        if (empty($searchTerm) || strlen($searchTerm) < 2) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Search term must be at least 2 characters',
+                'data' => []
+            ], 400);
+        }
+
+        try {
+            $users = $this->userRepo->searchCustomers($searchTerm, 10);
+
+            return response()->json([
+                'success' => true,
+                'data' => UserResource::collection($users)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to search customers',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

@@ -180,9 +180,9 @@ class AvailabilityService
 
         return [
             'base_daily_rate' => $roomType->base_daily_rate,
-            'weekly_rate' => $roomType->weekly_rate,
-            'ten_day_rate' => $roomType->ten_day_rate,
-            'monthly_rate' => $roomType->monthly_rate,
+            'rate_7plus_days' => $roomType->rate_7plus_days,
+            'rate_10plus_days' => $roomType->rate_10plus_days,
+            'monthly_package_price' => $roomType->monthly_package_price,
             'total_days' => $totalDays,
             'applicable_price' => $basePrice,
             'price_type' => $this->getPriceType($totalDays),

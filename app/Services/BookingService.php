@@ -28,6 +28,7 @@ class BookingService
                 'discount_amount' => $data['discount_amount'],
                 'final_amount' => $data['final_amount'],
                 'special_requests' => $data['special_requests'] ?? null,
+                'is_resident' => $data['is_resident'] ?? false,
                 'status' => 'pending',
             ]);
 
@@ -63,6 +64,7 @@ class BookingService
                 'discount_amount' => $data['discount_amount'],
                 'final_amount' => $data['final_amount'],
                 'special_requests' => $data['special_requests'] ?? null,
+                'is_resident' => $data['is_resident'] ?? false,
                 'status' => 'pending',
             ]);
 
@@ -105,6 +107,7 @@ class BookingService
                 'discount_amount' => $data['discount_amount'],
                 'final_amount' => $data['final_amount'],
                 'special_requests' => $data['special_requests'] ?? null,
+                'is_resident' => $data['is_resident'] ?? false,
                 'status' => 'pending',
             ]);
 
@@ -196,31 +199,47 @@ class BookingService
         // Add main service item
         if ($booking->type === 'hotel') {
             $roomType = $booking->roomType;
+            // Calculate unit price based on actual pricing used
+            $unitPrice = $booking->total_amount / $booking->total_days;
             $invoice['items'][] = [
                 'description' => "Hotel Stay - {$roomType->name}",
                 'quantity' => $booking->total_days,
-                'unit_price' => $roomType->base_daily_rate,
-                'total' => $roomType->base_daily_rate * $booking->total_days,
+                'unit_price' => $unitPrice,
+                'total' => $booking->total_amount,
             ];
-            $invoice['summary']['subtotal'] += $roomType->base_daily_rate * $booking->total_days;
+            $invoice['summary']['subtotal'] += $booking->total_amount;
         } elseif ($booking->type === 'spa') {
             $spaPackage = $booking->spaBooking->spaPackage;
+            // Use resident price if booking is marked as resident
+            $servicePrice = $booking->is_resident && $spaPackage->resident_price 
+                ? $spaPackage->resident_price 
+                : $spaPackage->price;
             $invoice['items'][] = [
-                'description' => "Spa Service - {$spaPackage->name}",
+                'description' => "Spa Service - {$spaPackage->name}" . ($booking->is_resident ? ' (Resident Rate)' : ''),
                 'quantity' => 1,
-                'unit_price' => $spaPackage->price,
-                'total' => $spaPackage->price,
+                'unit_price' => $servicePrice,
+                'total' => $servicePrice,
             ];
-            $invoice['summary']['subtotal'] += $spaPackage->price;
+            $invoice['summary']['subtotal'] += $servicePrice;
         } elseif ($booking->type === 'spay') {
             $spayPackage = $booking->spayBooking->spayPackage;
+            // Use resident price if booking is marked as resident
+            $servicePrice = $booking->is_resident && $spayPackage->resident_price 
+                ? $spayPackage->resident_price 
+                : $spayPackage->price;
             $invoice['items'][] = [
-                'description' => "Spay/Neuter - {$spayPackage->name}",
+                'description' => "Spay/Neuter - {$spayPackage->name}" . ($booking->is_resident ? ' (Resident Rate)' : ''),
                 'quantity' => 1,
-                'unit_price' => $spayPackage->price,
-                'total' => $spayPackage->price,
+                'unit_price' => $servicePrice,
+                'total' => $servicePrice,
             ];
-            $invoice['summary']['subtotal'] += $spayPackage->price;
+            $invoice['summary']['subtotal'] += $servicePrice;
+            
+            // Add post-operative care if applicable
+            if ($spayPackage->post_care_days > 0) {
+                // Note: Post-care pricing would need to be stored separately or calculated
+                // For now, we'll just show it as part of the package
+            }
         }
 
         // Add addon items

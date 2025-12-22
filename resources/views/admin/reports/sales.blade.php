@@ -215,7 +215,7 @@
             document.getElementById('totalOrders').textContent = stats.total_orders || 0;
             document.getElementById('completedOrders').textContent = stats.completed_orders || 0;
             document.getElementById('pendingOrders').textContent = stats.pending_orders || 0;
-            document.getElementById('salesRevenue').textContent = ' + (stats.revenue || 0).toFixed(2);
+            document.getElementById('salesRevenue').textContent = '৳' + (stats.revenue || 0).toFixed(2);
         }
 
         function updateCharts(data) {
@@ -263,7 +263,7 @@
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
-                                    return ' + value.toFixed(2);
+                                    return '৳' + value.toFixed(2);
                                 }
                             }
                         }

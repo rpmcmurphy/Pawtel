@@ -10,12 +10,13 @@ class ManualBookingRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->user()->hasRole('admin');
+        $user = $this->user();
+        return $user && $user->hasRole('admin');
     }
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'user_id' => 'required|exists:users,id',
             'type' => 'required|in:hotel,spa,spay',
             'check_in_date' => 'required|date|after_or_equal:today',
@@ -23,13 +24,34 @@ class ManualBookingRequest extends FormRequest
             'room_type_id' => 'required_if:type,hotel|exists:room_types,id',
             'spa_package_id' => 'required_if:type,spa|exists:spa_packages,id',
             'spay_package_id' => 'required_if:type,spay|exists:spay_packages,id',
-            'final_amount' => 'required|numeric|min:0',
+            'final_amount' => 'nullable|numeric|min:0',
+            'total_amount' => 'nullable|numeric|min:0',
             'manual_reference' => 'required|string|max:255',
             'special_requests' => 'nullable|string|max:1000',
             'addons' => 'sometimes|array',
             'addons.*.addon_service_id' => 'required|exists:addon_services,id',
             'addons.*.quantity' => 'required|integer|min:1|max:10',
+            'status' => 'sometimes|in:pending,confirmed',
+            'send_confirmation' => 'sometimes|boolean',
+            'custom_monthly_discount' => 'nullable|numeric|min:0',
         ];
+        
+        // Spa-specific fields
+        if ($this->input('type') === 'spa') {
+            $rules['appointment_time'] = 'nullable|date_format:H:i';
+            $rules['notes'] = 'nullable|string|max:500';
+        }
+        
+        // Spay-specific fields
+        if ($this->input('type') === 'spay') {
+            $rules['pet_name'] = 'nullable|string|max:100';
+            $rules['pet_age'] = 'nullable|string|max:50';
+            $rules['pet_weight'] = 'nullable|numeric|min:0.1|max:50';
+            $rules['medical_notes'] = 'nullable|string|max:1000';
+            $rules['post_care_days'] = 'nullable|integer|min:0|max:30';
+        }
+        
+        return $rules;
     }
 
     public function messages(): array

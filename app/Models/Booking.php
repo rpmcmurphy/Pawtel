@@ -32,6 +32,7 @@ class Booking extends Model
         'confirmation_sent_at',
         'is_manual_entry',
         'manual_reference',
+        'is_resident',
     ];
 
     protected $casts = [
@@ -41,6 +42,7 @@ class Booking extends Model
         'confirmed_at' => 'datetime',
         'confirmation_sent_at' => 'datetime',
         'is_manual_entry' => 'boolean',
+        'is_resident' => 'boolean',
         'total_amount' => 'decimal:2',
         'discount_amount' => 'decimal:2',
         'final_amount' => 'decimal:2',

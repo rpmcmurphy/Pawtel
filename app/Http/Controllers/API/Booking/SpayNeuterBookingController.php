@@ -44,10 +44,19 @@ class SpayNeuterBookingController extends Controller
                 ], 400);
             }
 
+            // Check if user is a resident (has active hotel booking)
+            $isResident = $this->pricingService->isUserResident($user->id, $request->procedure_date);
+
+            // Get post-care days from package or request
+            $spayPackage = \App\Models\SpayPackage::find($request->spay_package_id);
+            $postCareDays = $request->post_care_days ?? $spayPackage->post_care_days ?? 0;
+
             // Calculate pricing
             $pricing = $this->pricingService->calculateSpayBooking(
                 $request->spay_package_id,
-                $request->addons ?? []
+                $request->addons ?? [],
+                $isResident,
+                $postCareDays
             );
 
             // Create booking
@@ -61,6 +70,7 @@ class SpayNeuterBookingController extends Controller
                 'discount_amount' => $pricing['discount_amount'],
                 'final_amount' => $pricing['final_amount'],
                 'special_requests' => $request->special_requests,
+                'is_resident' => $isResident,
                 'addons' => $request->addons ?? [],
                 'spay_details' => [
                     'spay_package_id' => $request->spay_package_id,

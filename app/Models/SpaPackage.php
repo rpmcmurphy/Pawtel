@@ -16,6 +16,7 @@ class SpaPackage extends Model
         'description',
         'duration_minutes',
         'price',
+        'resident_price',
         'max_daily_bookings',
         'status',
         'sort_order',
@@ -23,6 +24,7 @@ class SpaPackage extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'resident_price' => 'decimal:2',
     ];
 
     // Relationships

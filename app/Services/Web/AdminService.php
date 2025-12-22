@@ -167,7 +167,27 @@ class AdminService extends ApiService
      */
     public function searchCustomers($searchTerm)
     {
-        return $this->get('admin/users/customers/search', ['search' => $searchTerm]);
+        $response = $this->get('admin/users/customers/search', ['search' => $searchTerm]);
+        
+        // ApiService wraps responses, so unwrap if needed
+        if ($response['success'] && isset($response['data'])) {
+            // If the inner data is also a response object, return it
+            if (isset($response['data']['success'])) {
+                return $response['data'];
+            }
+            // Otherwise wrap it in the expected format
+            return [
+                'success' => true,
+                'data' => $response['data']
+            ];
+        }
+        
+        // Return error response
+        return [
+            'success' => false,
+            'message' => $response['message'] ?? 'Failed to search customers',
+            'data' => []
+        ];
     }
 
     /**
@@ -183,7 +203,7 @@ class AdminService extends ApiService
      */
     public function getSpaPackages()
     {
-        return $this->get('spa/packages');
+        return $this->get('availability/spa-packages');
     }
 
     /**
@@ -191,7 +211,7 @@ class AdminService extends ApiService
      */
     public function getSpayPackages()
     {
-        return $this->get('spay/packages');
+        return $this->get('availability/spay-packages');
     }
 
     /**
@@ -200,7 +220,7 @@ class AdminService extends ApiService
     public function getAddonServices($category = null)
     {
         $params = $category ? ['category' => $category] : [];
-        return $this->get('addon-services', $params);
+        return $this->get('admin/services/addons', $params);
     }
 
     // Post Management Methods
@@ -252,5 +272,27 @@ class AdminService extends ApiService
     public function rejectComment($commentId)
     {
         return $this->put("admin/posts/comments/{$commentId}/reject");
+    }
+
+    // Report Methods
+    public function getBookingReports($params = [])
+    {
+        return $this->get('admin/reports/bookings', $params);
+    }
+
+    public function getSalesReports($params = [])
+    {
+        return $this->get('admin/reports/sales', $params);
+    }
+
+    public function getFinancialReports($params = [])
+    {
+        return $this->get('admin/reports/financial', $params);
+    }
+
+    public function exportReport($type, $params = [])
+    {
+        $params['type'] = $type;
+        return $this->get("admin/reports/{$type}/export", $params);
     }
 }

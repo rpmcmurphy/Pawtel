@@ -83,6 +83,7 @@ class UserController extends Controller
 
     /**
      * Search customers for admin operations
+     * This is a proxy route that forwards to the API
      */
     public function searchCustomers(Request $request)
     {
@@ -93,11 +94,16 @@ class UserController extends Controller
                 'success' => false,
                 'message' => 'Search term must be at least 2 characters',
                 'data' => []
-            ]);
+            ], 400);
         }
 
         $response = $this->adminService->searchCustomers($searchTerm);
-
+        
+        // If AdminService returns nested response, unwrap it
+        if (isset($response['success']) && isset($response['data']['success'])) {
+            return response()->json($response['data']);
+        }
+        
         return response()->json($response);
     }
 

@@ -113,12 +113,16 @@ class HotelBookingController extends Controller
                 ], 400);
             }
 
+            // Check if user is a resident (has active hotel booking)
+            $isResident = $this->pricingService->isUserResident($user->id, $request->check_in_date);
+
             // Calculate pricing
             $pricing = $this->pricingService->calculateHotelBooking(
                 $request->room_type_id,
                 $request->check_in_date,
                 $request->check_out_date,
-                $request->addons ?? []
+                $request->addons ?? [],
+                $request->custom_monthly_discount ?? null
             );
 
             // Create booking
@@ -133,6 +137,7 @@ class HotelBookingController extends Controller
                 'discount_amount' => $pricing['discount_amount'],
                 'final_amount' => $pricing['final_amount'],
                 'special_requests' => $request->special_requests,
+                'is_resident' => $isResident,
                 'addons' => $request->addons ?? [],
             ]);
 
@@ -206,6 +211,9 @@ class HotelBookingController extends Controller
             }
 
             if ($recalculatePrice) {
+                // Check if user is still a resident
+                $isResident = $this->pricingService->isUserResident($user->id, $updateData['check_in_date']);
+                
                 $pricing = $this->pricingService->calculateHotelBooking(
                     $booking->room_type_id,
                     $updateData['check_in_date'],
@@ -223,6 +231,7 @@ class HotelBookingController extends Controller
                     'total_amount' => $pricing['total_amount'],
                     'discount_amount' => $pricing['discount_amount'],
                     'final_amount' => $pricing['final_amount'],
+                    'is_resident' => $isResident,
                 ]);
             }
 

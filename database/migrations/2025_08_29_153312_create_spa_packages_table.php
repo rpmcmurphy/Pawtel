@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('description')->nullable();
             $table->integer('duration_minutes');
-            $table->decimal('price', 10, 2);
+            $table->decimal('price', 10, 2); // Default/visitor price
+            $table->decimal('resident_price', 10, 2)->nullable(); // Price for in-house guests (discounted)
             $table->integer('max_daily_bookings')->default(5);
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->integer('sort_order')->default(0);

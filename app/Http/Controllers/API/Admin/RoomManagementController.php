@@ -67,6 +67,94 @@ class RoomManagementController extends Controller
         }
     }
 
+    public function show(int $id): JsonResponse
+    {
+        try {
+            $room = $this->roomRepo->find($id);
+            
+            if (!$room) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Room not found',
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $room->id,
+                    'room_number' => $room->room_number,
+                    'floor' => $room->floor,
+                    'status' => $room->status,
+                    'notes' => $room->notes,
+                    'room_type' => [
+                        'id' => $room->roomType->id,
+                        'name' => $room->roomType->name,
+                    ],
+                    'created_at' => $room->created_at->format('Y-m-d H:i:s'),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Room not found',
+            ], 404);
+        }
+    }
+
+    public function update(int $id, CreateRoomRequest $request): JsonResponse
+    {
+        try {
+            $room = $this->roomRepo->update($id, $request->validated());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Room updated successfully',
+                'data' => $room->load('roomType')
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Room not found',
+            ], 404);
+        }
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        try {
+            $room = $this->roomRepo->find($id);
+            
+            if (!$room) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Room not found',
+                ], 404);
+            }
+
+            // Check if room has active bookings
+            if ($room->bookings()->whereIn('status', ['pending', 'confirmed'])->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot delete room with active bookings',
+                ], 400);
+            }
+
+            $this->roomRepo->delete($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Room deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete room',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function updateStatus(int $id, Request $request): JsonResponse
     {
         $request->validate([

@@ -88,4 +88,21 @@ class UserRepository
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
     }
+
+    /**
+     * Search customers by name, email, or phone
+     */
+    public function searchCustomers(string $searchTerm, int $limit = 10)
+    {
+        return User::role('customer')
+            ->where(function ($query) use ($searchTerm) {
+                $query->where('name', 'like', "%{$searchTerm}%")
+                    ->orWhere('email', 'like', "%{$searchTerm}%")
+                    ->orWhere('phone', 'like', "%{$searchTerm}%");
+            })
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->limit($limit)
+            ->get();
+    }
 }

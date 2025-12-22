@@ -1,8 +1,9 @@
 import "./bootstrap";
 import "../scss/admin.scss";
 
-// Import Bootstrap JS
-import "bootstrap";
+// Import Bootstrap JS and make it globally available
+import * as bootstrap from "bootstrap";
+window.bootstrap = bootstrap;
 
 // Import Chart.js
 import {
@@ -33,6 +34,11 @@ window.Chart = ChartJS;
 // Import DataTables
 import DataTable from "datatables.net-bs5";
 window.DataTable = DataTable;
+
+// Import admin modules (they will register themselves globally)
+import "./modules/admin/booking-form";
+import "./modules/admin/pricing-calculator";
+import "./modules/admin/availability-checker";
 
 // Admin specific functionality
 document.addEventListener("DOMContentLoaded", function () {

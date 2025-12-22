@@ -140,12 +140,18 @@
                         @enderror
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Final Amount (৳) *</label>
+                        <label class="form-label">Final Amount (৳)</label>
                         <input type="number" class="form-control" name="final_amount"
-                            value="{{ old('final_amount') }}" min="0" step="0.01">
+                            id="final_amount" value="{{ old('final_amount') }}" min="0" step="0.01" readonly>
+                        <small class="text-muted">Calculated automatically. You can override if needed.</small>
                         @error('final_amount')
                             <div class="text-danger small">{{ $message }}</div>
                         @enderror
+                    </div>
+                    <div class="col-md-3" style="display: none;" id="total_amount_field">
+                        <label class="form-label">Total Amount (৳)</label>
+                        <input type="number" class="form-control" name="total_amount"
+                            id="total_amount" value="{{ old('total_amount') }}" min="0" step="0.01" readonly>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Manual Reference *</label>
@@ -162,18 +168,40 @@
                     <div class="row mt-3">
                         <div class="col-md-6">
                             <label class="form-label">Room Type *</label>
-                            <select class="form-select" name="room_type_id">
+                            <select class="form-select" name="room_type_id" id="room_type_id" required>
                                 <option value="">Select Room Type</option>
-                                @foreach ($roomTypes['data'] as $roomType)
-                                    <option value="{{ $roomType['id'] }}"
-                                        {{ old('room_type_id') == $roomType['id'] ? 'selected' : '' }}>
-                                        {{ $roomType['name'] }} - ৳{{ number_format($roomType['base_daily_rate'], 2) }}
-                                    </option>
-                                @endforeach
+                                @if(isset($roomTypes['data']) && is_array($roomTypes['data']))
+                                    @foreach ($roomTypes['data'] as $roomType)
+                                        <option value="{{ $roomType['id'] }}"
+                                            data-base-rate="{{ $roomType['base_daily_rate'] ?? 0 }}"
+                                            data-rate-7plus="{{ $roomType['rate_7plus_days'] ?? 0 }}"
+                                            data-rate-10plus="{{ $roomType['rate_10plus_days'] ?? 0 }}"
+                                            data-monthly-price="{{ $roomType['monthly_package_price'] ?? 0 }}"
+                                            {{ old('room_type_id') == $roomType['id'] ? 'selected' : '' }}>
+                                            {{ $roomType['name'] }} - ৳{{ number_format($roomType['base_daily_rate'] ?? 0, 2) }}/day
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
                             @error('room_type_id')
                                 <div class="text-danger small">{{ $message }}</div>
                             @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Custom Monthly Discount (৳)</label>
+                            <input type="number" class="form-control" name="custom_monthly_discount" 
+                                   id="custom_monthly_discount" value="{{ old('custom_monthly_discount') }}" 
+                                   min="0" step="0.01" placeholder="Optional discount for monthly stays">
+                            <small class="text-muted">Only applies to monthly stays (30+ days)</small>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div id="hotel_pricing_info" class="alert alert-info" style="display: none;">
+                                <strong>Pricing Information:</strong>
+                                <div id="pricing_details"></div>
+                            </div>
+                            <div id="hotel_availability_status" class="alert" style="display: none;"></div>
                         </div>
                     </div>
                 </div>
@@ -183,18 +211,43 @@
                     <div class="row mt-3">
                         <div class="col-md-6">
                             <label class="form-label">Spa Package *</label>
-                            <select class="form-select" name="spa_package_id">
+                            <select class="form-select" name="spa_package_id" id="spa_package_id" required>
                                 <option value="">Select Spa Package</option>
-                                @foreach ($spaPackages as $spaPackage)
-                                    <option value="{{ $spaPackage['id'] }}"
-                                        {{ old('spa_package_id') == $spaPackage['id'] ? 'selected' : '' }}>
-                                        {{ $spaPackage['name'] }} - ৳{{ number_format($spaPackage['price'], 2) }}
-                                    </option>
-                                @endforeach
+                                @if(isset($spaPackages['data']) && is_array($spaPackages['data']))
+                                    @foreach ($spaPackages['data'] as $spaPackage)
+                                        <option value="{{ $spaPackage['id'] }}"
+                                            data-price="{{ $spaPackage['price'] ?? 0 }}"
+                                            data-resident-price="{{ $spaPackage['resident_price'] ?? 0 }}"
+                                            {{ old('spa_package_id') == $spaPackage['id'] ? 'selected' : '' }}>
+                                            {{ $spaPackage['name'] }} - ৳{{ number_format($spaPackage['price'] ?? 0, 2) }}
+                                        </option>
+                                    @endforeach
+                                @elseif(is_array($spaPackages))
+                                    @foreach ($spaPackages as $spaPackage)
+                                        <option value="{{ $spaPackage['id'] }}"
+                                            data-price="{{ $spaPackage['price'] ?? 0 }}"
+                                            data-resident-price="{{ $spaPackage['resident_price'] ?? 0 }}"
+                                            {{ old('spa_package_id') == $spaPackage['id'] ? 'selected' : '' }}>
+                                            {{ $spaPackage['name'] }} - ৳{{ number_format($spaPackage['price'] ?? 0, 2) }}
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
                             @error('spa_package_id')
                                 <div class="text-danger small">{{ $message }}</div>
                             @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Appointment Time</label>
+                            <input type="time" class="form-control" name="appointment_time" 
+                                   id="appointment_time" value="{{ old('appointment_time', '09:00') }}">
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes" rows="2" 
+                                      placeholder="Additional notes for spa booking">{{ old('notes') }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -204,18 +257,63 @@
                     <div class="row mt-3">
                         <div class="col-md-6">
                             <label class="form-label">Spay/Neuter Package *</label>
-                            <select class="form-select" name="spay_package_id">
+                            <select class="form-select" name="spay_package_id" id="spay_package_id" required>
                                 <option value="">Select Spay Package</option>
-                                @foreach ($spayPackages as $spayPackage)
-                                    <option value="{{ $spayPackage['id'] }}"
-                                        {{ old('spay_package_id') == $spayPackage['id'] ? 'selected' : '' }}>
-                                        {{ $spayPackage['name'] }} - ৳{{ number_format($spayPackage['price'], 2) }}
-                                    </option>
-                                @endforeach
+                                @if(isset($spayPackages['data']) && is_array($spayPackages['data']))
+                                    @foreach ($spayPackages['data'] as $spayPackage)
+                                        <option value="{{ $spayPackage['id'] }}"
+                                            data-price="{{ $spayPackage['price'] ?? 0 }}"
+                                            data-resident-price="{{ $spayPackage['resident_price'] ?? 0 }}"
+                                            data-post-care-days="{{ $spayPackage['post_care_days'] ?? 0 }}"
+                                            {{ old('spay_package_id') == $spayPackage['id'] ? 'selected' : '' }}>
+                                            {{ $spayPackage['name'] }} ({{ ucfirst($spayPackage['type'] ?? '') }}) - ৳{{ number_format($spayPackage['price'] ?? 0, 2) }}
+                                        </option>
+                                    @endforeach
+                                @elseif(is_array($spayPackages))
+                                    @foreach ($spayPackages as $spayPackage)
+                                        <option value="{{ $spaPackage['id'] }}"
+                                            data-price="{{ $spayPackage['price'] ?? 0 }}"
+                                            data-resident-price="{{ $spayPackage['resident_price'] ?? 0 }}"
+                                            data-post-care-days="{{ $spayPackage['post_care_days'] ?? 0 }}"
+                                            {{ old('spay_package_id') == $spayPackage['id'] ? 'selected' : '' }}>
+                                            {{ $spayPackage['name'] }} ({{ ucfirst($spayPackage['type'] ?? '') }}) - ৳{{ number_format($spayPackage['price'] ?? 0, 2) }}
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
                             @error('spay_package_id')
                                 <div class="text-danger small">{{ $message }}</div>
                             @enderror
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Post-Care Days</label>
+                            <input type="number" class="form-control" name="post_care_days" 
+                                   id="post_care_days" value="{{ old('post_care_days') }}" 
+                                   min="0" max="30" placeholder="Auto from package">
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Pet Name</label>
+                            <input type="text" class="form-control" name="pet_name" 
+                                   value="{{ old('pet_name') }}" placeholder="Pet's name">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Pet Age</label>
+                            <input type="text" class="form-control" name="pet_age" 
+                                   value="{{ old('pet_age') }}" placeholder="e.g., 2 years">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Pet Weight (kg)</label>
+                            <input type="number" class="form-control" name="pet_weight" 
+                                   value="{{ old('pet_weight') }}" step="0.1" min="0.1" max="50" placeholder="Weight">
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label class="form-label">Medical Notes</label>
+                            <textarea class="form-control" name="medical_notes" rows="2" 
+                                      placeholder="Any medical notes or special instructions">{{ old('medical_notes') }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -250,22 +348,26 @@
                             <div class="addon-row mb-3">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <select class="form-select" name="addons[{{ $index }}][addon_service_id]">
+                                        <select class="form-select addon-service-select" name="addons[{{ $index }}][addon_service_id]">
                                             <option value="">Select Add-on Service</option>
-                                            @foreach ($addonServices as $service)
+                                            @php
+                                                $services = isset($addonServices['data']) && is_array($addonServices['data']) 
+                                                    ? $addonServices['data'] 
+                                                    : (is_array($addonServices) ? $addonServices : []);
+                                            @endphp
+                                            @foreach ($services as $service)
                                                 <option value="{{ $service['id'] }}"
-                                                    data-price="{{ $service['price'] }}"
+                                                    data-price="{{ $service['price'] ?? 0 }}"
                                                     {{ $addon['addon_service_id'] == $service['id'] ? 'selected' : '' }}>
-                                                    {{ $service['name'] }} - ৳{{ number_format($service['price'], 2) }}
+                                                    {{ $service['name'] }} - ৳{{ number_format($service['price'] ?? 0, 2) }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <input type="number" class="form-control"
+                                        <input type="number" class="form-control addon-quantity" 
                                             name="addons[{{ $index }}][quantity]"
-                                            value="{{ $addon['quantity'] }}" placeholder="Quantity" min="1"
-                                            max="10">
+                                            value="{{ $addon['quantity'] }}" placeholder="Quantity" min="1" max="10">
                                     </div>
                                     <div class="col-md-3">
                                         <button type="button" class="btn btn-outline-danger"
@@ -307,339 +409,38 @@
 @push('scripts')
     <script type="module">
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Bootstrap components
-            // Since Bootstrap is imported as module, we need to access it properly
+            // Bootstrap is now available globally via admin.js
             const {
                 Modal,
                 Dropdown,
                 Tooltip
             } = window.bootstrap || {};
-
-            let addonIndex = {{ old('addons') ? count(old('addons')) : 0 }};
-
-            // Handle booking type changes
-            document.querySelectorAll('.booking-type').forEach(function(radio) {
-                radio.addEventListener('change', function() {
-                    document.querySelectorAll('.booking-fields').forEach(field => field.style
-                        .display = 'none');
-                    if (this.checked) {
-                        const targetField = document.getElementById(this.value + '_fields');
-                        if (targetField) {
-                            targetField.style.display = 'block';
-                        }
-                    }
+            
+            // Initialize BookingForm if the form exists
+            if (document.getElementById('manualBookingForm') && window.BookingForm) {
+                @php
+                    $services = isset($addonServices['data']) && is_array($addonServices['data']) 
+                        ? $addonServices['data'] 
+                        : (is_array($addonServices) ? $addonServices : []);
+                @endphp
+                
+                window.bookingFormInstance = new window.BookingForm('manualBookingForm', {
+                    customerSearchUrl: '{{ route("admin.customers.search") }}',
+                    calculatePriceUrl: '{{ route("admin.bookings.calculate-price") }}',
+                    addonServices: @json($services),
+                    initialAddonIndex: {{ old('addons') ? count(old('addons')) : 0 }}
                 });
+            }
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#customer_search') && !e.target.closest('#customer_results')) {
+                    const dropdown = document.getElementById('customer_results');
+                    if (dropdown) {
+                        dropdown.style.display = 'none';
+                    }
+                }
             });
-
-            // Show the correct fields on page load
-            const checkedType = document.querySelector('.booking-type:checked');
-            if (checkedType) {
-                checkedType.dispatchEvent(new Event('change'));
-            }
-
-            // Customer search functionality
-            let searchTimeout;
-            const customerSearch = document.getElementById('customer_search');
-            const customerResults = document.getElementById('customer_results');
-
-            if (customerSearch && customerResults) {
-                customerSearch.addEventListener('input', function() {
-                    const searchTerm = this.value.trim();
-
-                    clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(function() {
-                        if (searchTerm.length >= 2) {
-                            searchCustomers(searchTerm);
-                        } else {
-                            customerResults.style.display = 'none';
-                        }
-                    }, 300);
-                });
-
-                // Hide dropdown when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!e.target.closest('#customer_search') && !e.target.closest('#customer_results')) {
-                        customerResults.style.display = 'none';
-                    }
-                });
-            }
-
-            // Date validation
-            const checkInInput = document.querySelector('input[name="check_in_date"]');
-            const checkOutInput = document.querySelector('input[name="check_out_date"]');
-
-            if (checkInInput && checkOutInput) {
-                checkInInput.addEventListener('change', function() {
-                    const checkInDate = new Date(this.value);
-                    const currentCheckOut = new Date(checkOutInput.value);
-
-                    // Set minimum check-out date to day after check-in
-                    const minCheckOut = new Date(checkInDate);
-                    minCheckOut.setDate(minCheckOut.getDate() + 1);
-                    checkOutInput.setAttribute('min', minCheckOut.toISOString().split('T')[0]);
-
-                    // If current check-out is before new minimum, update it
-                    if (currentCheckOut <= checkInDate) {
-                        checkOutInput.value = minCheckOut.toISOString().split('T')[0];
-                    }
-                });
-            }
-
-            // Global functions for customer search
-            window.searchCustomers = function(searchTerm) {
-                fetch('{{ route('admin.customers.search') }}?' + new URLSearchParams({
-                        search: searchTerm
-                    }), {
-                        method: 'GET',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success && data.data.length > 0) {
-                            let html = '';
-                            data.data.forEach(customer => {
-                                html += `
-                        <a href="#" class="dropdown-item" onclick="selectCustomer(${customer.id}, '${customer.name}', '${customer.email}', '${customer.phone || ''}')">
-                            <div>
-                                <strong>${customer.name}</strong><br>
-                                <small class="text-muted">${customer.email}${customer.phone ? ' • ' + customer.phone : ''}</small>
-                            </div>
-                        </a>
-                    `;
-                            });
-                            customerResults.innerHTML = html;
-                            customerResults.style.display = 'block';
-                        } else {
-                            customerResults.innerHTML =
-                                '<div class="dropdown-item-text">No customers found</div>';
-                            customerResults.style.display = 'block';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Customer search error:', error);
-                        customerResults.innerHTML =
-                            '<div class="dropdown-item-text text-danger">Error searching customers</div>';
-                        customerResults.style.display = 'block';
-                    });
-            };
-
-            window.selectCustomer = function(id, name, email, phone) {
-                document.getElementById('user_id').value = id;
-                document.getElementById('customer_search').value = name;
-                document.getElementById('customer_info').textContent =
-                    `${name} (${email}${phone ? ' • ' + phone : ''})`;
-                document.getElementById('selected_customer').style.display = 'block';
-                document.getElementById('customer_results').style.display = 'none';
-            };
-
-            window.clearCustomer = function() {
-                document.getElementById('user_id').value = '';
-                document.getElementById('customer_search').value = '';
-                document.getElementById('selected_customer').style.display = 'none';
-            };
-
-            window.addAddonRow = function() {
-                const addonsContainer = document.getElementById('addons_container');
-                const noAddons = document.getElementById('no_addons');
-
-                if (addonsContainer) {
-                    const html = `
-                <div class="addon-row mb-3">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <select class="form-select" name="addons[${addonIndex}][addon_service_id]">
-                                <option value="">Select Add-on Service</option>
-                                @foreach ($addonServices as $service)
-                                    <option value="{{ $service['id'] }}" data-price="{{ $service['price'] }}">
-                                        {{ $service['name'] }} - ৳{{ number_format($service['price'], 2) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <input type="number" class="form-control" name="addons[${addonIndex}][quantity]" 
-                                   placeholder="Quantity" min="1" max="10" value="1">
-                        </div>
-                        <div class="col-md-3">
-                            <button type="button" class="btn btn-outline-danger" onclick="removeAddonRow(this)">
-                                <i class="fas fa-trash"></i> Remove
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-                    addonsContainer.insertAdjacentHTML('beforeend', html);
-                    if (noAddons) {
-                        noAddons.style.display = 'none';
-                    }
-                    addonIndex++;
-                }
-            };
-
-            window.removeAddonRow = function(button) {
-                const addonRow = button.closest('.addon-row');
-                if (addonRow) {
-                    addonRow.remove();
-                }
-
-                if (document.querySelectorAll('.addon-row').length === 0) {
-                    const noAddons = document.getElementById('no_addons');
-                    if (noAddons) {
-                        noAddons.style.display = 'block';
-                    }
-                }
-            };
         });
-    </script>
-@endpush
-
-@push('scriptss')
-    <script type="module">
-    //     $(document).ready(function() {
-    //         let addonIndex = {{ old('addons') ? count(old('addons')) : 0 }};
-
-    //         // Handle booking type changes
-    //         $('.booking-type').change(function() {
-    //             $('.booking-fields').hide();
-    //             if (this.checked) {
-    //                 $('#' + this.value + '_fields').show();
-    //             }
-    //         });
-
-    //         // Show the correct fields on page load
-    //         $('.booking-type:checked').trigger('change');
-
-    //         // Customer search functionality
-    //         let searchTimeout;
-    //         $('#customer_search').on('input', function() {
-    //             const searchTerm = $(this).val().trim();
-
-    //             clearTimeout(searchTimeout);
-    //             searchTimeout = setTimeout(function() {
-    //                 if (searchTerm.length >= 2) {
-    //                     searchCustomers(searchTerm);
-    //                 } else {
-    //                     $('#customer_results').hide();
-    //                 }
-    //             }, 300);
-    //         });
-
-    //         // Hide dropdown when clicking outside
-    //         $(document).click(function(e) {
-    //             if (!$(e.target).closest('#customer_search, #customer_results').length) {
-    //                 $('#customer_results').hide();
-    //             }
-    //         });
-
-    //         // Date validation
-    //         $('input[name="check_in_date"]').change(function() {
-    //             const checkInDate = new Date($(this).val());
-    //             const checkOutInput = $('input[name="check_out_date"]');
-    //             const currentCheckOut = new Date(checkOutInput.val());
-
-    //             // Set minimum check-out date to day after check-in
-    //             const minCheckOut = new Date(checkInDate);
-    //             minCheckOut.setDate(minCheckOut.getDate() + 1);
-    //             checkOutInput.attr('min', minCheckOut.toISOString().split('T')[0]);
-
-    //             // If current check-out is before new minimum, update it
-    //             if (currentCheckOut <= checkInDate) {
-    //                 checkOutInput.val(minCheckOut.toISOString().split('T')[0]);
-    //             }
-    //         });
-    //     });
-
-    //     function searchCustomers(searchTerm) {
-    //         $.ajax({
-    //             url: '{{ route('admin.customers.search') }}',
-    //             method: 'GET',
-    //             data: {
-    //                 search: searchTerm
-    //             },
-    //             success: function(response) {
-    //                 if (response.success && response.data.length > 0) {
-    //                     let html = '';
-    //                     response.data.forEach(customer => {
-    //                         html += `
-    //                     <a href="#" class="dropdown-item" onclick="selectCustomer(${customer.id}, '${customer.name}', '${customer.email}', '${customer.phone || ''}')">
-    //                         <div>
-    //                             <strong>${customer.name}</strong><br>
-    //                             <small class="text-muted">${customer.email}${customer.phone ? ' • ' + customer.phone : ''}</small>
-    //                         </div>
-    //                     </a>
-    //                 `;
-    //                     });
-    //                     $('#customer_results').html(html).show();
-    //                 } else {
-    //                     $('#customer_results').html('<div class="dropdown-item-text">No customers found</div>')
-    //                         .show();
-    //                 }
-    //             },
-    //             error: function() {
-    //                 $('#customer_results').html(
-    //                         '<div class="dropdown-item-text text-danger">Error searching customers</div>')
-    //                     .show();
-    //             }
-    //         });
-    //     }
-
-    //     function selectCustomer(id, name, email, phone) {
-    //         $('#user_id').val(id);
-    //         $('#customer_search').val(name);
-    //         $('#customer_info').text(`${name} (${email}${phone ? ' • ' + phone : ''})`);
-    //         $('#selected_customer').show();
-    //         $('#customer_results').hide();
-    //     }
-
-    //     function clearCustomer() {
-    //         $('#user_id').val('');
-    //         $('#customer_search').val('');
-    //         $('#selected_customer').hide();
-    //     }
-
-    //     function addAddonRow() {
-    //         const html = `
-    //     <div class="addon-row mb-3">
-    //         <div class="row">
-    //             <div class="col-md-6">
-    //                 <select class="form-select" name="addons[${addonIndex}][addon_service_id]">
-    //                     <option value="">Select Add-on Service</option>
-    //                     @foreach ($addonServices as $service)
-    //                         <option value="{{ $service['id'] }}" data-price="{{ $service['price'] }}">
-    //                             {{ $service['name'] }} - ৳{{ number_format($service['price'], 2) }}
-    //                         </option>
-    //                     @endforeach
-    //                 </select>
-    //             </div>
-    //             <div class="col-md-3">
-    //                 <input type="number" class="form-control" name="addons[${addonIndex}][quantity]" 
-    //                        placeholder="Quantity" min="1" max="10" value="1">
-    //             </div>
-    //             <div class="col-md-3">
-    //                 <button type="button" class="btn btn-outline-danger" onclick="removeAddonRow(this)">
-    //                     <i class="fas fa-trash"></i> Remove
-    //                 </button>
-    //             </div>
-    //         </div>
-    //     </div>
-    // `;
-
-    //         $('#addons_container').append(html);
-    //         $('#no_addons').hide();
-    //         addonIndex++;
-    //     }
-
-    //     function removeAddonRow(button) {
-    //         $(button).closest('.addon-row').remove();
-
-    //         if ($('.addon-row').length === 0) {
-    //             $('#no_addons').show();
-    //         }
-    //     }
     </script>
 @endpush

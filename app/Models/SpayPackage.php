@@ -15,13 +15,21 @@ class SpayPackage extends Model
         'type',
         'description',
         'price',
+        'resident_price',
         'post_care_days',
+        'post_care_rate_first_3_days',
+        'post_care_rate_next_4_days',
+        'post_care_rate_second_week',
         'max_daily_slots',
         'status',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
+        'resident_price' => 'decimal:2',
+        'post_care_rate_first_3_days' => 'decimal:2',
+        'post_care_rate_next_4_days' => 'decimal:2',
+        'post_care_rate_second_week' => 'decimal:2',
     ];
 
     // Relationships

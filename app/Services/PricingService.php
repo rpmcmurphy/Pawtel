@@ -6,15 +6,32 @@ use App\Models\RoomType;
 use App\Models\SpaPackage;
 use App\Models\SpayPackage;
 use App\Models\AddonService;
+use App\Models\Booking;
 use Carbon\Carbon;
 
 class PricingService
 {
+    /**
+     * Check if a user is a resident (has active hotel booking)
+     */
+    public function isUserResident(int $userId, ?string $checkDate = null): bool
+    {
+        $date = $checkDate ? Carbon::parse($checkDate) : Carbon::now();
+        
+        return Booking::where('user_id', $userId)
+            ->where('type', 'hotel')
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->where('check_in_date', '<=', $date)
+            ->where('check_out_date', '>=', $date)
+            ->exists();
+    }
+
     public function calculateHotelBooking(
         int $roomTypeId,
         string $checkInDate,
         string $checkOutDate,
-        array $addons = []
+        array $addons = [],
+        ?float $customMonthlyDiscount = null
     ): array {
         $roomType = RoomType::find($roomTypeId);
 
@@ -22,14 +39,20 @@ class PricingService
         $checkOut = Carbon::parse($checkOutDate);
         $totalDays = $checkIn->diffInDays($checkOut) + 1;
 
-        // Calculate room price
-        $roomPrice = $roomType->getPriceForDuration($totalDays);
+        // Validate minimum stay of 3 days
+        if ($totalDays < 3) {
+            throw new \Exception('Minimum stay is 3 days');
+        }
+
+        // Calculate room price using tiered pricing
+        $roomPrice = $roomType->getPriceForDuration($totalDays, $customMonthlyDiscount);
 
         // Calculate addons price
         $addonsTotal = $this->calculateAddonsTotal($addons);
 
         $subtotal = $roomPrice + $addonsTotal;
-        $discount = $this->calculateDiscount($subtotal, $totalDays);
+        // No additional discount calculation - pricing is handled by tiered rates
+        $discount = 0;
         $finalAmount = $subtotal - $discount;
 
         return [
@@ -44,16 +67,21 @@ class PricingService
 
     public function calculateSpaBooking(
         int $spaPackageId,
-        array $addons = []
+        array $addons = [],
+        bool $isResident = false
     ): array {
         $spaPackage = SpaPackage::find($spaPackageId);
-        $servicePrice = $spaPackage->price;
+        
+        // Use resident price if user is resident, otherwise use regular price
+        $servicePrice = $isResident && $spaPackage->resident_price 
+            ? $spaPackage->resident_price 
+            : $spaPackage->price;
 
         // Calculate addons price
         $addonsTotal = $this->calculateAddonsTotal($addons);
 
         $subtotal = $servicePrice + $addonsTotal;
-        $discount = 0; // No discount for spa services currently
+        $discount = 0;
         $finalAmount = $subtotal - $discount;
 
         return [
@@ -62,30 +90,86 @@ class PricingService
             'total_amount' => $subtotal,
             'discount_amount' => $discount,
             'final_amount' => $finalAmount,
+            'is_resident' => $isResident,
         ];
     }
 
     public function calculateSpayBooking(
         int $spayPackageId,
-        array $addons = []
+        array $addons = [],
+        bool $isResident = false,
+        ?int $postCareDays = null
     ): array {
         $spayPackage = SpayPackage::find($spayPackageId);
-        $servicePrice = $spayPackage->price;
+        
+        // Use resident price if user is resident, otherwise use regular price
+        $servicePrice = $isResident && $spayPackage->resident_price 
+            ? $spayPackage->resident_price 
+            : $spayPackage->price;
+
+        // Calculate post-operative care pricing if applicable
+        $postCareTotal = 0;
+        if ($postCareDays && $postCareDays > 0) {
+            $postCareTotal = $this->calculatePostCarePricing($spayPackage, $postCareDays);
+        }
 
         // Calculate addons price
         $addonsTotal = $this->calculateAddonsTotal($addons);
 
-        $subtotal = $servicePrice + $addonsTotal;
-        $discount = 0; // No discount for spay services currently
+        $subtotal = $servicePrice + $postCareTotal + $addonsTotal;
+        $discount = 0;
         $finalAmount = $subtotal - $discount;
 
         return [
             'service_price' => $servicePrice,
+            'post_care_total' => $postCareTotal,
+            'post_care_days' => $postCareDays ?? 0,
             'addons_total' => $addonsTotal,
             'total_amount' => $subtotal,
             'discount_amount' => $discount,
             'final_amount' => $finalAmount,
+            'is_resident' => $isResident,
         ];
+    }
+
+    /**
+     * Calculate post-operative care pricing with tiered rates
+     * First 3 days: post_care_rate_first_3_days per day
+     * Next 4 days: post_care_rate_next_4_days per day
+     * Second week: post_care_rate_second_week per day
+     */
+    private function calculatePostCarePricing(SpayPackage $spayPackage, int $days): float
+    {
+        $total = 0;
+        $remainingDays = $days;
+
+        // First 3 days
+        if ($remainingDays > 0 && $spayPackage->post_care_rate_first_3_days) {
+            $first3Days = min(3, $remainingDays);
+            $total += $spayPackage->post_care_rate_first_3_days * $first3Days;
+            $remainingDays -= $first3Days;
+        }
+
+        // Next 4 days (days 4-7)
+        if ($remainingDays > 0 && $spayPackage->post_care_rate_next_4_days) {
+            $next4Days = min(4, $remainingDays);
+            $total += $spayPackage->post_care_rate_next_4_days * $next4Days;
+            $remainingDays -= $next4Days;
+        }
+
+        // Second week (days 8-14)
+        if ($remainingDays > 0 && $spayPackage->post_care_rate_second_week) {
+            $secondWeekDays = min(7, $remainingDays);
+            $total += $spayPackage->post_care_rate_second_week * $secondWeekDays;
+            $remainingDays -= $secondWeekDays;
+        }
+
+        // If there are more days beyond 14, use second week rate
+        if ($remainingDays > 0 && $spayPackage->post_care_rate_second_week) {
+            $total += $spayPackage->post_care_rate_second_week * $remainingDays;
+        }
+
+        return $total;
     }
 
     private function calculateAddonsTotal(array $addons): float
@@ -100,19 +184,5 @@ class PricingService
         }
 
         return $total;
-    }
-
-    private function calculateDiscount(float $amount, int $totalDays): float
-    {
-        // Apply discount based on stay duration
-        if ($totalDays >= 30) {
-            return $amount * 0.15; // 15% discount for monthly stays
-        } elseif ($totalDays >= 14) {
-            return $amount * 0.10; // 10% discount for 2+ weeks
-        } elseif ($totalDays >= 7) {
-            return $amount * 0.05; // 5% discount for weekly stays
-        }
-
-        return 0;
     }
 }

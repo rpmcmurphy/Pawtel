@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('name'); // Single/Double/Family
             $table->string('slug')->unique();
-            $table->decimal('base_daily_rate', 10, 2);
-            $table->decimal('weekly_rate', 10, 2)->nullable();
-            $table->decimal('ten_day_rate', 10, 2)->nullable();
-            $table->decimal('monthly_rate', 10, 2)->nullable();
+            $table->decimal('base_daily_rate', 10, 2); // Per day rate (e.g., 500 BDT)
+            $table->decimal('rate_7plus_days', 10, 2)->nullable(); // Per day rate for 7+ days stay (e.g., 450 BDT/day)
+            $table->decimal('rate_10plus_days', 10, 2)->nullable(); // Per day rate for 10+ days stay (e.g., 400 BDT/day)
+            $table->decimal('monthly_package_price', 10, 2)->nullable(); // Fixed monthly package price (e.g., 10000 BDT)
+            $table->boolean('monthly_custom_discount_enabled')->default(false); // Allow admin to set custom discount for monthly stays
             $table->integer('max_capacity')->default(1);
             $table->json('amenities')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');

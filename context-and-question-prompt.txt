@@ -1,0 +1,176 @@
+# **Cat Hotel & Health Service Platform (API + Web + App)**
+
+## **Core Modules**
+
+1. **Booking System**
+
+   * **Cat Hotel**
+
+     * Room Types: Single / Double / Family.
+     * Stay Duration: Daily / Weekly / 10 Days / Monthly.
+     * **Day-based count** (Check-in date and check-out date inclusive.
+       Example: Check-in 16th → Check-out 18th = 3 days: 16, 17, 18).
+       *Minimum stay = 3 days.*
+     * Backend-configurable room capacity (per type).
+     * Booking auto-blocks capacity. If full → “No vacancy during this time.”
+     * Manual reservation blocking option, with manual entry for those (for external bookings via Facebook/WhatsApp/Phone).
+     * Add-on Services for hotel booking: Nail cutting, shower, flea treatment, trimming, etc.
+     * Required Documents Upload: 2 mandatory files per booking.
+     * Auto-generated email confirmation after booking; manual confirmation email from admin later.
+
+   * **Spay/Neuter + Post-operative Care**
+
+     * Limited slots per day, configurable from backend.
+     * 2–3 package variants (e.g., basic, premium, post-op extended care).
+     * Document upload required.
+     * Auto-generated booking email.
+
+   * **Spa & Grooming**
+
+     * 5–6 packages (e.g., full grooming, bath only, haircut, etc.).
+     * Per-day booking limit (e.g., max 4–5 appointments).
+     * Document upload required.
+     * Auto-generated booking email.
+
+---
+
+2. **E-commerce (Accessories & Medicine Shop)**
+
+   * Product catalog: categories, images, descriptions, stock availability.
+   * Ordering: Cash on Delivery (COD) only (no online payment yet).
+   * Cart & Checkout flow.
+   * Order management panel for admin.
+
+---
+
+3. **Community Feed**
+
+   * Social feed style posts by admin only:
+
+     * Adoption listings.
+     * Stories / news updates.
+     * Job vacancy posts.
+   * Simple like/comment system (optional, can be phase-2).
+   * Post management panel for admin.
+
+---
+
+## **General Features**
+
+* **Authentication**: Customer login/signup (Laravel Sanctum-based), admin panel with role-based access (admin/editor/customer/others as necessary, we will use Spatie ROles Permissions package for this).
+* **Theme/UI**: Pink → Purple gradient/shade theme (aligned with physical decoration branding).
+* **Notifications**: Email notifications for bookings/orders; push notifications in app (optional phase-2).
+* **Admin Panel**:
+
+  * Manage bookings, availability, external manual bookings.
+  * Manage product catalog & orders.
+  * Manage feed posts.
+  * Manage add-on services.
+* **Reports/Export**:
+
+  * Booking summary by category/date.
+  * Product sales reports.
+  * Orders etc. dashboard for both admin and customers who are registered.
+  * Other site/app configurations, content management
+
+---
+
+## **Booking Algorithm (Day Count & Pricing)**
+
+* **Formula**:
+
+  ```
+  Total Price = (Number of Days × Base Daily Rate of Room Type) + Add-ons
+  ```
+* **Day Count** = (Check-out Date - Check-in Date) + 1
+  *Example: 16th to 18th → (18-16) + 1 = 3 days.*
+* **Rules**:
+
+  * Minimum stay = 3 days.
+  * Capacity checked against selected room type/date range.
+  * If capacity full → Block booking for those dates.
+
+  * For packages like spay, neuter, etc., two prices. The discounted prices will be applicable automatically if the package user is already resident, meaning has booked spots. For guests, full price.
+
+---
+
+Room types:
+1. Single villa: per day BDT 500, more than 7 day stay will be 450/day, 10+ days booked will be 400/day, on month stay will be custom discount set by admin per order basis
+2. Double villa: similar rates options
+3. Family - full room- similar rate tiers
+
+Monthly package (villa):
+1. Single villa: 10,000 BDT
+2. Double villa: 16k BDT
+3. Family: 22k
+
+Monthly package (Single cat):
+1. 10k BDT/month without food
+2. 8k BDT/month without food, if stay is 3+ months
+3. 7k BDT/month with food for permanent adoption
+
+
+Monthly package (Double cat):
+1. 16k BDT/month without food
+2. 13k BDT/month without food, if stay is 3+ months
+3. 10k BDT/month with food for permanent adoption
+
+Cat spa rates:
+1. Grooming: 300 BDT
+2. Nail trimming: 200 BDT
+3. Paw cleaning: 300 BDT
+4. Ear cleaning: 200 BDT
+5. Regular shower: 500 BDT
+6. Detangling shower: 800 BDT
+7. Fur trimming 0/3/6/9/12mm: 1200 BDT
+8. Flea treatment short/long hair: 1200/1400 BDT
+
+Spa day groom up: day long stay, nails/sanitary trimming, paw cleaning, grooming, lunch/snacks - 1800 BDT for in-house guests and 2k BDT for visitors
+
+Spay day beauty bay: day long stay, nails/sanitary trimming, paw cleaning, grooming, lunch/snacks - 2200 BDT for in-house guests and 2500 BDT for visitors
+
+Spay with post operative care: 14 days- 11,990 BDT
+
+Neuter with post operative care: 7 days- 6990 BDT
+
+Sterilization: spay surgery- 3500 BDT and Neuter surgery 2k BDT
+
+Post operative care days: per day 1k BDT for first 3 days stay, 800 BDT for second 4 days and 600 BDT for second week. Special discounts by admin option.
+
+---
+
+This is the application we built. With Laravel 12.26. We used sanctum for auth and spatie/laravel-permission for roles. Used packages so far:
+
+{
+    "php": "^8.2",
+    "barryvdh/laravel-dompdf": "^3.1",
+    "intervention/image": "^3.11",
+    "laravel/framework": "^12.0",
+    "laravel/sanctum": "^4.2",
+    "laravel/scout": "^10.19",
+    "laravel/tinker": "^2.10.1",
+    "maatwebsite/excel": "^3.1",
+    "predis/predis": "^3.2",
+    "spatie/laravel-data": "^4.17",
+    "spatie/laravel-medialibrary": "^11.14",
+    "spatie/laravel-permission": "^6.21",
+    "spatie/laravel-query-builder": "^6.3"
+}
+
+Database schema folder: database\migrations
+Models: app\Models
+Complete API route: routes\api.php
+All API controllers: app\Http\Controllers\API
+Controller services: app\Services
+
+---
+
+Now, based on the spec above, I think we have some missing features in the db schema and api route/controllers/services etc. files. 
+
+Let's take a look at the complete db schema, then models and finally routes/controllers/services/requests etc. to match the changes we will need to do in the schema and models etc. based on what is missing in the db system we did and what the project spec required for mainly booking system module for hotel/spa/spay packages etc. 
+
+Your task is to look at the necessary files and find what are the anomalies and finally fix them. DO NOT CHANGE MAIN PROJECT ARCHITECTURE. JUST ADD MISSING DATA/FEATURES ETC. IN THE BOOKING MODULE SYSTEM. FINALLY SUMMARIZE THE CHANGES YOU MADE.
+
+Things are mostly done. Just make sure we have all the required fields/features as per spec I gave above for the API.
+
+Note: We are also consuming the API in the web route and view files etc. We will take care of that later. For now, let's just finalize the API codes. 

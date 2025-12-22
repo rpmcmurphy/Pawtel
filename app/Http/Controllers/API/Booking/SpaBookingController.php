@@ -45,10 +45,14 @@ class SpaBookingController extends Controller
                 ], 400);
             }
 
+            // Check if user is a resident (has active hotel booking)
+            $isResident = $this->pricingService->isUserResident($user->id, $request->appointment_date);
+
             // Calculate pricing
             $pricing = $this->pricingService->calculateSpaBooking(
                 $request->spa_package_id,
-                $request->addons ?? []
+                $request->addons ?? [],
+                $isResident
             );
 
             // Create booking
@@ -62,6 +66,7 @@ class SpaBookingController extends Controller
                 'discount_amount' => $pricing['discount_amount'],
                 'final_amount' => $pricing['final_amount'],
                 'special_requests' => $request->special_requests,
+                'is_resident' => $isResident,
                 'addons' => $request->addons ?? [],
                 'spa_details' => [
                     'spa_package_id' => $request->spa_package_id,

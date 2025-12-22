@@ -31,6 +31,7 @@ return new class extends Migration
             $table->timestamp('confirmation_sent_at')->nullable();
             $table->boolean('is_manual_entry')->default(false);
             $table->string('manual_reference')->nullable();
+            $table->boolean('is_resident')->default(false); // Track if user is an in-house guest/resident
             $table->timestamps();
 
             $table->index(['booking_number', 'status']);
