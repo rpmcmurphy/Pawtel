@@ -82,6 +82,26 @@ class PostManagementController extends Controller
         }
     }
 
+    public function archive(int $id): JsonResponse
+    {
+        try {
+            $post = $this->postRepo->update($id, [
+                'status' => 'archived',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Post archived successfully',
+                'data' => new PostResource($post)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Post not found',
+            ], 404);
+        }
+    }
+
     public function update(int $id, UpdatePostRequest $request): JsonResponse
     {
         try {
@@ -136,6 +156,43 @@ class PostManagementController extends Controller
                 'success' => false,
                 'message' => 'Post not found',
             ], 404);
+        }
+    }
+
+    public function pendingComments(): JsonResponse
+    {
+        try {
+            $comments = PostComment::where('status', 'pending')
+                ->with(['user', 'post'])
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($comment) {
+                    return [
+                        'id' => $comment->id,
+                        'comment' => $comment->comment,
+                        'status' => $comment->status,
+                        'created_at' => $comment->created_at->format('Y-m-d H:i:s'),
+                        'user' => [
+                            'id' => $comment->user->id,
+                            'name' => $comment->user->name,
+                        ],
+                        'post' => [
+                            'id' => $comment->post->id,
+                            'title' => $comment->post->title,
+                        ],
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => $comments
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch pending comments',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -223,6 +280,46 @@ class PostManagementController extends Controller
             return response()->json(['success' => true, 'data' => $services]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Failed to fetch addon services'], 500);
+        }
+    }
+
+    public function updateAdoptionStatus(int $id, Request $request): JsonResponse
+    {
+        $request->validate([
+            'status' => 'required|in:available,pending,adopted,withdrawn',
+        ]);
+
+        try {
+            $post = $this->postRepo->findOrFail($id);
+
+            if ($post->type !== 'adoption') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This is not an adoption post',
+                ], 400);
+            }
+
+            $adoptionDetail = $post->adoptionDetail;
+            if (!$adoptionDetail) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Adoption details not found',
+                ], 404);
+            }
+
+            $adoptionDetail->update(['status' => $request->status]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Adoption status updated successfully',
+                'data' => new PostResource($post->load('adoptionDetail'))
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update adoption status',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }

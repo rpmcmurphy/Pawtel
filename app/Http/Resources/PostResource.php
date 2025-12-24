@@ -32,7 +32,7 @@ class PostResource extends JsonResource
             ),
 
             // Author information
-            'author' => $this->when(
+            'user' => $this->when(
                 $this->relationLoaded('user'),
                 [
                     'id' => $this->user->id,

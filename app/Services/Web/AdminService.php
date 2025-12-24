@@ -226,7 +226,24 @@ class AdminService extends ApiService
     // Post Management Methods
     public function getAdminPosts($params = [])
     {
-        return $this->get('admin/posts', $params);
+        $response = $this->get('admin/posts', $params);
+
+        // ApiService wraps responses, so unwrap if needed
+        if ($response['success'] && isset($response['data'])) {
+            // If the inner data is also a response object, return it
+            if (isset($response['data']['success'])) {
+                return $response['data'];
+            }
+            // Otherwise wrap it in the expected format
+            return [
+                'success' => true,
+                'data' => $response['data']
+            ];
+        }
+
+        return $response;
+
+        // return $this->get('admin/posts', $params);
     }
 
     public function getAdminPost($id)
