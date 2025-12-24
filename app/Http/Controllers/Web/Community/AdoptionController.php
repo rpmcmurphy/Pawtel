@@ -19,25 +19,27 @@ class AdoptionController extends Controller
     public function index(Request $request)
     {
         $params = $request->only(['age', 'gender', 'breed', 'location', 'search', 'page']);
-        $adoptions = $this->communityService->getAdoptions($params);
+        $params['per_page'] = 12;
+        $response = $this->communityService->getAdoptions($params);
 
         return view('community.adoption', [
-            'adoptions' => $adoptions['success'] ? $adoptions['data'] : [],
+            'adoptions' => $response['success'] ? $response['data'] : [],
+            'pagination' => $response['pagination'] ?? null,
             'filters' => $params
         ]);
     }
 
-    public function show($slug)
+    public function show($id)
     {
-        $adoption = $this->communityService->getAdoption($slug);
+        $response = $this->communityService->getAdoption($id);
 
-        if (!$adoption['success']) {
+        if (!$response['success']) {
             return redirect()->route('community.adoption')
-                ->with('error', 'Adoption listing not found.');
+                ->with('error', $response['message'] ?? 'Adoption listing not found.');
         }
 
         return view('community.adoption-detail', [
-            'adoption' => $adoption['data']
+            'adoption' => $response['data']
         ]);
     }
 

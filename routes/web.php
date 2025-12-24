@@ -123,11 +123,12 @@ Route::prefix('community')->name('community.')->group(function () {
     Route::get('posts', [PostController::class, 'index'])->name('posts');
     Route::get('post/{slug}', [PostController::class, 'show'])->name('post');
     Route::get('adoption', [AdoptionController::class, 'index'])->name('adoption');
-    Route::get('adoption/{slug}', [AdoptionController::class, 'show'])->name('adoption.show');
+    Route::get('adoption/{id}', [AdoptionController::class, 'show'])->name('adoption.show');
 
     Route::middleware('auth.web')->group(function () {
         Route::post('post/{id}/like', [PostController::class, 'like'])->name('post.like');
         Route::post('post/{id}/comment', [PostController::class, 'comment'])->name('post.comment');
+        Route::post('adoption/{id}/interest', [AdoptionController::class, 'expressInterest'])->name('adoption.interest');
     });
 });
 

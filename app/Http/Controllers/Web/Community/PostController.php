@@ -19,29 +19,33 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $params = $request->only(['category', 'search', 'sort', 'page']);
-        $posts = $this->communityService->getPosts($params);
+        $params['per_page'] = 10;
+        $response = $this->communityService->getPosts($params);
 
         return view('community.posts', [
-            'posts' => $posts['success'] ? $posts['data'] : [],
+            'posts' => $response['success'] ? $response['data'] : [],
+            'pagination' => $response['pagination'] ?? null,
             'filters' => $params
         ]);
     }
 
     public function show($slug)
     {
-        $post = $this->communityService->getPost($slug);
+        $response = $this->communityService->getPost($slug);
 
-        if (!$post['success']) {
+        if (!$response['success']) {
             return redirect()->route('community.posts')
-                ->with('error', 'Post not found.');
+                ->with('error', $response['message'] ?? 'Post not found.');
         }
 
-        // Get comments
-        $comments = $this->communityService->getPostComments($post['data']['id']);
+        $post = $response['data'];
+        
+        // Comments are included in the post data from API
+        $comments = $post['recent_comments'] ?? [];
 
         return view('community.post', [
-            'post' => $post['data'],
-            'comments' => $comments['success'] ? $comments['data'] : []
+            'post' => $post,
+            'comments' => $comments
         ]);
     }
 
@@ -54,9 +58,27 @@ class PostController extends Controller
             ], 401);
         }
 
-        $response = $this->communityService->likePost($id);
+        // Check if user wants to like or unlike based on current state
+        $isLiked = $request->input('is_liked', false);
+        
+        if ($isLiked) {
+            $response = $this->communityService->unlikePost($id);
+        } else {
+            $response = $this->communityService->likePost($id);
+        }
 
-        return response()->json($response);
+        if ($response['success']) {
+            return response()->json([
+                'success' => true,
+                'message' => $response['message'] ?? 'Success',
+                'data' => $response['data'] ?? []
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => $response['message'] ?? 'Failed to update like status.'
+        ], $response['status'] ?? 400);
     }
 
     public function comment(Request $request, $id)
@@ -75,8 +97,23 @@ class PostController extends Controller
         $response = $this->communityService->commentOnPost($id, $request->comment);
 
         if ($response['success']) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $response['message'] ?? 'Comment added successfully!',
+                    'data' => $response['data'] ?? []
+                ]);
+            }
+            
             return redirect()->back()
-                ->with('success', 'Comment added successfully!');
+                ->with('success', $response['message'] ?? 'Comment added successfully!');
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => $response['message'] ?? 'Failed to add comment.'
+            ], $response['status'] ?? 400);
         }
 
         return redirect()->back()
