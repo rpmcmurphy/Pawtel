@@ -88,7 +88,7 @@ class PostManagementService
             'health_status' => $adoptionData['health_status'] ?? null,
             'adoption_fee' => $adoptionData['adoption_fee'] ?? null,
             'contact_info' => $adoptionData['contact_info'] ?? [],
-            'status' => 'available',
+            'status' => $adoptionData['status'] ?? 'available',
         ]);
     }
 

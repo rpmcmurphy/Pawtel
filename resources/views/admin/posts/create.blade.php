@@ -56,11 +56,21 @@
                                 <div class="text-danger small">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Additional Images (JSON Array)</label>
+                            <textarea class="form-control" name="images" rows="3"
+                                placeholder='["https://example.com/image1.jpg", "https://example.com/image2.jpg"]'>{{ old('images') ? json_encode(old('images'), JSON_PRETTY_PRINT) : '' }}</textarea>
+                            <small class="text-muted">Enter image URLs as a JSON array, or leave empty</small>
+                            @error('images')
+                                <div class="text-danger small">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
                 </div>
 
                 <!-- Adoption Details (shown only for adoption type) -->
-                <div class="card mb-4" id="adoption_fields" style="display: none;">
+                <div class="card mb-4" id="adoption_fields" style="display: {{ old('type') == 'adoption' ? 'block' : 'none' }};">
                     <div class="card-header">
                         <h5 class="card-title mb-0">Adoption Details</h5>
                     </div>
@@ -68,7 +78,7 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Cat Name *</label>
-                                <input type="text" class="form-control" name="adoption[cat_name]"
+                                <input type="text" class="form-control" name="adoption[cat_name]" id="adoption_cat_name"
                                     value="{{ old('adoption.cat_name') }}">
                                 @error('adoption.cat_name')
                                     <div class="text-danger small">{{ $message }}</div>
@@ -105,6 +115,26 @@
                                 <label class="form-label">Adoption Fee (৳)</label>
                                 <input type="number" class="form-control" name="adoption[adoption_fee]"
                                     value="{{ old('adoption.adoption_fee') }}" min="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Adoption Status</label>
+                                <select class="form-select" name="adoption[status]">
+                                    <option value="available" {{ old('adoption.status', 'available') == 'available' ? 'selected' : '' }}>Available</option>
+                                    <option value="pending" {{ old('adoption.status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="adopted" {{ old('adoption.status') == 'adopted' ? 'selected' : '' }}>Adopted</option>
+                                </select>
+                                @error('adoption.status')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Contact Info (JSON)</label>
+                                <textarea class="form-control" name="adoption[contact_info]" rows="3"
+                                    placeholder='{"phone": "+8801234567890", "email": "contact@example.com"}'>{{ old('adoption.contact_info') ? json_encode(old('adoption.contact_info'), JSON_PRETTY_PRINT) : '' }}</textarea>
+                                <small class="text-muted">Enter contact information as JSON object, or leave empty</small>
+                                @error('adoption.contact_info')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -170,18 +200,51 @@
 
 @section('scripts')
     <script>
-        $(document).ready(function() {
-            // Show/hide adoption fields based on post type
-            $('#post_type').change(function() {
-                if ($(this).val() === 'adoption') {
-                    $('#adoption_fields').show();
-                } else {
-                    $('#adoption_fields').hide();
+        (function() {
+            // Use vanilla JS for better compatibility
+            function toggleAdoptionFields() {
+                var postType = document.getElementById('post_type');
+                var adoptionFields = document.getElementById('adoption_fields');
+                var catNameField = document.getElementById('adoption_cat_name');
+                
+                if (!postType || !adoptionFields || !catNameField) {
+                    return;
                 }
-            });
-
-            // Trigger on page load
-            $('#post_type').trigger('change');
-        });
+                
+                if (postType.value === 'adoption') {
+                    adoptionFields.style.display = 'block';
+                    catNameField.setAttribute('required', 'required');
+                } else {
+                    adoptionFields.style.display = 'none';
+                    catNameField.removeAttribute('required');
+                }
+            }
+            
+            // Wait for DOM to be ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    var postType = document.getElementById('post_type');
+                    if (postType) {
+                        postType.addEventListener('change', toggleAdoptionFields);
+                        toggleAdoptionFields(); // Initial call
+                    }
+                });
+            } else {
+                // DOM is already ready
+                var postType = document.getElementById('post_type');
+                if (postType) {
+                    postType.addEventListener('change', toggleAdoptionFields);
+                    toggleAdoptionFields(); // Initial call
+                }
+            }
+            
+            // Also use jQuery if available (for compatibility)
+            if (typeof jQuery !== 'undefined') {
+                jQuery(document).ready(function($) {
+                    $('#post_type').on('change', toggleAdoptionFields);
+                    toggleAdoptionFields();
+                });
+            }
+        })();
     </script>
 @endsection

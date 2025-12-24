@@ -280,6 +280,142 @@ class PostManagementController extends Controller
         }
     }
 
+    public function updateSpaPackage(int $id, Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'duration_minutes' => 'sometimes|required|integer|min:15',
+            'price' => 'sometimes|required|numeric|min:0',
+            'max_daily_bookings' => 'sometimes|required|integer|min:1',
+            'status' => 'sometimes|required|in:active,inactive',
+            'sort_order' => 'sometimes|required|integer|min:0',
+        ]);
+
+        try {
+            $package = SpaPackage::findOrFail($id);
+            $updateData = $request->only(['name', 'description', 'duration_minutes', 'price', 'max_daily_bookings', 'status', 'sort_order']);
+            
+            if (isset($updateData['name'])) {
+                $updateData['slug'] = Str::slug($updateData['name']);
+            }
+            
+            $package->update($updateData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Spa package updated successfully',
+                'data' => $package
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to update spa package'], 500);
+        }
+    }
+
+    public function deleteSpaPackage(int $id): JsonResponse
+    {
+        try {
+            $package = SpaPackage::findOrFail($id);
+            $package->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Spa package deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to delete spa package'], 500);
+        }
+    }
+
+    public function spayPackages(): JsonResponse
+    {
+        try {
+            $packages = SpayPackage::orderBy('sort_order')->get();
+            return response()->json(['success' => true, 'data' => $packages]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to fetch spay packages'], 500);
+        }
+    }
+
+    public function storeSpayPackage(Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'duration_days' => 'required|integer|min:1',
+            'price' => 'required|numeric|min:0',
+            'max_daily_bookings' => 'required|integer|min:1',
+        ]);
+
+        try {
+            $package = SpayPackage::create([
+                'name' => $request->name,
+                'slug' => Str::slug($request->name),
+                'description' => $request->description,
+                'duration_days' => $request->duration_days,
+                'price' => $request->price,
+                'max_daily_bookings' => $request->max_daily_bookings,
+                'status' => 'active',
+                'sort_order' => SpayPackage::max('sort_order') + 1,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Spay package created successfully',
+                'data' => $package
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to create spay package'], 500);
+        }
+    }
+
+    public function updateSpayPackage(int $id, Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'duration_days' => 'sometimes|required|integer|min:1',
+            'price' => 'sometimes|required|numeric|min:0',
+            'max_daily_bookings' => 'sometimes|required|integer|min:1',
+            'status' => 'sometimes|required|in:active,inactive',
+            'sort_order' => 'sometimes|required|integer|min:0',
+        ]);
+
+        try {
+            $package = SpayPackage::findOrFail($id);
+            $updateData = $request->only(['name', 'description', 'duration_days', 'price', 'max_daily_bookings', 'status', 'sort_order']);
+            
+            if (isset($updateData['name'])) {
+                $updateData['slug'] = Str::slug($updateData['name']);
+            }
+            
+            $package->update($updateData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Spay package updated successfully',
+                'data' => $package
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to update spay package'], 500);
+        }
+    }
+
+    public function deleteSpayPackage(int $id): JsonResponse
+    {
+        try {
+            $package = SpayPackage::findOrFail($id);
+            $package->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Spay package deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to delete spay package'], 500);
+        }
+    }
+
     public function addonServices(): JsonResponse
     {
         try {
@@ -290,10 +426,80 @@ class PostManagementController extends Controller
         }
     }
 
+    public function storeAddonService(Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'duration_minutes' => 'nullable|integer|min:0',
+        ]);
+
+        try {
+            $service = AddonService::create([
+                'name' => $request->name,
+                'category' => $request->category,
+                'description' => $request->description,
+                'price' => $request->price,
+                'duration_minutes' => $request->duration_minutes ?? 0,
+                'status' => 'active',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Addon service created successfully',
+                'data' => $service
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to create addon service'], 500);
+        }
+    }
+
+    public function updateAddonService(int $id, Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'category' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'sometimes|required|numeric|min:0',
+            'duration_minutes' => 'nullable|integer|min:0',
+            'status' => 'sometimes|required|in:active,inactive',
+        ]);
+
+        try {
+            $service = AddonService::findOrFail($id);
+            $service->update($request->only(['name', 'category', 'description', 'price', 'duration_minutes', 'status']));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Addon service updated successfully',
+                'data' => $service
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to update addon service'], 500);
+        }
+    }
+
+    public function deleteAddonService(int $id): JsonResponse
+    {
+        try {
+            $service = AddonService::findOrFail($id);
+            $service->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Addon service deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to delete addon service'], 500);
+        }
+    }
+
     public function updateAdoptionStatus(int $id, Request $request): JsonResponse
     {
         $request->validate([
-            'status' => 'required|in:available,pending,adopted,withdrawn',
+            'status' => 'required|in:available,pending,adopted',
         ]);
 
         try {

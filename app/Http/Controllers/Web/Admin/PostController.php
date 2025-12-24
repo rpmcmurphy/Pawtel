@@ -39,29 +39,59 @@ class PostController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'featured_image' => 'nullable|string',
-            'images' => 'nullable|array',
+            'images' => 'nullable',
             'status' => 'required|in:draft,published,archived',
 
-            // Adoption-specific fields
-            'adoption.cat_name' => 'required_if:type,adoption|string|max:255',
+            // Adoption-specific fields - only validate if type is adoption
+            'adoption.cat_name' => 'required_if:type,adoption|nullable|string|max:255',
             'adoption.age' => 'nullable|string|max:50',
             'adoption.gender' => 'nullable|in:male,female,unknown',
-            'adoption.breed' => 'nullable|string|max:100',
+            'adoption.breed' => 'nullable|string|max:255',
             'adoption.health_status' => 'nullable|string',
             'adoption.adoption_fee' => 'nullable|numeric|min:0',
-            'adoption.contact_info' => 'nullable|array',
+            'adoption.contact_info' => 'nullable',
+            'adoption.status' => 'nullable|in:available,pending,adopted',
         ]);
+
+        // Remove adoption fields if type is not adoption
+        if ($validated['type'] !== 'adoption') {
+            unset($validated['adoption']);
+        }
+
+        // Parse JSON fields if they are strings
+        if (isset($validated['images']) && is_string($validated['images'])) {
+            $validated['images'] = json_decode($validated['images'], true) ?? [];
+        }
+        if (!isset($validated['images']) || !is_array($validated['images'])) {
+            $validated['images'] = [];
+        }
+
+        // Only process adoption fields if type is adoption
+        if ($validated['type'] === 'adoption' && isset($validated['adoption'])) {
+            if (isset($validated['adoption']['contact_info']) && is_string($validated['adoption']['contact_info'])) {
+                $validated['adoption']['contact_info'] = json_decode($validated['adoption']['contact_info'], true) ?? [];
+            }
+            if (!isset($validated['adoption']['contact_info']) || !is_array($validated['adoption']['contact_info'])) {
+                $validated['adoption']['contact_info'] = [];
+            }
+        }
 
         $response = $this->adminService->createPost($validated);
 
         if ($response['success']) {
-            return redirect()->route('admin.posts.show', $response['data']['id'])
-                ->with('success', 'Post created successfully.');
+            // Handle nested API response structure
+            $postData = $response['data']['data'] ?? $response['data'] ?? null;
+            $postId = $postData['id'] ?? null;
+            
+            if ($postId) {
+                return redirect()->route('admin.posts.show', $postId)
+                    ->with('success', 'Post created successfully.');
+            }
         }
 
         return redirect()->back()
             ->withInput()
-            ->with('error', $response['message'] ?? 'Failed to create post.');
+            ->with('error', $response['data']['message'] ?? $response['message'] ?? 'Failed to create post.');
     }
 
     public function show($id)
@@ -99,18 +129,42 @@ class PostController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'featured_image' => 'nullable|string',
-            'images' => 'nullable|array',
+            'images' => 'nullable',
             'status' => 'required|in:draft,published,archived',
 
-            // Adoption-specific fields
-            'adoption.cat_name' => 'required_if:type,adoption|string|max:255',
+            // Adoption-specific fields - only validate if type is adoption
+            'adoption.cat_name' => 'required_if:type,adoption|nullable|string|max:255',
             'adoption.age' => 'nullable|string|max:50',
             'adoption.gender' => 'nullable|in:male,female,unknown',
-            'adoption.breed' => 'nullable|string|max:100',
+            'adoption.breed' => 'nullable|string|max:255',
             'adoption.health_status' => 'nullable|string',
             'adoption.adoption_fee' => 'nullable|numeric|min:0',
-            'adoption.contact_info' => 'nullable|array',
+            'adoption.contact_info' => 'nullable',
+            'adoption.status' => 'nullable|in:available,pending,adopted',
         ]);
+
+        // Remove adoption fields if type is not adoption
+        if ($validated['type'] !== 'adoption') {
+            unset($validated['adoption']);
+        }
+
+        // Parse JSON fields if they are strings
+        if (isset($validated['images']) && is_string($validated['images'])) {
+            $validated['images'] = json_decode($validated['images'], true) ?? [];
+        }
+        if (!isset($validated['images']) || !is_array($validated['images'])) {
+            $validated['images'] = [];
+        }
+
+        // Only process adoption fields if type is adoption
+        if ($validated['type'] === 'adoption' && isset($validated['adoption'])) {
+            if (isset($validated['adoption']['contact_info']) && is_string($validated['adoption']['contact_info'])) {
+                $validated['adoption']['contact_info'] = json_decode($validated['adoption']['contact_info'], true) ?? [];
+            }
+            if (!isset($validated['adoption']['contact_info']) || !is_array($validated['adoption']['contact_info'])) {
+                $validated['adoption']['contact_info'] = [];
+            }
+        }
 
         $response = $this->adminService->updatePost($id, $validated);
 
@@ -121,7 +175,7 @@ class PostController extends Controller
 
         return redirect()->back()
             ->withInput()
-            ->with('error', $response['message'] ?? 'Failed to update post.');
+            ->with('error', $response['data']['message'] ?? $response['message'] ?? 'Failed to update post.');
     }
 
     public function destroy($id)

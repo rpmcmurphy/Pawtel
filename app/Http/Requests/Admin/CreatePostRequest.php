@@ -19,14 +19,15 @@ class CreatePostRequest extends FormRequest
             'content' => 'required|string',
             'featured_image' => 'nullable|string',
             'images' => 'nullable|array',
-            'status' => 'required|in:draft,published',
-            'adoption.cat_name' => 'required_if:type,adoption|string|max:100',
+            'status' => 'required|in:draft,published,archived',
+            'adoption.cat_name' => 'required_if:type,adoption|nullable|string|max:255',
             'adoption.age' => 'nullable|string|max:50',
             'adoption.gender' => 'nullable|in:male,female,unknown',
-            'adoption.breed' => 'nullable|string|max:100',
+            'adoption.breed' => 'nullable|string|max:255',
             'adoption.health_status' => 'nullable|string',
             'adoption.adoption_fee' => 'nullable|numeric|min:0',
             'adoption.contact_info' => 'nullable|array',
+            'adoption.status' => 'nullable|in:available,pending,adopted',
         ];
     }
 }
