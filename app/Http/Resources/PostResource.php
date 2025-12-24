@@ -43,16 +43,18 @@ class PostResource extends JsonResource
             // Adoption details
             'adoption_details' => $this->when(
                 $this->relationLoaded('adoptionDetail') && $this->adoptionDetail,
-                [
-                    'cat_name' => $this->adoptionDetail->cat_name,
-                    'age' => $this->adoptionDetail->age,
-                    'gender' => $this->adoptionDetail->gender,
-                    'breed' => $this->adoptionDetail->breed,
-                    'health_status' => $this->adoptionDetail->health_status,
-                    'adoption_fee' => $this->adoptionDetail->adoption_fee,
-                    'contact_info' => $this->adoptionDetail->contact_info,
-                    'status' => $this->adoptionDetail->status,
-                ]
+                function () {
+                    return [
+                        'cat_name' => $this->adoptionDetail->cat_name,
+                        'age' => $this->adoptionDetail->age,
+                        'gender' => $this->adoptionDetail->gender,
+                        'breed' => $this->adoptionDetail->breed,
+                        'health_status' => $this->adoptionDetail->health_status,
+                        'adoption_fee' => $this->adoptionDetail->adoption_fee,
+                        'contact_info' => $this->adoptionDetail->contact_info,
+                        'status' => $this->adoptionDetail->status,
+                    ];
+                }
             ),
 
             // Comments (limited)

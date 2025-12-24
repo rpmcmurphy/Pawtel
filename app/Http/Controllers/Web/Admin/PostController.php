@@ -21,12 +21,6 @@ class PostController extends Controller
         $params = $request->only(['type', 'status', 'search', 'page']);
         $posts = $this->adminService->getAdminPosts($params);
 
-        // Debug: Log the response
-        Log::info('Admin Posts Response', [
-            'params' => $params,
-            'posts_response' => $posts
-        ]);
-
         return view('admin.posts.index', [
             'posts' => $posts['success'] ? $posts['data'] : [],
             'filters' => $params

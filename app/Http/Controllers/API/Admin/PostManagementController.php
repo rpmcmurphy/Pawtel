@@ -9,6 +9,7 @@ use App\Services\Admin\PostManagementService;
 use App\Repositories\PostRepository;
 use App\Models\{PostComment, SpaPackage, SpayPackage, AddonService};
 use Illuminate\Http\{JsonResponse, Request};
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class PostManagementController extends Controller
@@ -20,29 +21,33 @@ class PostManagementController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        try {
-            $posts = $this->postRepo->getWithFilters(
-                $request->only(['type', 'status', 'search']),
-                $request->get('per_page', 15)
-            );
+        // try {
+        $posts = $this->postRepo->getWithFilters(
+            $request->only(['type', 'status', 'search']),
+            $request->get('per_page', 15)
+        );
 
-            return response()->json([
-                'success' => true,
-                'data' => PostResource::collection($posts->items()),
-                'pagination' => [
-                    'current_page' => $posts->currentPage(),
-                    'per_page' => $posts->perPage(),
-                    'total' => $posts->total(),
-                    'last_page' => $posts->lastPage(),
-                ]
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch posts',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        Log::info('Posts Data', [
+            'posts' => $posts
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => PostResource::collection($posts->items()),
+            'pagination' => [
+                'current_page' => $posts->currentPage(),
+                'per_page' => $posts->perPage(),
+                'total' => $posts->total(),
+                'last_page' => $posts->lastPage(),
+            ]
+        ]);
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Failed to fetch posts',
+        //         'error' => $e->getMessage()
+        //     ], 500);
+        // }
     }
 
     public function store(CreatePostRequest $request): JsonResponse
@@ -173,12 +178,14 @@ class PostManagementController extends Controller
                         'status' => $comment->status,
                         'created_at' => $comment->created_at->format('Y-m-d H:i:s'),
                         'user' => [
-                            'id' => $comment->user->id,
-                            'name' => $comment->user->name,
+                            'id' => $comment->user->id ?? null,
+                            'name' => $comment->user->name ?? 'Anonymous',
+                            'email' => $comment->user->email ?? null,
                         ],
                         'post' => [
-                            'id' => $comment->post->id,
-                            'title' => $comment->post->title,
+                            'id' => $comment->post->id ?? null,
+                            'title' => $comment->post->title ?? 'N/A',
+                            'type' => $comment->post->type ?? 'news',
                         ],
                     ];
                 });

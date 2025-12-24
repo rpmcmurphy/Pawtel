@@ -45,69 +45,72 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($comments as $comment)
-                                <tr>
-                                    <td>
-                                        <div>
-                                            <h6 class="mb-1">
-                                                <a href="{{ route('admin.posts.show', $comment['post']['id']) }}"
-                                                    class="text-decoration-none">
-                                                    {{ Str::limit($comment['post']['title'], 50) }}
-                                                </a>
-                                            </h6>
+                            @foreach ($comments['data'] as $comment)
+                                @if (isset($comment['post']) && isset($comment['user']))
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <h6 class="mb-1">
+                                                    <a href="{{ route('admin.posts.show', $comment['post']['id']) }}"
+                                                        class="text-decoration-none">
+                                                        {{ Str::limit($comment['post']['title'], 50) }}
+                                                    </a>
+                                                </h6>
+                                                <small class="text-muted">
+                                                    <span
+                                                       class="badge bg-{{ ($comment['post']['type'] ?? '') === 'adoption' ? 'success' : 'info' }}">
+                                                        {{ ucfirst($comment['post']['type'] ?? 'news') }}
+                                                    </span>
+                                                </small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong>{{ $comment['user']['name'] ?? 'Anonymous' }}</strong><br>
+                                                <small class="text-muted">{{ $comment['user']['email'] ?? '' }}</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="max-width: 300px;">
+                                                <p class="mb-0">{{ Str::limit($comment['comment'] ?? '', 150) }}</p>
+                                            </div>
+                                        </td>
+                                        <td>
                                             <small class="text-muted">
-                                                <span
-                                                    class="badge bg-{{ $comment['post']['type'] === 'adoption' ? 'success' : 'info' }}">
-                                                    {{ ucfirst($comment['post']['type']) }}
-                                                </span>
+                                                {{ isset($comment['created_at']) ? \Carbon\Carbon::parse($comment['created_at'])->format('M d, Y') : '' }}<br>
+                                                {{ isset($comment['created_at']) ? \Carbon\Carbon::parse($comment['created_at'])->format('h:i A') : '' }}
                                             </small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <strong>{{ $comment['user']['name'] ?? 'Anonymous' }}</strong><br>
-                                            <small class="text-muted">{{ $comment['user']['email'] ?? '' }}</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="max-width: 300px;">
-                                            <p class="mb-0">{{ Str::limit($comment['comment'], 150) }}</p>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <small class="text-muted">
-                                            {{ \Carbon\Carbon::parse($comment['created_at'])->format('M d, Y') }}<br>
-                                            {{ \Carbon\Carbon::parse($comment['created_at'])->format('h:i A') }}
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <form action="{{ route('admin.posts.comments.approve', $comment['id']) }}"
-                                                method="POST" style="display: inline;">
-                                                @csrf
-                                                <button type="submit" class="btn btn-success" title="Approve Comment"
-                                                    onclick="return confirm('Approve this comment?')">
-                                                    <i class="fas fa-check"></i>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <form action="{{ route('admin.posts.comments.approve', $comment['id']) }}"
+                                                    method="POST" style="display: inline;">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success" title="Approve Comment"
+                                                        onclick="return confirm('Approve this comment?')">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                </form>
+                                                <form action="{{ route('admin.posts.comments.reject', $comment['id']) }}"
+                                                    method="POST" style="display: inline;">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-danger" title="Reject Comment"
+                                                        onclick="return confirm('Reject this comment?')">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </form>
+                                                <button type="button" class="btn btn-info" data-bs-toggle="modal"
+                                                    data-bs-target="#commentModal{{ $comment['id'] }}"
+                                                    title="View Full Comment">
+                                                    <i class="fas fa-eye"></i>
                                                 </button>
-                                            </form>
-                                            <form action="{{ route('admin.posts.comments.reject', $comment['id']) }}"
-                                                method="POST" style="display: inline;">
-                                                @csrf
-                                                <button type="submit" class="btn btn-danger" title="Reject Comment"
-                                                    onclick="return confirm('Reject this comment?')">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </form>
-                                            <button type="button" class="btn btn-info" data-bs-toggle="modal"
-                                                data-bs-target="#commentModal{{ $comment['id'] }}"
-                                                title="View Full Comment">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endif
 
                                 <!-- Comment Modal -->
+                                @if (isset($comment['post']) && isset($comment['user']))
                                 <div class="modal fade" id="commentModal{{ $comment['id'] }}" tabindex="-1">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
@@ -162,6 +165,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
                             @endforeach
                         </tbody>
                     </table>
