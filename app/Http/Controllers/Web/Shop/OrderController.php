@@ -75,13 +75,12 @@ class OrderController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
-        $orderData = $request->only([
-            'shipping_address',
-            'shipping_city',
-            'shipping_phone',
-            'payment_method',
-            'notes'
-        ]);
+        // Transform web form data to match API expectations
+        $orderData = [
+            'delivery_address' => trim($request->shipping_address . ', ' . $request->shipping_city),
+            'delivery_phone' => $request->shipping_phone,
+            'delivery_notes' => $request->notes ?? null,
+        ];
 
         $response = $this->shopService->createOrder($orderData);
 

@@ -104,8 +104,15 @@
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Subtotal</span>
-                                    <span>৳{{ number_format($cart['total'] ?? 0, 2) }}</span>
+                                    <span>৳{{ number_format($cart['subtotal'] ?? 0, 2) }}</span>
                                 </div>
+
+                                @if(isset($cart['shipping_cost']) && $cart['shipping_cost'] > 0)
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Delivery Charge</span>
+                                    <span>৳{{ number_format($cart['shipping_cost'], 2) }}</span>
+                                </div>
+                                @endif
 
                                 <hr>
 
