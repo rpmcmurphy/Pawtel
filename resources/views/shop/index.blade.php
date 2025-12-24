@@ -147,12 +147,12 @@
                                                     View Details
                                                 </a>
 
-                                                @auth
+                                                @authWeb
                                                     <button class="btn btn-primary btn-sm add-to-cart-btn"
                                                         data-product-id="{{ $product['id'] }}">
                                                         Add to Cart
                                                     </button>
-                                                @endauth
+                                                @endauthWeb
                                             </div>
                                         </div>
                                     </div>
@@ -184,15 +184,19 @@
 @endsection
 
 @push('scripts')
-    <script type="module" src="{{ asset('js/modules/shop.js') }}"></script>
-    <script type="module">
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
-            Shop.init();
+            if (typeof Shop !== 'undefined') {
+                Shop.init();
+            }
 
             // Auto-submit form on filter change
-            document.getElementById('filterForm').addEventListener('change', function() {
-                this.submit();
-            });
+            const filterForm = document.getElementById('filterForm');
+            if (filterForm) {
+                filterForm.addEventListener('change', function() {
+                    this.submit();
+                });
+            }
         });
     </script>
 @endpush

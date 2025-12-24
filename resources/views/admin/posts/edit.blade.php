@@ -238,7 +238,7 @@
     </form>
 @endsection
 
-@section('scripts')
+@push('scripts')
     <script>
         (function() {
             // Use vanilla JS for better compatibility
@@ -287,4 +287,4 @@
             }
         })();
     </script>
-@endsection
+@endpush

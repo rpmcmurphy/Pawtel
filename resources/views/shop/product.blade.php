@@ -81,7 +81,7 @@
                     @endif
 
                     <!-- Add to Cart Section -->
-                    @auth
+                    @authWeb
                         <div class="add-to-cart-section">
                             <form id="addToCartForm" class="d-flex align-items-center gap-3 mb-4">
                                 <div class="quantity-selector">
@@ -121,7 +121,7 @@
                             <p class="text-muted">Please <a href="{{ route('auth.login') }}">login</a> to purchase this
                                 product.</p>
                         </div>
-                    @endauth
+                    @endauthWeb
 
                     <!-- Product Info -->
                     <div class="product-meta mt-4 pt-4 border-top">
@@ -185,10 +185,11 @@
 @endsection
 
 @push('scripts')
-    <script type="module" src="{{ asset('js/modules/shop.js') }}"></script>
-    <script type="module">
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
-            Shop.init();
+            if (typeof Shop !== 'undefined') {
+                Shop.init();
+            }
         });
 
         function changeMainImage(src) {
@@ -205,15 +206,5 @@
                 input.value = newValue;
             }
         }
-
-        // Update add to cart button to use quantity
-        document.addEventListener('click', function(e) {
-            if (e.target.matches('.add-to-cart-btn')) {
-                const productId = e.target.dataset.productId;
-                const quantity = document.getElementById('quantity').value;
-
-                e.target.dataset.quantity = quantity;
-            }
-        });
     </script>
 @endpush

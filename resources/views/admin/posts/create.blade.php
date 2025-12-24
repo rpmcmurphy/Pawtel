@@ -198,7 +198,7 @@
     </form>
 @endsection
 
-@section('scripts')
+@push('scripts')
     <script>
         (function() {
             // Use vanilla JS for better compatibility
@@ -241,10 +241,11 @@
             // Also use jQuery if available (for compatibility)
             if (typeof jQuery !== 'undefined') {
                 jQuery(document).ready(function($) {
+                    console.log('jQuery is ready');
                     $('#post_type').on('change', toggleAdoptionFields);
                     toggleAdoptionFields();
                 });
             }
         })();
     </script>
-@endsection
+@endpush

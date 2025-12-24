@@ -22,7 +22,8 @@
                             <div class="row">
                                 <div class="col-md-12 mb-3">
                                     <label for="shipping_address" class="form-label">Address</label>
-                                    <textarea class="form-control @error('shipping_address') is-invalid @enderror" id="shipping_address"
+                                    <textarea class="form-control @error('shipping_address', 'is-invalid') @enderror"
+                                        id="shipping_address"
                                         name="shipping_address" rows="3" required>{{ old('shipping_address') }}</textarea>
                                     @error('shipping_address')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -31,7 +32,7 @@
 
                                 <div class="col-md-6 mb-3">
                                     <label for="shipping_city" class="form-label">City</label>
-                                    <input type="text" class="form-control @error('shipping_city') is-invalid @enderror"
+                                    <input type="text" class="form-control @error('shipping_city', 'is-invalid') @enderror"
                                         id="shipping_city" name="shipping_city" value="{{ old('shipping_city') }}" required>
                                     @error('shipping_city')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -40,9 +41,8 @@
 
                                 <div class="col-md-6 mb-3">
                                     <label for="shipping_phone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control @error('shipping_phone') is-invalid @enderror"
-                                        id="shipping_phone" name="shipping_phone" value="{{ old('shipping_phone') }}"
-                                        required>
+                                    <input type="tel" class="form-control @error('shipping_phone', 'is-invalid') @enderror"
+                                        id="shipping_phone" name="shipping_phone" value="{{ old('shipping_phone') }}" required>
                                     @error('shipping_phone')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -92,11 +92,10 @@
                             <h5 class="mb-0">Order Summary</h5>
                         </div>
                         <div class="card-body">
-                            @if (!empty($cart['items']))
-                                @foreach ($cart['items'] as $item)
+                            @if(!empty($cart['items']))
+                                @foreach($cart['items'] as $item)
                                     <div class="d-flex justify-content-between mb-2">
-                                        <span class="small">{{ $item['product']['name'] }} ×
-                                            {{ $item['quantity'] }}</span>
+                                        <span class="small">{{ $item['product']['name'] }} × {{ $item['quantity'] }}</span>
                                         <span class="small">৳{{ number_format($item['total_price'], 2) }}</span>
                                     </div>
                                 @endforeach
@@ -104,4 +103,29 @@
                                 <hr>
 
                                 <div class="d-flex justify-content-between mb-2">
-                                    <span>
+                                    <span>Subtotal</span>
+                                    <span>৳{{ number_format($cart['total'] ?? 0, 2) }}</span>
+                                </div>
+
+                                <hr>
+
+                                <div class="d-flex justify-content-between mb-3">
+                                    <strong>Total</strong>
+                                    <strong>৳{{ number_format($cart['total'] ?? 0, 2) }}</strong>
+                                </div>
+                            @else
+                                <p class="text-muted">Your cart is empty.</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <button type="submit" class="btn btn-primary w-100">Place Order</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+@endsection

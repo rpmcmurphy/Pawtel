@@ -101,10 +101,11 @@
 @endsection
 
 @push('scripts')
-    <script type="module" src="{{ asset('js/modules/shop.js') }}"></script>
-    <script type="module">
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
-            Shop.init();
+            if (typeof Shop !== 'undefined') {
+                Shop.init();
+            }
         });
     </script>
 @endpush

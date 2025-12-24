@@ -4,16 +4,18 @@ namespace App\Http\Controllers\Web\Community;
 
 use App\Http\Controllers\Controller;
 use App\Services\Web\CommunityService;
+use App\Services\Web\AuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
     protected $communityService;
+    protected $authService;
 
-    public function __construct(CommunityService $communityService)
+    public function __construct(CommunityService $communityService, AuthService $authService)
     {
         $this->communityService = $communityService;
+        $this->authService = $authService;
     }
 
     public function index(Request $request)
@@ -51,7 +53,7 @@ class PostController extends Controller
 
     public function like(Request $request, $id)
     {
-        if (!Auth::check()) {
+        if (!$this->authService->isAuthenticated()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Please login to like posts.'
@@ -83,7 +85,7 @@ class PostController extends Controller
 
     public function comment(Request $request, $id)
     {
-        if (!Auth::check()) {
+        if (!$this->authService->isAuthenticated()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Please login to comment.'

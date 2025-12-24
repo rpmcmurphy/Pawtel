@@ -50,7 +50,7 @@
                         {!! $post['content'] !!}
                     </div>
 
-                    @auth
+                    @authWeb
                         <div class="post-actions mt-4 pt-4 border-top">
                             <button class="btn btn-outline-danger like-btn" 
                                     data-post-id="{{ $post['id'] }}"
@@ -59,14 +59,14 @@
                                 <span class="like-text">{{ ($post['is_liked'] ?? false) ? 'Unlike' : 'Like' }}</span>
                             </button>
                         </div>
-                    @endauth
+                    @endauthWeb
                 </article>
 
                 <!-- Comments Section -->
                 <section class="comments-section mt-5">
                     <h4>Comments (<span id="comments-count-text">{{ $post['comments_count'] ?? count($comments) }}</span>)</h4>
 
-                    @auth
+                    @authWeb
                         <div class="comment-form mb-4">
                             <form id="comment-form" method="POST" action="{{ route('community.post.comment', $post['id']) }}">
                                 @csrf
@@ -84,7 +84,7 @@
                         <div class="alert alert-info">
                             <a href="{{ route('auth.login') }}">Login</a> to post a comment.
                         </div>
-                    @endauth
+                    @endauthWeb
 
                     <div class="comments-list" id="comments-list">
                         @if (!empty($comments) && count($comments) > 0)
@@ -236,14 +236,20 @@
                                 const commentsList = document.getElementById('comments-list');
                                 const commentDiv = document.createElement('div');
                                 commentDiv.className = 'comment mb-3 p-3 bg-light rounded';
+                                @php
+                                    $userName = $authUser['name'] ?? 'You';
+                                    $userInitials = strtoupper(substr($userName, 0, 2));
+                                @endphp
+                                const userName = @json($userName);
+                                const userInitials = @json($userInitials);
                                 commentDiv.innerHTML = `
                                     <div class="comment-header d-flex justify-content-between align-items-start mb-2">
                                         <div class="d-flex align-items-center">
                                             <div class="avatar-circle me-2" style="width: 30px; height: 30px; font-size: 0.75rem;">
-                                                {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 2)) }}
+                                                ${userInitials}
                                             </div>
                                             <div>
-                                                <strong>{{ auth()->user()->name ?? 'You' }}</strong>
+                                                <strong>${userName}</strong>
                                                 <br>
                                                 <small class="text-muted">Just now</small>
                                             </div>

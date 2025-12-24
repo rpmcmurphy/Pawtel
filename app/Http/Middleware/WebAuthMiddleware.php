@@ -40,13 +40,34 @@ class WebAuthMiddleware
                 ->with('error', 'Your session has expired. Please login again.');
         }
 
-        // Check if user has admin role
-        if (!$this->authService->isAdmin()) {
-            $user = $this->authService->getUser();
+        $user = $this->authService->getUser();
 
-            return redirect()->route('home')
-                ->with('error', 'Access denied. Admin privileges required.');
+        // Check if user is active
+        if ($user && ($user['status'] ?? 'active') !== 'active') {
+            session()->forget(['api_token', 'user']);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your account has been suspended. Please contact support.',
+                ], 403);
+            }
+
+            return redirect()->route('auth.login')
+                ->with('error', 'Your account has been suspended. Please contact support.');
         }
+
+        // Check if user is verified (optional - can be made required for specific routes)
+        // Uncomment below if email verification is required for all authenticated routes
+        // if ($user && !($user['email_verified_at'] ?? false)) {
+        //     if ($request->expectsJson()) {
+        //         return response()->json([
+        //             'success' => false,
+        //             'message' => 'Please verify your email address to continue.',
+        //         ], 403);
+        //     }
+        //     return redirect()->route('auth.login')
+        //         ->with('error', 'Please verify your email address to continue.');
+        // }
 
         return $next($request);
     }

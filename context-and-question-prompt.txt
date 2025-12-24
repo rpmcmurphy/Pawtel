@@ -174,3 +174,8 @@ Your task is to look at the necessary files and find what are the anomalies and 
 Things are mostly done. Just make sure we have all the required fields/features as per spec I gave above for the API.
 
 Note: We are also consuming the API in the web route and view files etc. We will take care of that later. For now, let's just finalize the API codes. 
+
+
+
+
+

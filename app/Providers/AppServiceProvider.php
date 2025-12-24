@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Blade;
+use App\Services\Web\AuthService;
 
 use App\Services\{
     AvailabilityService,
@@ -38,5 +41,33 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+
+        // Share AuthService with all views
+        View::composer('*', function ($view) {
+            $authService = app(AuthService::class);
+            $view->with('authService', $authService);
+            $view->with('authUser', $authService->getUser());
+            $view->with('isAuthenticated', $authService->isAuthenticated());
+        });
+
+        // Custom Blade directive for web authentication
+        Blade::if('authWeb', function () {
+            $authService = app(AuthService::class);
+            return $authService->isAuthenticated();
+        });
+
+        // Custom Blade directive for verified users
+        Blade::if('verified', function () {
+            $authService = app(AuthService::class);
+            $user = $authService->getUser();
+            return $user && ($user['email_verified_at'] ?? false);
+        });
+
+        // Custom Blade directive for active users
+        Blade::if('active', function () {
+            $authService = app(AuthService::class);
+            $user = $authService->getUser();
+            return $user && ($user['status'] ?? 'active') === 'active';
+        });
     }
 }

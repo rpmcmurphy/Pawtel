@@ -147,7 +147,7 @@
                                         This cat is {{ $adoptionDetail['status'] }}.
                                     </div>
                                 @else
-                                    @auth
+                                    @authWeb
                                         @if (!empty($adoptionDetail['contact_info']))
                                             <div class="mb-3">
                                                 <h6>Contact Information:</h6>
@@ -198,7 +198,7 @@
                                         <a href="{{ route('auth.login') }}" class="btn btn-primary w-100">
                                             Login to Contact
                                         </a>
-                                    @endauth
+                                    @endauthWeb
                                 @endif
                             </div>
                         </div>
