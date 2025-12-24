@@ -103,8 +103,16 @@ class PostController extends Controller
                 ->with('error', 'Post not found.');
         }
 
+        // Handle nested API response structure
+        $postData = $post['data']['data'] ?? $post['data'] ?? null;
+        
+        if (!$postData) {
+            return redirect()->route('admin.posts.index')
+                ->with('error', 'Post data not found.');
+        }
+
         return view('admin.posts.show', [
-            'post' => $post['data']
+            'post' => $postData
         ]);
     }
 
@@ -117,8 +125,16 @@ class PostController extends Controller
                 ->with('error', 'Post not found.');
         }
 
+        // Handle nested API response structure
+        $postData = $post['data']['data'] ?? $post['data'] ?? null;
+        
+        if (!$postData) {
+            return redirect()->route('admin.posts.index')
+                ->with('error', 'Post data not found.');
+        }
+
         return view('admin.posts.edit', [
-            'post' => $post['data']
+            'post' => $postData
         ]);
     }
 
