@@ -20,7 +20,6 @@ class PostController extends Controller
     {
         $params = $request->only(['type', 'status', 'search', 'page']);
         $posts = $this->adminService->getAdminPosts($params);
-        $posts = $posts['success'] ? $posts['data'] : [];
 
         return view('admin.posts.index', [
             'posts' => $posts['success'] ? $posts['data'] : [],
