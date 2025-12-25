@@ -15,19 +15,35 @@ class ApiHelper
 
     public static function handleApiError($error)
     {
-        $status = $error->getCode() ?: 500;
+        $status = 500;
         $message = 'An error occurred';
+        $errors = [];
 
-        if (method_exists($error, 'response') && $error->response) {
+        if (method_exists($error, 'getResponse') && $error->getResponse()) {
+            $response = $error->getResponse();
+            $status = $response->getStatusCode();
+            $body = json_decode($response->getBody()->getContents(), true);
+            
+            if ($body) {
+                $message = $body['message'] ?? $message;
+                $errors = $body['errors'] ?? [];
+            }
+        } elseif (method_exists($error, 'response') && $error->response) {
             $response = json_decode($error->response->getBody(), true);
             $message = $response['message'] ?? $message;
+            $errors = $response['errors'] ?? [];
             $status = $error->response->getStatusCode();
         }
 
         return [
             'success' => false,
             'message' => $message,
-            'status' => $status
+            'errors' => $errors,
+            'status' => $status,
+            'data' => [
+                'message' => $message,
+                'errors' => $errors
+            ]
         ];
     }
 

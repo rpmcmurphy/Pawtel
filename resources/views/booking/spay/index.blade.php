@@ -18,7 +18,7 @@
                             Professional spay and neuter procedures performed by experienced veterinarians. 
                             We provide safe, affordable surgical services with comprehensive pre and post-operative care.
                         </p>
-                        @auth
+                        @if (session('user'))
                             <a href="{{ route('booking.spay.form') }}" class="btn btn-light btn-lg">
                                 <i class="fas fa-calendar-plus"></i> Schedule Procedure
                             </a>
@@ -26,7 +26,7 @@
                             <a href="{{ route('auth.login') }}" class="btn btn-light btn-lg">
                                 <i class="fas fa-sign-in-alt"></i> Login to Book
                             </a>
-                        @endauth
+                        @endif
                     </div>
                     <div class="col-lg-4 text-center">
                         <i class="fas fa-stethoscope fa-8x opacity-25"></i>
@@ -265,7 +265,7 @@
             <div class="cta-section bg-light rounded-lg p-4 text-center">
                 <h3 class="mb-3">Ready to Schedule Your Cat's Surgery?</h3>
                 <p class="mb-4">Take the responsible step towards your cat's health and well-being. Our experienced team is here to help.</p>
-                @auth
+                @if (session('user'))
                     <a href="{{ route('booking.spay.form') }}" class="btn btn-primary btn-lg">
                         <i class="fas fa-calendar-plus"></i> Schedule Procedure
                     </a>
@@ -276,7 +276,7 @@
                     <a href="{{ route('auth.register') }}" class="btn btn-outline-primary btn-lg">
                         <i class="fas fa-user-plus"></i> Register
                     </a>
-                @endauth
+                @endif
                 <div class="mt-3">
                     <small class="text-muted">
                         <i class="fas fa-phone"></i> Questions? Call us at (555) 123-4567
@@ -501,7 +501,7 @@ function displaySpayPackages(packages) {
                         </small>
                     </div>
                     <div class="d-grid">
-                        @auth
+                        @if (session('user'))
                             <a href="{{ route('booking.spay.form') }}?package=${package.id}" 
                                class="btn ${featured ? 'btn-success' : 'btn-outline-primary'}">
                                 <i class="fas fa-calendar-plus"></i> Book This Package
@@ -511,7 +511,7 @@ function displaySpayPackages(packages) {
                                class="btn ${featured ? 'btn-success' : 'btn-outline-primary'}">
                                 <i class="fas fa-sign-in-alt"></i> Login to Book
                             </a>
-                        @endauth
+                        @endif
                     </div>
                 </div>
             </div>

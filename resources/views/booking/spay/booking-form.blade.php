@@ -17,7 +17,7 @@
                 <div class="booking-form-card">
                     <h3 class="mb-4">Book Spay/Neuter Service</h3>
 
-                    @if(session('error'))
+                    @if (session('error'))
                         <div class="alert alert-danger">
                             {{ session('error') }}
                         </div>
@@ -35,32 +35,39 @@
                             <div class="row">
                                 @forelse($packages as $package)
                                     <div class="col-md-6 mb-3">
-                                        <div class="package-card border rounded p-3 {{ old('spay_package_id') == $package->id ? 'border-primary bg-light' : '' }}"
-                                            onclick="selectPackage({{ $package->id }})" style="cursor: pointer;">
+                                        <div class="package-card border rounded p-3 {{ old('spay_package_id') == $package['id'] ? 'border-primary bg-light' : '' }}" style="cursor:pointer;">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="spay_package_id" 
-                                                    value="{{ $package->id }}" id="package_{{ $package->id }}"
-                                                    {{ old('spay_package_id') == $package->id ? 'checked' : '' }}
+                                                <input class="form-check-input" type="radio" name="spay_package_id"
+                                                    value="{{ $package['id'] }}" id="package_{{ $package['id'] }}"
+                                                    {{ old('spay_package_id') == $package['id'] ? 'checked' : '' }}
                                                     required>
-                                                <label class="form-check-label w-100" for="package_{{ $package->id }}">
+
+                                                <label class="form-check-label w-100" for="package_{{ $package['id'] }}">
                                                     <h6 class="mb-2">
-                                                        {{ $package->name }}
-                                                        @if($package->type)
-                                                            <span class="badge bg-{{ $package->type == 'spay' ? 'danger' : 'primary' }} ms-2">
-                                                                {{ ucfirst($package->type) }}
+                                                        {{ $package['name'] }}
+                                                        @if (!empty($package['type']))
+                                                            <span
+                                                                class="badge bg-{{ $package['type'] === 'spay' ? 'danger' : 'primary' }} ms-2">
+                                                                {{ ucfirst($package['type']) }}
                                                             </span>
                                                         @endif
                                                     </h6>
-                                                    <p class="text-muted small mb-2">{{ $package->description }}</p>
+
+                                                    <p class="text-muted small mb-2">{{ $package['description'] }}</p>
+
                                                     <div class="d-flex justify-content-between align-items-center">
-                                                        @if($package->post_care_days)
-                                                            <span class="badge bg-info">{{ $package->post_care_days }} days post-care</span>
+                                                        @if (!empty($package['post_care_days']))
+                                                            <span class="badge bg-info">{{ $package['post_care_days'] }}
+                                                                days post-care</span>
                                                         @endif
-                                                        <strong class="text-primary">৳{{ number_format($package->price, 2) }}</strong>
+                                                        <strong
+                                                            class="text-primary">৳{{ number_format($package['price'], 2) }}</strong>
                                                     </div>
-                                                    @if($package->resident_price)
+
+                                                    @if (!empty($package['resident_price']))
                                                         <small class="text-muted d-block mt-2">
-                                                            Resident Rate: ৳{{ number_format($package->resident_price, 2) }}
+                                                            Resident Rate:
+                                                            ৳{{ number_format($package['resident_price'], 2) }}
                                                         </small>
                                                     @endif
                                                 </label>
@@ -85,12 +92,10 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <label for="preferred_date" class="form-label">Preferred Date *</label>
-                                    <input type="date" class="form-control" id="preferred_date" 
-                                        name="preferred_date" 
-                                        min="{{ date('Y-m-d') }}" 
-                                        value="{{ old('preferred_date') }}"
-                                        required>
-                                    <small class="text-muted">Please note: Your cat must fast for 12 hours before the procedure.</small>
+                                    <input type="date" class="form-control" id="preferred_date" name="preferred_date"
+                                        min="{{ date('Y-m-d') }}" value="{{ old('preferred_date') }}" required>
+                                    <small class="text-muted">Please note: Your cat must fast for 12 hours before the
+                                        procedure.</small>
                                 </div>
                             </div>
                             <div id="availabilityMessage" class="mt-2"></div>
@@ -104,21 +109,14 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <label for="cat_age" class="form-label">Cat Age (months) *</label>
-                                    <input type="number" class="form-control" id="cat_age" 
-                                        name="cat_age" 
-                                        min="3" 
-                                        value="{{ old('cat_age') }}"
-                                        required>
+                                    <input type="number" class="form-control" id="cat_age" name="cat_age" min="3"
+                                        value="{{ old('cat_age') }}" required>
                                     <small class="text-muted">Minimum age: 3 months</small>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="cat_weight" class="form-label">Cat Weight (kg) *</label>
-                                    <input type="number" class="form-control" id="cat_weight" 
-                                        name="cat_weight" 
-                                        min="1" 
-                                        step="0.1"
-                                        value="{{ old('cat_weight') }}"
-                                        required>
+                                    <input type="number" class="form-control" id="cat_weight" name="cat_weight"
+                                        min="1" step="0.1" value="{{ old('cat_weight') }}" required>
                                     <small class="text-muted">Minimum weight: 1 kg</small>
                                 </div>
                             </div>
@@ -131,14 +129,12 @@
                             </h5>
                             <div class="mb-3">
                                 <label for="medical_conditions" class="form-label">Medical Conditions / Notes</label>
-                                <textarea class="form-control" id="medical_conditions" 
-                                    name="medical_conditions" rows="3"
+                                <textarea class="form-control" id="medical_conditions" name="medical_conditions" rows="3"
                                     placeholder="Please mention any existing medical conditions, allergies, or medications your cat is currently taking...">{{ old('medical_conditions') }}</textarea>
                             </div>
                             <div class="mb-3">
                                 <label for="special_requests" class="form-label">Special Requests</label>
-                                <textarea class="form-control" id="special_requests" 
-                                    name="special_requests" rows="2"
+                                <textarea class="form-control" id="special_requests" name="special_requests" rows="2"
                                     placeholder="Any special requests or concerns...">{{ old('special_requests') }}</textarea>
                             </div>
                         </div>
@@ -151,14 +147,15 @@
                             <p class="text-muted small mb-3">You can upload documents after booking confirmation.</p>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <label for="vaccination_certificate" class="form-label">Vaccination Certificate</label>
+                                    <label for="vaccination_certificate" class="form-label">Vaccination
+                                        Certificate</label>
                                     <input type="file" class="form-control" id="vaccination_certificate"
                                         name="vaccination_certificate" accept=".pdf,.jpg,.jpeg,.png">
                                 </div>
                                 <div class="col-md-6">
                                     <label for="medical_records" class="form-label">Medical Records</label>
-                                    <input type="file" class="form-control" id="medical_records" name="medical_records"
-                                        accept=".pdf,.jpg,.jpeg,.png">
+                                    <input type="file" class="form-control" id="medical_records"
+                                        name="medical_records" accept=".pdf,.jpg,.jpeg,.png">
                                 </div>
                             </div>
                         </div>
@@ -233,161 +230,173 @@
 @endsection
 
 @push('styles')
-<style>
-    .booking-progress {
-        margin-bottom: 2rem;
-    }
-    .progress-steps {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .step {
-        flex: 1;
-        padding: 0.75rem;
-        text-align: center;
-        background: #e9ecef;
-        color: #6c757d;
-        border-radius: 0.5rem;
-        margin: 0 0.25rem;
-        font-weight: 500;
-    }
-    .step.completed {
-        background: #28a745;
-        color: white;
-    }
-    .step.active {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-    .booking-form-card {
-        background: white;
-        border-radius: 1rem;
-        padding: 2rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    .section-title {
-        color: #333;
-        font-weight: 600;
-        border-bottom: 2px solid #667eea;
-        padding-bottom: 0.5rem;
-    }
-    .package-card:hover {
-        border-color: #667eea !important;
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-    }
-    .package-card.border-primary {
-        border-width: 2px !important;
-    }
-</style>
+    <style>
+        .booking-progress {
+            margin-bottom: 2rem;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .step {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            background: #e9ecef;
+            color: #6c757d;
+            border-radius: 0.5rem;
+            margin: 0 0.25rem;
+            font-weight: 500;
+        }
+
+        .step.completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .step.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .booking-form-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            color: #333;
+            font-weight: 600;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .package-card:hover {
+            border-color: #667eea !important;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .package-card.border-primary {
+            border-width: 2px !important;
+        }
+    </style>
 @endpush
 
 @push('scripts')
-<script type="module">
-$(document).ready(function() {
-    const packages = @json($packages ?? []);
-    
-    // Get package from URL parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const packageId = urlParams.get('package');
-    if (packageId) {
-        $('#package_' + packageId).prop('checked', true).trigger('change');
-        selectPackage(packageId);
-    }
-    
-    // Calculate initial price
-    calculatePrice();
-    
-    // Update price when package changes
-    $('input[name="spay_package_id"]').on('change', function() {
-        selectPackage($(this).val());
-        calculatePrice();
-    });
-    
-    // Check availability when date changes
-    $('#preferred_date').on('change', function() {
-        checkAvailability();
-    });
-    
-    function selectPackage(packageId) {
-        $('.package-card').removeClass('border-primary bg-light');
-        $('.package-card').has(`#package_${packageId}`).addClass('border-primary bg-light');
-        calculatePrice();
-    }
-    
-    function calculatePrice() {
-        const selectedPackage = $('input[name="spay_package_id"]:checked');
-        if (!selectedPackage.length) {
-            $('#packagePrice').text('৳0.00');
-            $('#totalAmount').text('৳0.00');
-            return;
-        }
-        
-        const packageId = selectedPackage.val();
-        const package = packages.find(p => p.id == packageId);
-        if (!package) return;
-        
-        // Check if user is resident (simplified - would need API call)
-        const isResident = false; // TODO: Check from API
-        const packagePrice = isResident && package.resident_price ? parseFloat(package.resident_price) : parseFloat(package.price);
-        
-        // Update display
-        $('#packagePrice').text('৳' + packagePrice.toFixed(2));
-        $('#totalAmount').text('৳' + packagePrice.toFixed(2));
-        
-        // Update sidebar
-        updateSidebar(package);
-    }
-    
-    function updateSidebar(package) {
-        const date = $('#preferred_date').val();
-        const age = $('#cat_age').val();
-        const weight = $('#cat_weight').val();
-        
-        let html = `
+    <script type="module">
+        $(document).ready(function() {
+            const packages = @json($packages ?? []);
+
+            // Get package from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const packageId = urlParams.get('package');
+            if (packageId) {
+                $('#package_' + packageId).prop('checked', true).trigger('change');
+                selectPackage(packageId);
+            }
+
+            // Calculate initial price
+            calculatePrice();
+
+            // Update price when package changes
+            $('input[name="spay_package_id"]').on('change', function() {
+                selectPackage($(this).val());
+                calculatePrice();
+            });
+
+            // Check availability when date changes
+            $('#preferred_date').on('change', function() {
+                checkAvailability();
+            });
+
+            function selectPackage(packageId) {
+                $('.package-card').removeClass('border-primary bg-light');
+                $('.package-card').has(`#package_${packageId}`).addClass('border-primary bg-light');
+                calculatePrice();
+            }
+
+            function calculatePrice() {
+                const selectedPackage = $('input[name="spay_package_id"]:checked');
+                if (!selectedPackage.length) {
+                    $('#packagePrice').text('৳0.00');
+                    $('#totalAmount').text('৳0.00');
+                    return;
+                }
+
+                const packageId = selectedPackage.val();
+                const pickedPackage = packages.find(p => p.id == packageId);
+                if (!pickedPackage) return;
+
+                // Check if user is resident (simplified - would need API call)
+                const isResident = false; // TODO: Check from API
+                const packagePrice = isResident && pickedPackage.resident_price ? parseFloat(pickedPackage.resident_price) :
+                    parseFloat(pickedPackage.price);
+
+                // Update display
+                $('#packagePrice').text('৳' + packagePrice.toFixed(2));
+                $('#totalAmount').text('৳' + packagePrice.toFixed(2));
+
+                // Update sidebar
+                updateSidebar(pickedPackage);
+            }
+
+            function updateSidebar(passedPackage) {
+                const date = $('#preferred_date').val();
+                const age = $('#cat_age').val();
+                const weight = $('#cat_weight').val();
+
+                let html = `
             <div class="mb-3">
-                <strong>Package:</strong> ${package.name}
+                <strong>Package:</strong> ${passedPackage.name}
             </div>
         `;
-        
-        if (date) {
-            html += `<div class="mb-3"><strong>Date:</strong><br>${new Date(date).toLocaleDateString()}</div>`;
-        }
-        if (age) {
-            html += `<div class="mb-3"><strong>Cat Age:</strong> ${age} months</div>`;
-        }
-        if (weight) {
-            html += `<div class="mb-3"><strong>Cat Weight:</strong> ${weight} kg</div>`;
-        }
-        
-        $('#sidebarSummary').html(html);
-    }
-    
-    function checkAvailability() {
-        const date = $('#preferred_date').val();
-        const packageId = $('input[name="spay_package_id"]:checked').val();
-        
-        if (!date || !packageId) {
-            $('#availabilityMessage').html('');
-            return;
-        }
-        
-        // TODO: Make API call to check availability
-        $('#availabilityMessage').html('<small class="text-info"><i class="fas fa-info-circle"></i> Checking availability...</small>');
-    }
-    
-    // Form submission
-    $('#spayBookingForm').on('submit', function(e) {
-        const form = $(this);
-        const submitBtn = form.find('button[type="submit"]');
-        
-        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Processing...');
-    });
-});
 
-window.selectPackage = function(packageId) {
-    $(`#package_${packageId}`).prop('checked', true).trigger('change');
-};
-</script>
+                if (date) {
+                    html +=
+                        `<div class="mb-3"><strong>Date:</strong><br>${new Date(date).toLocaleDateString()}</div>`;
+                }
+                if (age) {
+                    html += `<div class="mb-3"><strong>Cat Age:</strong> ${age} months</div>`;
+                }
+                if (weight) {
+                    html += `<div class="mb-3"><strong>Cat Weight:</strong> ${weight} kg</div>`;
+                }
+
+                $('#sidebarSummary').html(html);
+            }
+
+            function checkAvailability() {
+                const date = $('#preferred_date').val();
+                const packageId = $('input[name="spay_package_id"]:checked').val();
+
+                if (!date || !packageId) {
+                    $('#availabilityMessage').html('');
+                    return;
+                }
+
+                // TODO: Make API call to check availability
+                $('#availabilityMessage').html(
+                    '<small class="text-info"><i class="fas fa-info-circle"></i> Checking availability...</small>'
+                    );
+            }
+
+            // Form submission
+            $('#spayBookingForm').on('submit', function(e) {
+                const form = $(this);
+                const submitBtn = form.find('button[type="submit"]');
+
+                submitBtn.prop('disabled', true).html(
+                    '<i class="fas fa-spinner fa-spin me-2"></i>Processing...');
+            });
+        });
+
+        window.selectPackage = function(packageId) {
+            $(`#package_${packageId}`).prop('checked', true).trigger('change');
+        };
+    </script>
 @endpush
-

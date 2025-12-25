@@ -18,7 +18,7 @@
                             Pamper your feline friends with our professional grooming and luxurious spa treatments. 
                             From basic grooming to full spa packages, we ensure your cat looks and feels their best.
                         </p>
-                        @auth
+                        @if (session('user'))
                             <a href="{{ route('booking.spa.form') }}" class="btn btn-light btn-lg">
                                 <i class="fas fa-calendar-plus"></i> Book Spa Service
                             </a>
@@ -26,7 +26,7 @@
                             <a href="{{ route('auth.login') }}" class="btn btn-light btn-lg">
                                 <i class="fas fa-sign-in-alt"></i> Login to Book
                             </a>
-                        @endauth
+                        @endif
                     </div>
                     <div class="col-lg-4 text-center">
                         <i class="fas fa-spa fa-8x opacity-25"></i>
@@ -177,7 +177,7 @@
             <div class="cta-section bg-light rounded-lg p-4 text-center">
                 <h3 class="mb-3">Ready to Pamper Your Cat?</h3>
                 <p class="mb-4">Book a spa appointment today and give your feline friend the luxury treatment they deserve.</p>
-                @auth
+                @if (session('user'))
                     <a href="{{ route('booking.spa.form') }}" class="btn btn-primary btn-lg">
                         <i class="fas fa-calendar-plus"></i> Book Spa Service
                     </a>
@@ -188,7 +188,7 @@
                     <a href="{{ route('auth.register') }}" class="btn btn-outline-primary btn-lg">
                         <i class="fas fa-user-plus"></i> Register
                     </a>
-                @endauth
+                @endif
             </div>
         </div>
     </div>
@@ -348,7 +348,7 @@ function displaySpaPackages(packages) {
                         </small>
                     </div>
                     <div class="d-grid">
-                        @auth
+                        @if (session('user'))
                             <a href="{{ route('booking.spa.form') }}?package=${package.id}" 
                                class="btn ${featured ? 'btn-success' : 'btn-outline-primary'}">
                                 <i class="fas fa-calendar-plus"></i> Book This Package
@@ -358,7 +358,7 @@ function displaySpaPackages(packages) {
                                class="btn ${featured ? 'btn-success' : 'btn-outline-primary'}">
                                 <i class="fas fa-sign-in-alt"></i> Login to Book
                             </a>
-                        @endauth
+                        @endif
                     </div>
                 </div>
             </div>

@@ -4,6 +4,7 @@ namespace App\Services\Web;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use App\Helpers\ApiHelper;
+use Illuminate\Support\Facades\Log;
 
 class ApiService
 {
@@ -52,12 +53,29 @@ class ApiService
             $response = $this->client->request($method, $endpoint, $options);
             $body = json_decode($response->getBody()->getContents(), true);
 
+            // If API returns error in body, handle it
+            if (isset($body['success']) && $body['success'] === false) {
+                return [
+                    'success' => false,
+                    'message' => $body['message'] ?? 'API request failed',
+                    'data' => $body,
+                    'status' => $response->getStatusCode()
+                ];
+            }
+
             return [
                 'success' => true,
                 'data' => $body,
                 'status' => $response->getStatusCode()
             ];
         } catch (RequestException $e) {
+            Log::error('API Request Exception', [
+                'endpoint' => $endpoint,
+                'method' => $method,
+                'error' => $e->getMessage(),
+                'has_response' => method_exists($e, 'getResponse') && $e->getResponse() !== null
+            ]);
+            
             return ApiHelper::handleApiError($e);
         }
     }

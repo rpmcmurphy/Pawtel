@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Booking;
 use App\Http\Controllers\Controller;
 use App\Services\Web\BookingService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class HotelController extends Controller
 {
@@ -102,7 +103,35 @@ class HotelController extends Controller
             }, $request->addons);
         }
 
-        $response = $this->bookingService->createHotelBooking($bookingData);
+        // Ensure user is authenticated and has API token
+        if (!session('api_token')) {
+            Log::warning('No API token in session for booking', [
+                'user_id' => session('user')['id'] ?? null
+            ]);
+            
+            return redirect()->route('auth.login')
+                ->with('error', 'Your session has expired. Please login again.');
+        }
+
+        try {
+            $response = $this->bookingService->createHotelBooking($bookingData);
+            
+            Log::info('Hotel booking API response', [
+                'success' => $response['success'] ?? false,
+                'has_data' => isset($response['data']),
+                'response_keys' => array_keys($response)
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Hotel booking error: ' . $e->getMessage(), [
+                'booking_data' => $bookingData,
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Failed to create booking: ' . $e->getMessage())
+                ->withInput();
+        }
 
         if ($response['success']) {
             // Handle nested response structure from API
@@ -133,8 +162,23 @@ class HotelController extends Controller
             }
         }
 
+        // Log the error for debugging
+        Log::error('Hotel booking failed', [
+            'response' => $response,
+            'booking_data' => $bookingData
+        ]);
+        
+        $errorMessage = $response['message'] ?? 'Failed to create booking.';
+        if (isset($response['data']['message'])) {
+            $errorMessage = $response['data']['message'];
+        }
+        if (isset($response['data']['errors'])) {
+            $errors = $response['data']['errors'];
+            $errorMessage .= ' ' . json_encode($errors);
+        }
+        
         return redirect()->back()
-            ->with('error', $response['message'] ?? 'Failed to create booking.')
+            ->with('error', $errorMessage)
             ->withInput();
     }
 

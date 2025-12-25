@@ -18,8 +18,21 @@
                     <h3 class="mb-4">Complete Your Booking</h3>
 
                     @if(session('error'))
-                        <div class="alert alert-danger">
-                            {{ session('error') }}
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+                    
+                    @if($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            <h6><i class="fas fa-exclamation-circle me-2"></i>Please fix the following errors:</h6>
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     @endif
 
@@ -186,9 +199,8 @@
                     <h4 class="mb-3">Booking Summary</h4>
                     <div id="sidebarSummary">
                         @if($checkIn && $checkOut && $roomType)
-                        {{ dd($roomType) }}
                             <div class="mb-3">
-                                <strong>Room:</strong> {{ $roomType->name }}
+                                <strong>Room:</strong> {{ $roomType['name'] }}
                             </div>
                             <div class="mb-3">
                                 <strong>Check-in:</strong><br>
@@ -325,12 +337,26 @@ $(document).ready(function() {
         $('#totalAmount').text('৳' + total.toFixed(2));
     }
     
-    // Form submission
+    // Form submission - let it submit normally, just show loading
     $('#hotelBookingForm').on('submit', function(e) {
         const form = $(this);
         const submitBtn = form.find('button[type="submit"]');
         
+        // Validate required fields
+        const checkIn = $('input[name="check_in_date"]').val();
+        const checkOut = $('input[name="check_out_date"]').val();
+        const roomType = $('input[name="room_type_id"]').val();
+        
+        if (!checkIn || !checkOut || !roomType) {
+            e.preventDefault();
+            alert('Please complete all required fields before submitting.');
+            return false;
+        }
+        
+        // Show loading state
         submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Processing...');
+        
+        // Form will submit normally
     });
 });
 </script>
