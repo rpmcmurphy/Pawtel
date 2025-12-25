@@ -61,6 +61,56 @@
                 </a>
             </li>
 
+            <!-- Rooms Section -->
+            <li class="nav-divider"></li>
+
+            <p class="divider-title">Rooms</p>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.rooms.index') ? 'active' : '' }}"
+                    href="{{ route('admin.rooms.index') }}">
+                    <i class="fas fa-list"></i>
+                    <span>All Rooms</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.rooms.create') ? 'active' : '' }}"
+                    href="{{ route('admin.rooms.create') }}">
+                    <i class="fas fa-plus"></i>
+                    <span>Add Room</span>
+                </a>
+            </li>
+
+            <!-- Service Packages Section -->
+            <li class="nav-divider"></li>
+
+            <p class="divider-title">Services</p>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.services.spa.index') ? 'active' : '' }}"
+                    href="{{ route('admin.services.spa.index') }}">
+                    <i class="fas fa-spa"></i>
+                    <span>Spa Packages</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.services.spay.index') ? 'active' : '' }}"
+                    href="{{ route('admin.services.spay.index') }}">
+                    <i class="fas fa-heartbeat"></i>
+                    <span>Spay Packages</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.services.addons.index') ? 'active' : '' }}"
+                    href="{{ route('admin.services.addons.index') }}">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Add-on Services</span>
+                </a>
+            </li>
+
             <!-- Products Section -->
             <li class="nav-divider"></li>
 
@@ -79,6 +129,19 @@
                     href="{{ route('admin.products.create') }}">
                     <i class="fas fa-plus"></i>
                     <span>Add Product</span>
+                </a>
+            </li>
+
+            <!-- Orders Section -->
+            <li class="nav-divider"></li>
+
+            <p class="divider-title">Orders</p>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.orders.index') ? 'active' : '' }}"
+                    href="{{ route('admin.orders.index') }}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>All Orders</span>
                 </a>
             </li>
 

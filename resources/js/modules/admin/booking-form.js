@@ -25,6 +25,7 @@ export class BookingForm {
         this.initializeBookingType();
         this.initializeDateValidation();
         this.initializeAddonHandlers();
+        this.initializeFormSubmission();
     }
 
     setupEventListeners() {
@@ -88,6 +89,14 @@ export class BookingForm {
             const firstChecked = this.form.querySelector('input[name="type"]:checked');
             if (firstChecked) {
                 firstChecked.dispatchEvent(new Event('change'));
+            } else {
+                // If no type is selected, ensure all type-specific fields are hidden and not required
+                this.form.querySelectorAll('.booking-fields').forEach(field => {
+                    field.style.display = 'none';
+                    field.querySelectorAll('select[required], input[required]').forEach(input => {
+                        input.removeAttribute('required');
+                    });
+                });
             }
         }
     }
@@ -122,6 +131,39 @@ export class BookingForm {
         });
     }
 
+    initializeFormSubmission() {
+        // Clean up form data before submission to avoid validation errors
+        this.form.addEventListener('submit', (e) => {
+            const bookingType = this.form.querySelector('input[name="type"]:checked')?.value;
+            
+            if (bookingType === 'hotel') {
+                // Remove spa and spay fields
+                const spaFields = this.form.querySelectorAll('[name="spa_package_id"], [name="spay_package_id"], [name="appointment_time"], [name="notes"], [name="pet_name"], [name="pet_age"], [name="pet_weight"], [name="medical_notes"], [name="post_care_days"]');
+                spaFields.forEach(field => {
+                    if (field.value === '' || field.value === null) {
+                        field.disabled = true;
+                    }
+                });
+            } else if (bookingType === 'spa') {
+                // Remove hotel and spay fields
+                const otherFields = this.form.querySelectorAll('[name="room_type_id"], [name="spay_package_id"], [name="custom_monthly_discount"], [name="pet_name"], [name="pet_age"], [name="pet_weight"], [name="medical_notes"], [name="post_care_days"]');
+                otherFields.forEach(field => {
+                    if (field.value === '' || field.value === null) {
+                        field.disabled = true;
+                    }
+                });
+            } else if (bookingType === 'spay') {
+                // Remove hotel and spa fields
+                const otherFields = this.form.querySelectorAll('[name="room_type_id"], [name="spa_package_id"], [name="custom_monthly_discount"], [name="appointment_time"], [name="notes"]');
+                otherFields.forEach(field => {
+                    if (field.value === '' || field.value === null) {
+                        field.disabled = true;
+                    }
+                });
+            }
+        });
+    }
+
     handleBookingTypeChange(type) {
         // Hide all type-specific sections
         const sections = {
@@ -130,9 +172,13 @@ export class BookingForm {
             spay: this.form.querySelector('.spay-fields, #spay_fields')
         };
 
-        // Hide all booking fields first
+        // Hide all booking fields first and remove required attributes
         this.form.querySelectorAll('.booking-fields').forEach(field => {
             field.style.display = 'none';
+            // Remove required attributes from hidden fields
+            field.querySelectorAll('select[required], input[required]').forEach(input => {
+                input.removeAttribute('required');
+            });
         });
 
         Object.values(sections).forEach(section => {
@@ -148,6 +194,10 @@ export class BookingForm {
         const targetField = this.form.querySelector(`#${type}_fields`);
         if (targetField) {
             targetField.style.display = 'block';
+            // Add required attributes to visible fields
+            targetField.querySelectorAll('select[name*="_id"]').forEach(select => {
+                select.setAttribute('required', 'required');
+            });
         }
 
         // Recalculate pricing
@@ -292,14 +342,20 @@ export class BookingForm {
             user_id: formData.get('user_id') || null,
             check_in_date: formData.get('check_in_date'),
             check_out_date: formData.get('check_out_date'),
-            room_type_id: formData.get('room_type_id'),
-            spa_package_id: formData.get('spa_package_id'),
-            spay_package_id: formData.get('spay_package_id'),
-            custom_monthly_discount: formData.get('custom_monthly_discount') || null,
-            post_care_days: formData.get('post_care_days') || null,
             is_resident: formData.get('is_resident') === 'on' || formData.get('is_resident') === '1',
             addons: this.getAddonsData()
         };
+        
+        // Only include type-specific fields for the selected booking type
+        if (bookingType === 'hotel') {
+            bookingData.room_type_id = formData.get('room_type_id') || null;
+            bookingData.custom_monthly_discount = formData.get('custom_monthly_discount') || null;
+        } else if (bookingType === 'spa') {
+            bookingData.spa_package_id = formData.get('spa_package_id') || null;
+        } else if (bookingType === 'spay') {
+            bookingData.spay_package_id = formData.get('spay_package_id') || null;
+            bookingData.post_care_days = formData.get('post_care_days') || null;
+        }
 
         // Validate required fields based on type
         if (bookingType === 'hotel' && (!bookingData.room_type_id || !bookingData.check_in_date || !bookingData.check_out_date)) {
@@ -325,8 +381,19 @@ export class BookingForm {
 
             const data = await response.json();
             
-            if (data.success && data.data) {
-                this.updatePricingDisplay(data.data, bookingType);
+            // Handle nested response structure from AdminService
+            let pricingData = null;
+            if (data.success) {
+                // Check if data is nested (from AdminService wrapper)
+                if (data.data && data.data.success && data.data.data) {
+                    pricingData = data.data.data;
+                } else if (data.data) {
+                    pricingData = data.data;
+                }
+            }
+            
+            if (pricingData) {
+                this.updatePricingDisplay(pricingData, bookingType);
                 
                 // Check availability for hotel bookings
                 if (bookingType === 'hotel' && bookingData.room_type_id && bookingData.check_in_date && bookingData.check_out_date) {
@@ -416,11 +483,16 @@ export class BookingForm {
         const totalAmountInput = this.form.querySelector('#total_amount');
         const finalAmountInput = this.form.querySelector('#final_amount');
 
-        if (subtotalEl) subtotalEl.textContent = `৳${(pricing.subtotal || pricing.total_amount || 0).toFixed(2)}`;
-        if (discountEl) discountEl.textContent = `৳${(pricing.discount_amount || 0).toFixed(2)}`;
-        if (totalEl) totalEl.textContent = `৳${(pricing.final_amount || 0).toFixed(2)}`;
-        if (totalAmountInput) totalAmountInput.value = pricing.total_amount || pricing.final_amount || 0;
-        if (finalAmountInput) finalAmountInput.value = pricing.final_amount || 0;
+        // Extract pricing values (handle different response structures)
+        const subtotal = pricing.subtotal || pricing.total_amount || pricing.service_price || 0;
+        const discount = pricing.discount_amount || 0;
+        const finalAmount = pricing.final_amount || pricing.total_amount || subtotal;
+
+        if (subtotalEl) subtotalEl.textContent = `৳${parseFloat(subtotal).toFixed(2)}`;
+        if (discountEl) discountEl.textContent = `৳${parseFloat(discount).toFixed(2)}`;
+        if (totalEl) totalEl.textContent = `৳${parseFloat(finalAmount).toFixed(2)}`;
+        if (totalAmountInput) totalAmountInput.value = parseFloat(pricing.total_amount || finalAmount).toFixed(2);
+        if (finalAmountInput) finalAmountInput.value = parseFloat(finalAmount).toFixed(2);
 
         // Update hotel pricing info if hotel booking
         if (bookingType === 'hotel') {

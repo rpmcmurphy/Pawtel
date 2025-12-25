@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class RoomType extends Model
 {
@@ -62,11 +63,12 @@ class RoomType extends Model
 
         if ($date) {
             // Check for blocked dates and bookings
-            $bookedRoomIds = BookingRoom::whereHas('booking', function ($q) use ($date) {
-                $q->where('status', '!=', 'cancelled')
-                    ->where('check_in_date', '<=', $date)
-                    ->where('check_out_date', '>=', $date);
-            })->pluck('room_id');
+            $bookedRoomIds = DB::table('booking_rooms')
+                ->join('bookings', 'booking_rooms.booking_id', '=', 'bookings.id')
+                ->where('bookings.status', '!=', 'cancelled')
+                ->where('bookings.check_in_date', '<=', $date)
+                ->where('bookings.check_out_date', '>=', $date)
+                ->pluck('booking_rooms.room_id');
 
             $query->whereNotIn('id', $bookedRoomIds);
         }

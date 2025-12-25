@@ -52,20 +52,49 @@ class BookingController extends Controller
      */
     public function store(Request $request)
     {
-        // Basic validation first
-        $validated = $request->validate([
+        $type = $request->input('type');
+        
+        // Build validation rules conditionally based on type
+        $rules = [
             'type' => 'required|in:hotel,spa,spay',
             'user_id' => 'required|exists:users,id',
             'check_in_date' => 'required|date|after_or_equal:today',
             'check_out_date' => 'required|date|after:check_in_date',
             'final_amount' => 'required|numeric|min:0',
             'manual_reference' => 'required|string|max:255',
-            'room_type_id' => 'required_if:type,hotel|exists:room_types,id',
-            'spa_package_id' => 'required_if:type,spa|exists:spa_packages,id',
-            'spay_package_id' => 'required_if:type,spay|exists:spay_packages,id',
             'special_requests' => 'nullable|string|max:1000',
             'addons' => 'sometimes|array',
-        ]);
+        ];
+        
+        // Add type-specific validation rules
+        if ($type === 'hotel') {
+            $rules['room_type_id'] = 'required|exists:room_types,id';
+            $rules['spa_package_id'] = 'nullable';
+            $rules['spay_package_id'] = 'nullable';
+            $rules['custom_monthly_discount'] = 'nullable|numeric|min:0';
+        } elseif ($type === 'spa') {
+            $rules['spa_package_id'] = 'required|exists:spa_packages,id';
+            $rules['room_type_id'] = 'nullable';
+            $rules['spay_package_id'] = 'nullable';
+            $rules['appointment_time'] = 'nullable|date_format:H:i';
+            $rules['notes'] = 'nullable|string|max:500';
+        } elseif ($type === 'spay') {
+            $rules['spay_package_id'] = 'required|exists:spay_packages,id';
+            $rules['room_type_id'] = 'nullable';
+            $rules['spa_package_id'] = 'nullable';
+            $rules['pet_name'] = 'nullable|string|max:100';
+            $rules['pet_age'] = 'nullable|string|max:50';
+            $rules['pet_weight'] = 'nullable|numeric|min:0.1|max:50';
+            $rules['medical_notes'] = 'nullable|string|max:1000';
+            $rules['post_care_days'] = 'nullable|integer|min:0|max:30';
+        } else {
+            // If type is not set, make all type-specific fields nullable
+            $rules['room_type_id'] = 'nullable';
+            $rules['spa_package_id'] = 'nullable';
+            $rules['spay_package_id'] = 'nullable';
+        }
+        
+        $validated = $request->validate($rules);
 
         // Prepare booking data for API
         $bookingData = [
