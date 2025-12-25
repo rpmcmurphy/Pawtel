@@ -186,6 +186,7 @@
                     <h4 class="mb-3">Booking Summary</h4>
                     <div id="sidebarSummary">
                         @if($checkIn && $checkOut && $roomType)
+                        {{ dd($roomType) }}
                             <div class="mb-3">
                                 <strong>Room:</strong> {{ $roomType->name }}
                             </div>

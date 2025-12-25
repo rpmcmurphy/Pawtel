@@ -179,3 +179,17 @@ Note: We are also consuming the API in the web route and view files etc. We will
 
 
 
+. 📂 /database/migrations/
+├── 📄 2025_08_29_124153_create_room_types_table.php
+├── 📄 2025_08_29_124155_create_rooms_table.php
+├── 📄 2025_08_29_153212_create_bookings_table.php
+├── 📄 2025_08_29_153213_create_booking_rooms_table.php
+├── 📄 2025_08_29_153308_create_addon_services_table.php
+├── 📄 2025_08_29_153309_create_booking_addons_table.php
+├── 📄 2025_08_29_153310_create_booking_documents_table.php
+├── 📄 2025_08_29_153311_create_blocked_dates_table.php
+├── 📄 2025_08_29_153312_create_spa_packages_table.php
+├── 📄 2025_08_29_153313_create_spa_bookings_table.php
+├── 📄 2025_08_29_153314_create_spa_slots_table.php
+├── 📄 2025_08_29_153315_create_spay_packages_table.php
+├── 📄 2025_08_29_153316_create_spay_bookings_table.php
