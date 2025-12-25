@@ -59,9 +59,16 @@ class HotelController extends Controller
         $roomTypes = $this->bookingService->getRoomTypes();
         $addonServices = $this->bookingService->getAddonServices('hotel');
 
+        // Handle nested response structure
+        $roomTypesData = $roomTypes['success'] ? $roomTypes['data'] : [];
+        $roomTypesList = isset($roomTypesData['data']) ? $roomTypesData['data'] : (isset($roomTypesData[0]) ? $roomTypesData : []);
+        
+        $addonData = $addonServices['success'] ? $addonServices['data'] : [];
+        $addons = isset($addonData['data']) ? $addonData['data'] : (isset($addonData[0]) ? $addonData : []);
+
         return view('booking.hotel.booking-form', [
-            'roomTypes' => $roomTypes['success'] ? $roomTypes['data'] : [],
-            'addonServices' => $addonServices['success'] ? $addonServices['data'] : [],
+            'roomTypes' => $roomTypesList,
+            'addonServices' => $addons,
             'bookingParams' => session('booking_params', []),
             'availability' => session('availability', [])
         ]);
@@ -83,14 +90,47 @@ class HotelController extends Controller
             'check_out_date',
             'room_type_id',
             'special_requests',
-            'addons'
         ]);
+
+        // Transform addons array from [1, 2] to [{addon_service_id: 1, quantity: 1}, ...]
+        if ($request->has('addons') && is_array($request->addons)) {
+            $bookingData['addons'] = array_map(function($addonId) {
+                return [
+                    'addon_service_id' => (int)$addonId,
+                    'quantity' => 1
+                ];
+            }, $request->addons);
+        }
 
         $response = $this->bookingService->createHotelBooking($bookingData);
 
         if ($response['success']) {
-            return redirect()->route('booking.hotel.confirmation', $response['data']['id'])
-                ->with('success', 'Hotel booking created successfully!');
+            // Handle nested response structure from API
+            $bookingData = $response['data'];
+            if (isset($bookingData['data']) && isset($bookingData['data']['id'])) {
+                $bookingId = $bookingData['data']['id'];
+            } elseif (isset($bookingData['id'])) {
+                $bookingId = $bookingData['id'];
+            } else {
+                // Fallback: try to get booking number instead
+                $bookingNumber = $bookingData['data']['booking_number'] ?? $bookingData['booking_number'] ?? null;
+                if ($bookingNumber) {
+                    // Get booking by number
+                    $booking = $this->bookingService->getBookings(['booking_number' => $bookingNumber]);
+                    if ($booking['success'] && !empty($booking['data']['data'])) {
+                        $bookingId = $booking['data']['data'][0]['id'] ?? null;
+                    }
+                }
+            }
+
+            if (isset($bookingId)) {
+                return redirect()->route('booking.hotel.confirmation', $bookingId)
+                    ->with('success', 'Hotel booking created successfully!');
+            } else {
+                // Fallback: redirect to bookings list
+                return redirect()->route('account.bookings')
+                    ->with('success', 'Hotel booking created successfully!');
+            }
         }
 
         return redirect()->back()

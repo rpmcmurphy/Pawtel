@@ -23,7 +23,7 @@ class BookingService extends ApiService
     // Spa Booking Methods
     public function getSpaPackages()
     {
-        return $this->get('spa/packages');
+        return $this->get('availability/spa-packages');
     }
 
     public function checkSpaAvailability($params)
@@ -39,7 +39,7 @@ class BookingService extends ApiService
     // Spay/Neuter Booking Methods
     public function getSpayPackages()
     {
-        return $this->get('spay/packages');
+        return $this->get('availability/spay-packages');
     }
 
     public function checkSpayAvailability($params)

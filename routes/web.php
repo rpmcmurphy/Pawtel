@@ -87,6 +87,7 @@ Route::prefix('booking')->name('booking.')->group(function () {
         Route::middleware('auth.web')->group(function () {
             Route::get('book', [SpaController::class, 'showBookingForm'])->name('form');
             Route::post('book', [SpaController::class, 'store'])->name('store');
+            Route::get('confirmation/{booking}', [SpaController::class, 'confirmation'])->name('confirmation');
         });
     });
 
@@ -97,6 +98,7 @@ Route::prefix('booking')->name('booking.')->group(function () {
         Route::middleware('auth.web')->group(function () {
             Route::get('book', [SpayController::class, 'showBookingForm'])->name('form');
             Route::post('book', [SpayController::class, 'store'])->name('store');
+            Route::get('confirmation/{booking}', [SpayController::class, 'confirmation'])->name('confirmation');
         });
     });
 });
